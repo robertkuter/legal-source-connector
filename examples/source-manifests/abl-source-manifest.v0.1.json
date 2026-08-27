@@ -1,0 +1,163 @@
+{
+  "manifest_version": "0.1",
+  "manifest_kind": "source_manifest",
+  "authority_id": "sfs-2005-551",
+  "publisher": "Sveriges riksdag / data.riksdagen.se",
+  "attribution": {
+    "text": "Källa: Sveriges riksdag",
+    "non_endorsement": "This project is independent and is not produced, endorsed or sponsored by Sveriges riksdag."
+  },
+  "title": "Aktiebolagslag (2005:551)",
+  "sfs_number": "2005:551",
+  "official_source": {
+    "text_url": "https://data.riksdagen.se/dokument/sfs-2005-551.text",
+    "html_url": "https://data.riksdagen.se/dokument/sfs-2005-551.html"
+  },
+  "snapshot": {
+    "raw_file": "2026-08-21T11-51-30-734Z.json",
+    "source_snapshot_at": "2026-08-21T11:51:30.734Z",
+    "consolidation_signal": "t.o.m. SFS 2026:783",
+    "retrieval_mode": "cached_snapshot",
+    "manifest_generated_at": "2026-08-24T14:57:52.061Z"
+  },
+  "integrity": {
+    "source_text_sha256": "d1dc52291ad1d6fa6ac2848666667d8d0fa486399e1c640195de8af5ae8aa5b2",
+    "source_html_sha256": "0c29384cdc4e07e78b32bf3d32541a89f066cb8b511b0383fae028d5d4a8e7de",
+    "source_text_length": 591013,
+    "offset_unit": "UTF-16 code units in document.text"
+  },
+  "index": {
+    "index_version": "0.6",
+    "section_count": 1025,
+    "capability": {
+      "status": "supported",
+      "method": "html_paragraph_anchors_plus_text_section_candidates",
+      "html_anchor_count": 1025,
+      "text_candidate_count": 1025,
+      "issues": [],
+      "temporal": {
+        "status": "layered_unresolved",
+        "section_marker_count": 28,
+        "heading_marker_count": 7,
+        "marker_counts": {
+          "ceases_on": 12,
+          "enters_on": 16,
+          "heading_enters_on": 5,
+          "heading_ceases_on": 2
+        },
+        "issues": [
+          "Publisher transition markers are present; date-aware version selection is not implemented."
+        ]
+      }
+    }
+  },
+  "tested_locators": [
+    {
+      "requested_locator": "13 kap. 6 §",
+      "status": "found",
+      "canonical_locator": "13 kap. 6 §",
+      "anchor_name": "K13P6",
+      "section_sha256": "c3389aa783d792af8f57a70b8c08970d0eddea7780aceb2567eea027075ebd00",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": [],
+        "note": "The source contains transition markers elsewhere, but none is attached to this locator in the indexed snapshot."
+      }
+    },
+    {
+      "requested_locator": "13 kap. 7 §",
+      "status": "found",
+      "canonical_locator": "13 kap. 7 §",
+      "anchor_name": "K13P7",
+      "section_sha256": "90b3921f91c4ef52daa011a1016729d9ef2e69cb2752652ce5130a0392807cad",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": [],
+        "note": "The source contains transition markers elsewhere, but none is attached to this locator in the indexed snapshot."
+      }
+    },
+    {
+      "requested_locator": "4 kap. 47 §",
+      "status": "ambiguous",
+      "match_count": 2,
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "multiple_versions_unresolved",
+        "markers": [
+          {
+            "kind": "ceases_on",
+            "marker_code": "U",
+            "target": "provision",
+            "raw": "/Upphör att gälla U:2026-12-05/",
+            "value": "2026-12-05",
+            "date": "2026-12-05",
+            "date_status": "dated"
+          },
+          {
+            "kind": "enters_on",
+            "marker_code": "I",
+            "target": "provision",
+            "raw": "/Träder i kraft I:2026-12-05/",
+            "value": "2026-12-05",
+            "date": "2026-12-05",
+            "date_status": "dated"
+          }
+        ],
+        "note": "The locator carries publisher transition markers. Date-aware version selection is not implemented, so no marked passage is returned as confirmed."
+      },
+      "candidates": [
+        {
+          "canonical_locator": "4 kap. 47 §",
+          "heading_text": "/Upphör att gälla U:2026-12-05/",
+          "temporal_marker": {
+            "kind": "ceases_on",
+            "marker_code": "U",
+            "target": "provision",
+            "raw": "/Upphör att gälla U:2026-12-05/",
+            "value": "2026-12-05",
+            "date": "2026-12-05",
+            "date_status": "dated"
+          }
+        },
+        {
+          "canonical_locator": "4 kap. 47 §",
+          "heading_text": "/Träder i kraft I:2026-12-05/",
+          "temporal_marker": {
+            "kind": "enters_on",
+            "marker_code": "I",
+            "target": "provision",
+            "raw": "/Träder i kraft I:2026-12-05/",
+            "value": "2026-12-05",
+            "date": "2026-12-05",
+            "date_status": "dated"
+          }
+        }
+      ]
+    },
+    {
+      "requested_locator": "7 kap. 68 a §",
+      "status": "unknown",
+      "canonical_locator": "7 kap. 68 a §",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "marked_version_unresolved",
+        "markers": [
+          {
+            "kind": "enters_on",
+            "marker_code": "I",
+            "target": "provision",
+            "raw": "/Träder i kraft I:2030-01-10/",
+            "value": "2030-01-10",
+            "date": "2030-01-10",
+            "date_status": "dated"
+          }
+        ],
+        "note": "The locator carries publisher transition markers. Date-aware version selection is not implemented, so no marked passage is returned as confirmed."
+      },
+      "reason": "The locator carries a publisher transition marker and date-aware version selection is not implemented."
+    }
+  ],
+  "note": "Derived from a cached official source snapshot. This manifest is a compact build-health record; it does not replace the complete source snapshot or a provision evidence packet."
+}

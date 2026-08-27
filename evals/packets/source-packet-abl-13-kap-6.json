@@ -1,0 +1,60 @@
+{
+  "status": "found",
+  "packet_version": "0.2",
+  "authority_id": "sfs-2005-551",
+  "source_id": "2005:551",
+  "title": "Aktiebolagslag (2005:551)",
+  "source_url": "https://data.riksdagen.se/dokument/sfs-2005-551.text",
+  "source_html_url": "https://data.riksdagen.se/dokument/sfs-2005-551.html",
+  "retrieved_at": "2026-08-25T10:11:45.409Z",
+  "source_snapshot_at": "2026-08-25T10:11:45.409Z",
+  "packet_generated_at": "2026-08-25T10:12:04.119Z",
+  "retrieval_mode": "cached_snapshot",
+  "consolidation_signal": "t.o.m. SFS 2026:783",
+  "source_text_sha256": "d1dc52291ad1d6fa6ac2848666667d8d0fa486399e1c640195de8af5ae8aa5b2",
+  "source_html_sha256": "0c29384cdc4e07e78b32bf3d32541a89f066cb8b511b0383fae028d5d4a8e7de",
+  "capability": {
+    "status": "supported",
+    "method": "html_paragraph_anchors_plus_text_section_candidates",
+    "html_anchor_count": 1025,
+    "text_candidate_count": 1025,
+    "issues": [],
+    "temporal": {
+      "status": "layered_unresolved",
+      "section_marker_count": 28,
+      "heading_marker_count": 7,
+      "marker_counts": {
+        "ceases_on": 12,
+        "enters_on": 16,
+        "heading_enters_on": 5,
+        "heading_ceases_on": 2
+      },
+      "issues": [
+        "Publisher transition markers are present; date-aware version selection is not implemented."
+      ]
+    }
+  },
+  "attribution": {
+    "text": "Källa: Sveriges riksdag",
+    "non_endorsement": "This project is independent and is not produced, endorsed or sponsored by Sveriges riksdag."
+  },
+  "source_snapshot": "2026-08-25T10-11-45-409Z.json",
+  "offset_unit": "UTF-16 code units in document.text",
+  "index_version": "0.6",
+  "requested_locator": "13 kap. 6 §",
+  "canonical_locator": "13 kap. 6 §",
+  "text": "6 § Om årsredovisningen inte skall behandlas på bolagsstämman,\nskall följande handlingar fogas till förslaget enligt 3 §:\n\n1. en kopia av den årsredovisning som innehåller de senast\nfastställda balans- och resultaträkningarna, försedd med en\nanteckning om bolagsstämmans beslut om bolagets vinst eller\nförlust,\n\n2. en kopia av revisionsberättelsen för det år årsredovisningen\navser,\n\n3. en redogörelse, undertecknad av styrelsen, för händelser av\nväsentlig betydelse för bolagets ställning, vilka har inträffat\nefter det att årsredovisningen lämnades, och\n\n4. ett yttrande över den redogörelse som avses i 3,\nundertecknat av bolagets revisor.",
+  "section_sha256": "c3389aa783d792af8f57a70b8c08970d0eddea7780aceb2567eea027075ebd00",
+  "temporal": {
+    "capability_status": "layered_unresolved",
+    "resolution": "unmarked_locator",
+    "markers": [],
+    "note": "The source contains transition markers elsewhere, but none is attached to this locator in the indexed snapshot."
+  },
+  "anchor_name": "K13P6",
+  "source_offsets": {
+    "start": 218959,
+    "end_exclusive": 219621
+  },
+  "note": "Retrieved consolidated source text; not legal advice or an applicability determination."
+}

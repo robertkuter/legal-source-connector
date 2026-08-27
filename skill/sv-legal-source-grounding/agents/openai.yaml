@@ -1,0 +1,4 @@
+interface:
+  display_name: "Swedish Legal Source Grounding"
+  short_description: "Retrieve cited Swedish law with evidence"
+  default_prompt: "Use $sv-legal-source-grounding to verify a Swedish statutory reference with an evidence packet."

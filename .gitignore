@@ -1,0 +1,13 @@
+# Local runtime outputs. Review them before any release; ignore rules are not access controls.
+cache/
+runs/
+temp/
+
+# Machine-local JSON files.
+*.local.json
+
+# Generated release archives; release source files may still be tracked.
+releases/*.zip
+
+# macOS metadata.
+.DS_Store

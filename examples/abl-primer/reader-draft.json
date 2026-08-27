@@ -1,0 +1,114 @@
+{
+  "draft_version": "0.2.0",
+  "mode": "packet-only",
+  "source_path": "packet-only",
+  "retrieval_mode": "cached_snapshot",
+  "live_currentness_checked": false,
+  "output_language": "en",
+  "title": "A plain-English primer on the Swedish Companies Act",
+  "subtitle": "Grounded orientation for founders and directors of smaller Swedish companies",
+  "audience": "founders_and_directors",
+  "purpose": "A reader-facing explanation generated from a small, explicit set of source-grounded ABL packets.",
+  "claims": [
+    {
+      "claim_id": "P01",
+      "topic": "The company and its shareholders",
+      "title": "The company’s debts are generally its own",
+      "text": "A Swedish limited company is usually responsible for its own debts. Shareholders are not normally personally required to pay what the company owes. That is the basic idea behind limited liability.",
+      "boundary": "This is a starting point, not a promise that shareholders can never be personally responsible. Other rules and facts may matter, including capital-shortfall situations.",
+      "packet_ids": [
+        "P01"
+      ]
+    },
+    {
+      "claim_id": "P02",
+      "topic": "The board’s organisational and management responsibility",
+      "title": "The board has an active organisational role",
+      "text": "The board is responsible for how the company is organised and run. It must keep an eye on the company’s financial position and make sure that bookkeeping and financial controls are reliable. If it delegates work, it still needs to supervise that arrangement.",
+      "boundary": "This does not answer how responsibility is divided in a particular company or whether a specific board process was adequate.",
+      "packet_ids": [
+        "P02"
+      ]
+    },
+    {
+      "claim_id": "P03",
+      "topic": "Shares, share classes and preferential rights",
+      "title": "Shares start from equal rights",
+      "text": "Shares normally carry equal rights. If one class of shares is meant to have different voting, dividend or other rights, that difference needs to be created properly in the articles and under the Act. A label such as “A share” or “B share” is not enough by itself.",
+      "boundary": "The rights in a particular company must be checked against its articles and the relevant statutory provisions.",
+      "packet_ids": [
+        "P03"
+      ]
+    },
+    {
+      "claim_id": "P04",
+      "topic": "Shares, share classes and preferential rights",
+      "title": "Different share rights affect issue mechanics",
+      "text": "If the articles give different share classes different rights, they also need to say what preferential rights apply when the company later issues shares, warrants or convertibles. Share-class design must also consider how later financing works.",
+      "boundary": "A particular company’s articles, share classes and proposed financing structure still need to be reviewed together.",
+      "packet_ids": [
+        "P04"
+      ]
+    },
+    {
+      "claim_id": "P07",
+      "topic": "Company decisions and formalities",
+      "title": "Some article changes require a qualified majority",
+      "text": "Changing the articles normally requires strong shareholder support: at least two-thirds of both the votes cast and the shares represented at the meeting. Some changes may require more.",
+      "boundary": "The exact decision, the company’s articles and any more specific rule must be checked before relying on this threshold.",
+      "packet_ids": [
+        "P07"
+      ]
+    },
+    {
+      "claim_id": "P08",
+      "topic": "Directors’ conflicts and potential liability",
+      "title": "Conflicts need to be identified before a matter is handled",
+      "text": "A board member must not handle a company matter when they are on both sides of a contract or have a significant interest that may conflict with the company’s interests. In practice, a related transaction should trigger a careful process before it is treated as routine.",
+      "boundary": "The exact facts must be checked to determine whether the rule applies, whether an exception exists or what effect an existing transaction has.",
+      "packet_ids": [
+        "P08"
+      ]
+    },
+    {
+      "claim_id": "P09",
+      "topic": "Directors’ conflicts and potential liability",
+      "title": "The Act contains a damages-liability route",
+      "text": "A founder, board member or managing director can have to compensate for damage caused intentionally or negligently while carrying out their role. That creates a personal-risk question for people who run a company, even though it does not mean that every mistake creates liability.",
+      "boundary": "Fault, causation, loss, who can claim and possible defences must be analysed in the particular situation.",
+      "packet_ids": [
+        "P09"
+      ]
+    },
+    {
+      "claim_id": "P11",
+      "topic": "Raising capital through a new share issue",
+      "title": "New issues start from preferential rights",
+      "text": "When a company issues new shares, existing shareholders normally have the first right to subscribe in proportion to what they already own. The Act also sets out exceptions, including situations created by the articles, earlier instruments or the issue decision.",
+      "boundary": "The proposed issue documents and the company’s articles must be checked to see whether the normal right applies or an exception is available.",
+      "packet_ids": [
+        "P11"
+      ]
+    },
+    {
+      "claim_id": "P12",
+      "topic": "Raising capital through a new share issue",
+      "title": "Departing from preferential rights has its own threshold",
+      "text": "If a company wants to issue shares without following existing shareholders’ preferential rights, the decision may need support from at least two-thirds of both the votes cast and the shares represented at the meeting. The decision process and voting threshold are therefore part of the issue, not just the commercial terms.",
+      "boundary": "The proposed issue must be checked to see whether this rule applies and whether additional requirements are engaged.",
+      "packet_ids": [
+        "P12"
+      ]
+    },
+    {
+      "claim_id": "P13",
+      "topic": "Losses and the control-balance-sheet signal",
+      "title": "A capital-shortfall signal triggers a board step",
+      "text": "If there is reason to believe that the company’s equity has fallen below half of its registered share capital, the board must immediately prepare a special control balance sheet and have it reviewed by the auditor where required. Deteriorating equity is therefore a reason to obtain current figures and advice promptly rather than waiting for year-end work.",
+      "boundary": "The company’s figures and records must be assessed to determine whether the trigger has occurred, how the calculation works and what the board must do next.",
+      "packet_ids": [
+        "P13"
+      ]
+    }
+  ]
+}

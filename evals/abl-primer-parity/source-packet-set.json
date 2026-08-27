@@ -1,0 +1,231 @@
+{
+  "packet_set_version": "0.1.0",
+  "purpose": "Controlled packet-only parity test for a reader/evidence ABL primer",
+  "mode": "packet-only",
+  "retrieval_mode": "cached_snapshot",
+  "live_currentness_checked": false,
+  "authority": {
+    "authority_id": "sfs-2005-551",
+    "title": "Aktiebolagslag (2005:551)",
+    "source_url": "https://data.riksdagen.se/dokument/sfs-2005-551.text",
+    "source_html_url": "https://data.riksdagen.se/dokument/sfs-2005-551.html",
+    "consolidation_signal": "t.o.m. SFS 2026:783",
+    "retrieved_at": "2026-08-21T11:51:30.734Z",
+    "source_snapshot": "2026-08-21T11-51-30-734Z.json",
+    "source_text_sha256": "d1dc52291ad1d6fa6ac2848666667d8d0fa486399e1c640195de8af5ae8aa5b2",
+    "source_html_sha256": "0c29384cdc4e07e78b32bf3d32541a89f066cb8b511b0383fae028d5d4a8e7de",
+    "index_version": "0.6",
+    "capability_status": "supported",
+    "temporal_capability": {
+      "status": "layered_unresolved",
+      "section_marker_count": 28,
+      "heading_marker_count": 7
+    },
+    "attribution": {
+      "text": "Källa: Sveriges riksdag",
+      "non_endorsement": "This project is independent and is not produced, endorsed or sponsored by Sveriges riksdag."
+    }
+  },
+  "packets": [
+    {
+      "packet_id": "P01",
+      "status": "found",
+      "requested_locator": "1 kap. 3 §",
+      "canonical_locator": "1 kap. 3 §",
+      "role": "shareholder-liability boundary",
+      "section_sha256": "bfb14e3c9ef6221b1072fe3b53205040b01f7ed5b7f88a02e687177b4056bfa7",
+      "source_offsets": {
+        "start": 1920,
+        "end_exclusive": 2193
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K1P3",
+      "packet_text": "3 § I ett aktiebolag har aktieägarna inte något personligt\nbetalningsansvar för bolagets förpliktelser.\n\nI 25 kap. 19 § finns bestämmelser om personligt\nbetalningsansvar för aktieägare i samband med\nlikvidationsskyldighet på grund av kapitalbrist.\nLag (2007:317).",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P02",
+      "status": "found",
+      "requested_locator": "8 kap. 4 §",
+      "canonical_locator": "8 kap. 4 §",
+      "role": "board organisation and management responsibility",
+      "section_sha256": "138b1cfb5a329a6e42e229b7de12076cbc097245cd43a39e44f3259673c9bb86",
+      "source_offsets": {
+        "start": 124178,
+        "end_exclusive": 124784
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K8P4",
+      "packet_text": "4 § Styrelsen svarar för bolagets organisation och\nförvaltningen av bolagets angelägenheter.\n\nStyrelsen skall fortlöpande bedöma bolagets och, om bolaget är\nmoderbolag i en koncern, koncernens ekonomiska situation.\n\nStyrelsen skall se till att bolagets organisation är utformad\nså att bokföringen, medelsförvaltningen och bolagets ekonomiska\nförhållanden i övrigt kontrolleras på ett betryggande sätt.\n\nOm vissa uppgifter delegeras till en eller flera av styrelsens\nledamöter eller till andra, skall styrelsen handla med omsorg\noch fortlöpande kontrollera om delegationen kan upprätthållas.",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P03",
+      "status": "found",
+      "requested_locator": "4 kap. 1 §",
+      "canonical_locator": "4 kap. 1 §",
+      "role": "share rights and share classes",
+      "section_sha256": "42e2834674d2d02d97f2f00cf630d985a440221eb3784b248f132a55624e8a00",
+      "source_offsets": {
+        "start": 31805,
+        "end_exclusive": 31882
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K4P1",
+      "packet_text": "1 § Alla aktier har lika rätt i bolaget, om inte annat följer\nav 2-5 §§.",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P04",
+      "status": "found",
+      "requested_locator": "4 kap. 3 §",
+      "canonical_locator": "4 kap. 3 §",
+      "role": "share-class and preferential-rights cross-reference",
+      "section_sha256": "7d2d0b968b05a6ebba2b70eedbc3628e7ef65b6d1074b216171e58d2aeaa6760",
+      "source_offsets": {
+        "start": 32428,
+        "end_exclusive": 33558
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K4P3",
+      "packet_text": "3 § Om en föreskrift enligt 2 § innebär att aktierna skall ge\nolika rätt till bolagets tillgångar eller vinst eller att\naktierna skall ha olika röstvärde, skall det i föreskriften\nanges vilken företrädesrätt aktieägarna skall ha vid sådan\nnyemission av aktier eller sådan emission av teckningsoptioner\neller konvertibler som inte sker mot betalning med\napportegendom.\n\nEn föreskrift om företrädesrätt enligt första stycket skall\ninnebära\n\n1. att aktieägarna skall ha företrädesrätt i förhållande till\nderas andel i bolagets kapital, eller\n\n2. att en gammal aktie skall ge företrädesrätt till ny aktie av\nsamma slag, att aktier som inte tecknas av de i första hand\nberättigade aktieägarna skall erbjudas samtliga aktieägare och\natt, om inte hela antalet aktier som tecknas på grund av\nsistnämnda erbjudande kan ges ut, aktierna skall fördelas\nmellan tecknarna i förhållande till det antal aktier de äger\noch, i den mån detta inte kan ske, genom lottning.\n\nEn föreskrift enligt andra stycket 2 får tas in i\nbolagsordningen endast om skillnaderna mellan aktierna är av\ndet slag som anges i första stycket.",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P07",
+      "status": "found",
+      "requested_locator": "7 kap. 42 §",
+      "canonical_locator": "7 kap. 42 §",
+      "role": "qualified-majority rule for article amendments",
+      "section_sha256": "12b1f36760524dfa05711734abf2062d5b085c30d92f27525b76add1aac7e16a",
+      "source_offsets": {
+        "start": 99419,
+        "end_exclusive": 99656
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K7P42",
+      "packet_text": "42 § Ett beslut om ändring av bolagsordningen är giltigt om det\nhar biträtts av aktieägare med minst två tredjedelar av såväl\nde avgivna rösterna som de aktier som är företrädda vid\nbolagsstämman, om inte annat följer av 43-45 §§.",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P08",
+      "status": "found",
+      "requested_locator": "8 kap. 23 §",
+      "canonical_locator": "8 kap. 23 §",
+      "role": "director conflict-of-interest rule",
+      "section_sha256": "da773993fc49a6c02609cc02052222dc6a7b29dc128e2425ab341c5818f0a12e",
+      "source_offsets": {
+        "start": 130815,
+        "end_exclusive": 131574
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K8P23",
+      "packet_text": "23 § En styrelseledamot får inte handlägga en fråga om\n\n1. avtal mellan styrelseledamoten och bolaget,\n\n2. avtal mellan bolaget och en tredje man, om styrelseledamoten\ni frågan har ett väsentligt intresse som kan strida mot\nbolagets, eller\n\n3. avtal mellan bolaget och en juridisk person som\nstyrelseledamoten ensam eller tillsammans med någon annan får\nföreträda.\n\nBestämmelserna i första stycket gäller inte om\nstyrelseledamoten, direkt eller indirekt genom en juridisk\nperson, äger samtliga aktier i bolaget. Bestämmelsen i första\nstycket 3 gäller inte heller om bolagets motpart är ett företag\ni samma koncern eller i en företagsgrupp av motsvarande slag.\n\nMed avtal som avses i första stycket jämställs rättegång eller\nannan talan.",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P09",
+      "status": "found",
+      "requested_locator": "29 kap. 1 §",
+      "canonical_locator": "29 kap. 1 §",
+      "role": "director and managing-director damages liability",
+      "section_sha256": "a08599c40b636527f2160db4b40e971d33b6034c1cb8adf95a5e5e447f02458f",
+      "source_offsets": {
+        "start": 559903,
+        "end_exclusive": 560950
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K29P1",
+      "packet_text": "1 § En stiftare, styrelseledamot eller verkställande direktör \nsom när han eller hon fullgör sitt uppdrag uppsåtligen eller \nav oaktsamhet skadar bolaget ska ersätta skadan. Detsamma \ngäller när skadan tillfogas en aktieägare eller någon annan \ngenom överträdelse av denna lag, tillämplig lag om årsredovis-\nning eller bolagsordningen. \n\nOm bolaget har upprättat ett prospekt enligt \nEuropaparlamentets och rådets förordning (EU) 2017/1129, ett \nsådant dokument som avses i artikel 1.4 g och 1.5 första \nstycket f i samma förordning eller en erbjudandehandling som \navses i 2 a kap. lagen (1991:980) om handel med finansiella \ninstrument, gäller det som sägs i första stycket andra \nmeningen även skada som tillfogas genom överträdelse av nämnda \nförordning eller 2 a kap. nämnda lag i fråga om informationen \ni prospekt, utformningen av dessa, införlivande genom \nhänvisning samt offentliggörande av prospekt och spridning av \nannonser. Lag (2019:418).\n\nRevisors, lekmannarevisors och särskild granskares\nskadeståndsansvar",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P11",
+      "status": "found",
+      "requested_locator": "13 kap. 1 §",
+      "canonical_locator": "13 kap. 1 §",
+      "role": "new share issue and preferential rights",
+      "section_sha256": "179a989db65c382ff617c15095dbb31d3ebf4375b39087c952638886962f7263",
+      "source_offsets": {
+        "start": 213277,
+        "end_exclusive": 213908
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K13P1",
+      "packet_text": "1 § Vid emission enligt detta kapitel har aktieägarna\nföreträdesrätt till de nya aktierna i förhållande till det\nantal aktier de äger.\n\nFörsta stycket gäller inte, om\n\n1. aktierna skall betalas med apportegendom, eller\n\n2. företrädesrätten skall regleras på annat sätt till följd av\n\na. sådana föreskrifter i bolagsordningen som avses i 4 kap.\n3 §,\n\nb. villkor som har meddelats vid en tidigare emission av\nteckningsoptioner eller vid en tidigare emission av\nkonvertibler, eller\n\nc. bestämmelser i emissionsbeslutet.\n\nAktier som bolaget självt eller dess dotterföretag innehar ger\ninte någon företrädesrätt.",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P12",
+      "status": "found",
+      "requested_locator": "13 kap. 2 §",
+      "canonical_locator": "13 kap. 2 §",
+      "role": "deviation from preferential rights",
+      "section_sha256": "afdcb5d08275675fd447ab6bcb5b2221ecd6ee60296a40c23d437af33b8b0c30",
+      "source_offsets": {
+        "start": 213908,
+        "end_exclusive": 214205
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K13P2",
+      "packet_text": "2 § Ett beslut av bolagsstämman enligt 1 § andra stycket 2 c om\natt avvika från aktieägarnas företrädesrätt är giltigt endast\nom det har biträtts av aktieägare med minst två tredjedelar av\nsåväl de avgivna rösterna som de aktier som är företrädda vid\nstämman.\n\nHur en nyemission beslutas",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    },
+    {
+      "packet_id": "P13",
+      "status": "found",
+      "requested_locator": "25 kap. 13 §",
+      "canonical_locator": "25 kap. 13 §",
+      "role": "control-balance-sheet trigger",
+      "section_sha256": "f8f8762bc2ace91b0df6666815e68d0048ac7b4eb0df45ab68f74cfd571afab6",
+      "source_offsets": {
+        "start": 518828,
+        "end_exclusive": 519246
+      },
+      "offset_unit": "UTF-16 code units in document.text",
+      "anchor_name": "K25P13",
+      "packet_text": "13 § Styrelsen skall genast upprätta och låta bolagets revisor\ngranska en kontrollbalansräkning\n\n1. när det finns skäl att anta att bolagets eget kapital,\nberäknat enligt 14 §, understiger hälften av det registrerade\naktiekapitalet, eller\n\n2. när det vid verkställighet enligt 4 kap. utsökningsbalken\nhar visat sig att bolaget saknar tillgångar till full betalning\nav utmätningsfordringen. Lag (2007:317).",
+      "temporal": {
+        "capability_status": "layered_unresolved",
+        "resolution": "unmarked_locator",
+        "markers": []
+      }
+    }
+  ]
+}
