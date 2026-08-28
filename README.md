@@ -2,6 +2,9 @@
 
 Status: explainability alpha; not production legal software.
 
+**Start here:** [choose the right download or route](#choose-what-you-want-to-do), or
+[read the concrete example](#a-concrete-example).
+
 This repository contains a small software connector and an assistant skill. The connector
 retrieves a provision from an identified Swedish Act and records its source. The skill
 tells an AI assistant how to explain that evidence and when to stop.
