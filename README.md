@@ -117,7 +117,8 @@ evidence of repeatable testing, not an allowlist.
 
 ## See an example without installing anything
 
-Start with the [GitHub-readable ABL example](examples/abl-primer/README.md). It shows what a
+Open the [interactive ABL reader](https://robertkuter.github.io/legal-source-connector/examples/abl-primer/)
+or start with the [GitHub-readable ABL example](examples/abl-primer/README.md). They show what a
 reader-facing claim, its source address and its legal-review boundary look like. After
 downloading the repository, open `examples/abl-primer/index.html` in a browser for the full
 reader and evidence views. GitHub displays the HTML file as source code rather than as a
@@ -232,7 +233,8 @@ before redistributing source data or operating a service based on it.
 
 Choose the route that matches what you want to do:
 
-1. **See the result** — open the [GitHub-readable ABL example](examples/abl-primer/README.md).
+1. **See the result** — open the [interactive ABL reader](https://robertkuter.github.io/legal-source-connector/examples/abl-primer/)
+   or its [GitHub-readable version](examples/abl-primer/README.md).
 2. **Run and test it** — follow the [testing guide](docs/TESTING.md).
 3. **Understand the code** — use the [plain-English code map](docs/CODE-EXPLAINER.md).
 4. **Build on it** — start with the [modular extension roadmap](docs/MODULE-ROADMAP.md).
