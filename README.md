@@ -61,10 +61,11 @@ connector from the assistant skill. Use the direct route that matches your task:
 
 | Your aim | Start here | What you receive |
 |---|---|---|
-| Use the skill with Claude or another compatible assistant | [Download the portable skill v0.1.7](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-portable.zip) | The `SKILL.md` instructions, packet reference, licence and notice; not the connector. |
+| Use the skill with Claude or another compatible assistant | [Download for Claude or another compatible assistant](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-portable.zip) | The portable v0.1.7 skill: `SKILL.md` instructions, packet reference, licence and notice; not the connector. |
 | Use the skill with Codex | [Download the Codex skill v0.1.7](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-codex.zip) | The portable skill plus Codex display metadata. |
 | Run or inspect the connector | [Download the complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip) | The connector, tests, examples, skill source and documentation; not downloaded Acts. |
 | Understand it before downloading | [Continue with the source-result guide](#four-source-results-a-lawyer-may-see) | Nothing is downloaded. |
+| Find a technical explanation | [Open the rendered documentation guide](docs/README.md) | A guided index, not the long alphabetical folder listing. |
 
 The green **Code** button is another way to download or clone the complete source
 repository. It does not install the skill and does not contain downloaded legislation.
@@ -116,10 +117,12 @@ evidence of repeatable testing, not an allowlist.
 
 ## See an example without installing anything
 
-Open [`examples/abl-primer/index.html`](examples/abl-primer/index.html) in a browser. Its
-reader view gives a plain-English orientation; its evidence view shows the linked Swedish
-provisions and source record. This dated teaching set is not a complete ABL guide or a live
-check of the current source.
+Start with the [GitHub-readable ABL example](examples/abl-primer/README.md). It shows what a
+reader-facing claim, its source address and its legal-review boundary look like. After
+downloading the repository, open `examples/abl-primer/index.html` in a browser for the full
+reader and evidence views. GitHub displays the HTML file as source code rather than as a
+webpage. This dated teaching set is not a complete ABL guide or a live check of the current
+source.
 
 ## Quick start: run the connector on your computer
 
@@ -228,7 +231,7 @@ before redistributing source data or operating a service based on it.
 
 Choose the route that matches what you want to do:
 
-1. **See the result** — open the [ABL reader and evidence example](examples/abl-primer/index.html).
+1. **See the result** — open the [GitHub-readable ABL example](examples/abl-primer/README.md).
 2. **Run and test it** — follow the [testing guide](docs/TESTING.md).
 3. **Understand the code** — use the [plain-English code map](docs/CODE-EXPLAINER.md).
 4. **Build on it** — start with the [modular extension roadmap](docs/MODULE-ROADMAP.md).

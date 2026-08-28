@@ -1,4 +1,4 @@
-# Technical documentation
+# Technical documentation guide
 
 This index holds the deeper implementation and evidence notes. Start with the main
 README unless you need to inspect a field, test, source check, or extension boundary.
@@ -9,7 +9,7 @@ README unless you need to inspect a field, test, source check, or extension boun
   version markers, and legal effect.
 - [Source capability](SOURCE-CAPABILITY.md) explains how the connector decides whether
   it can map a downloaded Act safely.
-- [Source packet contract](../skill/sv-legal-source-grounding/references/packet-contract.md)
+- [Provision packet contract (schema version 0.2)](../skill/sv-legal-source-grounding/references/packet-contract.md)
   defines the evidence returned for one citation.
 - [Source manifest](SOURCE-MANIFEST.md) defines the summary for one complete downloaded
   source and its checked map.
