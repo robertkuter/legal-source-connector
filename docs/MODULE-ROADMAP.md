@@ -32,7 +32,7 @@ Do not introduce a provider-neutral framework before a second connector has esta
 what is genuinely common. This release does not define a connector marketplace, compatibility
 programme or repository-linking model.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the proposed GitHub routes and evidence gates.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for the proposed GitHub routes and evidence gates.
 
 ## Extension rule
 

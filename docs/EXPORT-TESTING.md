@@ -13,7 +13,7 @@ The portable and Codex packages use the same `SKILL.md` and packet contract. The
 package additionally includes `agents/openai.yaml`.
 
 This export tests the skill's evidence discipline and lawyer-facing explanation. Use the
-prompts in [`evals/skill-test-cases.md`](evals/skill-test-cases.md). For the first Claude
+prompts in [`evals/skill-test-cases.md`](../evals/skill-test-cases.md). For the first Claude
 pass, paste a packet when the prompt requires live source data; the portable skill does
 not secretly bundle the local cache or connector.
 

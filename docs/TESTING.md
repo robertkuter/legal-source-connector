@@ -132,7 +132,7 @@ the tracked ABL example and the documented CLI command.
 
 Question: does an assistant follow the source workflow and report uncertainty correctly?
 
-Use [`evals/skill-test-cases.md`](evals/skill-test-cases.md) in Claude and Codex. Record
+Use [`evals/skill-test-cases.md`](../evals/skill-test-cases.md) in Claude and Codex. Record
 invocation, tool-use, status handling, evidence display and the boundary between source
 retrieval and legal interpretation.
 

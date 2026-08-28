@@ -51,16 +51,20 @@ The skill follows the [Agent Skills open standard](https://agentskills.io/): a `
 file with optional resources. Skills-compatible products can use the same core; Codex
 display metadata stays separate in `agents/openai.yaml`.
 
-## Using GitHub and choosing a download
+## Choose what you want to do
 
-GitHub will host the public code and documents. You can read them without an account. To
-get a copy, choose the download that matches your task:
+GitHub is designed primarily for code projects, so its controls do not distinguish the
+connector from the assistant skill. Use the direct route that matches your task:
 
-| Your aim | What to use | What it contains |
+| Your aim | Start here | What you receive |
 |---|---|---|
-| Run the connector | Select **Code → Download ZIP** | The public repository: connector, tests, examples, skill source, and documentation. |
-| Add the skill to Claude or another compatible agent | Download the **portable skill ZIP** from **Releases** | The `SKILL.md` instructions and packet reference, without the connector. |
-| Add the skill to Codex | Download the **Codex skill ZIP** from **Releases** | The portable skill plus Codex display metadata. |
+| Use the skill with Claude or another compatible assistant | [Download the portable skill v0.1.7](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-portable.zip) | The `SKILL.md` instructions, packet reference, licence and notice; not the connector. |
+| Use the skill with Codex | [Download the Codex skill v0.1.7](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-codex.zip) | The portable skill plus Codex display metadata. |
+| Run or inspect the connector | [Download the complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip) | The connector, tests, examples, skill source and documentation; not downloaded Acts. |
+| Understand it before downloading | [Continue with the source-result guide](#four-source-results-a-lawyer-may-see) | Nothing is downloaded. |
+
+The green **Code** button is another way to download or clone the complete source
+repository. It does not install the skill and does not contain downloaded legislation.
 
 Provision packets and complete Acts are later outputs, not installation downloads. The
 connector creates a packet for each request and keeps downloaded Acts in the local cache.
@@ -80,7 +84,7 @@ commencement with `I:` (*ikraftträdande*) and cessation with `U:` (*upphörande
 The connector refuses unresolved timing layers. It does not yet select a version for a
 requested date (`as_of` in the code) or reconstruct historic law. You should consider
 three questions separately: how old the download is, what Riksdagen's version markers
-say, and which rule applies to the facts. See [Timing in a source packet](TEMPORAL-MODEL.md).
+say, and which rule applies to the facts. See [Timing in a source packet](docs/TEMPORAL-MODEL.md).
 
 ## Current alpha scope
 
@@ -93,7 +97,7 @@ The current alpha can:
 - create manifests and receipts, compare a saved source with a fresh download, and run
   both no-cache and maintained-profile tests.
 
-The maintained source set will change as the project develops. [Source coverage](COMMERCIAL-LAW-COVERAGE.md)
+The maintained source set will change as the project develops. [Source coverage](docs/COMMERCIAL-LAW-COVERAGE.md)
 records Acts with committed tests and known limits, including ABL, CISG and ÅRL. It is
 evidence of repeatable testing, not an allowlist.
 
@@ -148,7 +152,7 @@ node connector/get_provision.mjs \
 The second command checks the Act's structure and writes a packet and receipt in `runs/`.
 If it cannot confirm the structure or timing, it reports the limitation instead of
 confirmed text. Replace the SFS identity and citation to audit another Act. See
-[Testing](TESTING.md) for the full test path and timing example.
+[Testing](docs/TESTING.md) for the full test path and timing example.
 
 ## Why the connector checks each Act
 
@@ -194,7 +198,7 @@ legally in force for the matter under review.
 
 An assistant should also say whether it used a connector packet, a user-supplied packet, a
 direct Riksdagen webpage, or no source. Consistent labels let reviewers compare runs and
-keep a webpage visit distinct from a checked packet. See [Wiring and modes](WIRING-AND-MODES.md).
+keep a webpage visit distinct from a checked packet. See [Wiring and modes](docs/WIRING-AND-MODES.md).
 
 ## Source data and attribution
 
@@ -222,9 +226,9 @@ before redistributing source data or operating a service based on it.
 Choose the route that matches what you want to do:
 
 1. **See the result** — open the [ABL reader and evidence example](examples/abl-primer/index.html).
-2. **Run and test it** — follow the [testing guide](TESTING.md).
-3. **Understand the code** — use the [plain-English code map](CODE-EXPLAINER.md).
-4. **Build on it** — start with the [modular extension roadmap](MODULE-ROADMAP.md).
+2. **Run and test it** — follow the [testing guide](docs/TESTING.md).
+3. **Understand the code** — use the [plain-English code map](docs/CODE-EXPLAINER.md).
+4. **Build on it** — start with the [modular extension roadmap](docs/MODULE-ROADMAP.md).
 5. **Look up technical detail** — use the [technical documentation index](docs/README.md).
 
 ## License and legal boundary
