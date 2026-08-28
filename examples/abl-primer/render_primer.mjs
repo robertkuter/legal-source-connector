@@ -119,7 +119,10 @@ const html = `<!doctype html>
   <h1>${escapeHtml(content.title)}</h1>
   <p class="subtitle">${escapeHtml(content.subtitle)}</p>
   <p class="meta">${escapeHtml(grounded.source.title)} · ${content.claims.length} selected references · source snapshot ${escapeHtml(grounded.source.retrieved_at.slice(0,10))}</p>
-  <div class="notice"><strong>How to read this:</strong> the English text is orientation. The expandable evidence areas show the exact Swedish packet text and provenance. The packets do not provide legal interpretation or advice.</div>
+  <div class="notice">
+    <p><strong>Static, dated example.</strong> This page does not call the connector or Riksdagen, download legislation, create a packet or receipt, or check whether the source is current. It presents a teaching set from the source snapshot dated ${escapeHtml(grounded.source.retrieved_at.slice(0,10))}. The official-source links open Riksdagen separately.</p>
+    <p><strong>How to read this.</strong> The English text is orientation. The expandable evidence areas show the exact Swedish packet text and provenance. The packets do not provide legal interpretation or advice.</p>
+  </div>
   <div class="controls" aria-label="View controls">
     <button id="reader-button" class="active" type="button">Reader view</button>
     <button id="evidence-button" type="button">Show evidence</button>
@@ -129,7 +132,7 @@ const html = `<!doctype html>
   <footer>
     <p><strong>${escapeHtml(grounded.source.attribution.text)}</strong></p>
     <p>${escapeHtml(grounded.source.attribution.non_endorsement)}</p>
-    <p><strong>Source boundary:</strong> this example uses a cached Riksdagen snapshot dated ${escapeHtml(grounded.source.retrieved_at)} with consolidation marker ${escapeHtml(grounded.source.consolidation_signal)}. It is not a live currentness check.</p>
+    <p><strong>Source boundary:</strong> this static example uses a cached Riksdagen snapshot dated ${escapeHtml(grounded.source.retrieved_at)} with consolidation marker ${escapeHtml(grounded.source.consolidation_signal)}. It does not call the connector or Riksdagen, download legislation, create packets or receipts, or perform a live currentness check.</p>
     <p>For a real company or transaction, check the current official source, the company’s documents and records, and obtain advice from a qualified Swedish lawyer.</p>
   </footer>
 </main>

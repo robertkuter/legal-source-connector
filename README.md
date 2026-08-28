@@ -121,8 +121,9 @@ Start with the [GitHub-readable ABL example](examples/abl-primer/README.md). It 
 reader-facing claim, its source address and its legal-review boundary look like. After
 downloading the repository, open `examples/abl-primer/index.html` in a browser for the full
 reader and evidence views. GitHub displays the HTML file as source code rather than as a
-webpage. This dated teaching set is not a complete ABL guide or a live check of the current
-source.
+webpage. The reader is a static, dated teaching set: it does not run the connector, download
+legislation, create packets or receipts, or check the current source. It is not a complete
+ABL guide.
 
 ## Quick start: run the connector on your computer
 

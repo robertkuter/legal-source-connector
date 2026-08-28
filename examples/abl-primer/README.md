@@ -77,9 +77,13 @@ reproduces its section hash, that locators do not drift, that the known ambiguou
 
 ## Source boundary
 
+The reader is a static, dated teaching example. Opening it locally or through GitHub Pages
+does not call the connector or Riksdagen, download legislation, create a packet or receipt,
+or check whether the source is current. Its official-source links open Riksdagen separately.
+
 The example uses a refreshed cached Riksdagen snapshot dated 2026-08-21 with consolidation
-marker `t.o.m. SFS 2026:783`. It is not a live currentness check. Refresh the source and
-regenerate the evidence before treating the example as current.
+marker `t.o.m. SFS 2026:783`. Refresh the source and regenerate the evidence before treating
+the example as current.
 
 The source cards are a small teaching set, not a complete map of Aktiebolagslag
 `(2005:551)`.

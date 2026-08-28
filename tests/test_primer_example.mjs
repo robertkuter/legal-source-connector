@@ -61,6 +61,8 @@ assert.match(html, /Reader view/);
 assert.match(html, /Show evidence/);
 assert.match(html, /Open all evidence/);
 assert.match(html, /What still needs checking/);
+assert.match(html, /Static, dated example/);
+assert.match(html, /does not call the connector or Riksdagen/);
 assert.match(html, /cached Riksdagen snapshot/);
 assert.match(html, /Källa: Sveriges riksdag/);
 assert.match(html, /not produced, endorsed or sponsored by Sveriges riksdag/);

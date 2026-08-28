@@ -8,6 +8,7 @@
     "This is orientation, not legal advice.",
     "The packets establish source text and provenance, not legal interpretation or applicability.",
     "The evidence below comes from a cached source snapshot; it is not a live currentness check.",
+    "The static reader does not call the connector or Riksdagen, download legislation, create packets or receipts, or check whether the source is current.",
     "The selected locators have no inline transition marker; marked provisions are refused until date-aware version selection is implemented.",
     "The selected references are a teaching set, not a complete map of the Act."
   ],
