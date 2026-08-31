@@ -218,9 +218,11 @@ Riksdagen provides the source data. It does not produce, endorse, or sponsor thi
 connector.
 
 The connector retrieves one identified Act at a time. The complete response stays in the
-user's local `cache/` folder. The project's [`.gitignore`](.gitignore) tells Git not to add
-routine caches, run receipts, temporary files or generated ZIPs by default. This reduces
-accidental publication; it does not secure those files or replace a release review.
+user's local `cache/` folder. The project's
+[`.gitignore`](https://github.com/robertkuter/legal-source-connector/blob/main/.gitignore)
+tells Git not to add routine caches, run receipts, temporary files or generated ZIPs by
+default. This reduces accidental publication; it does not secure those files or replace a
+release review.
 
 The public repository contains software, tests and selected examples, not complete Acts
 or a bulk statute collection.
