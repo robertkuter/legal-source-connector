@@ -6,8 +6,10 @@ Status: explainability alpha; not production legal software.
 [read the concrete example](#a-concrete-example).
 
 This repository contains a small software connector and an assistant skill. The connector
-retrieves a provision from an identified Swedish Act and records its source. The skill
-tells an AI assistant how to explain that evidence and when to stop.
+retrieves an identified Swedish Act from Riksdagen and keeps a working copy on the user's
+computer. It checks the Act's structure, then creates a small evidence packet for the
+requested provision. The skill tells an AI assistant how to use that packet, explain its
+source and know when to stop.
 
 The current connector handles legislation published through Riksdagen. Another authority
 would need its own connector and tests. For each citation, this connector returns one
@@ -64,16 +66,27 @@ connector from the assistant skill. Use the direct route that matches your task:
 | Use the skill with Claude or another compatible assistant | [Download for Claude or another compatible assistant](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-portable.zip) | The portable v0.1.7 skill: `SKILL.md` instructions, packet reference, licence and notice; not the connector. |
 | Use the skill with Codex | [Download the Codex skill v0.1.7](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-codex.zip) | The portable skill plus Codex display metadata. |
 | Run or inspect the connector | [Download the complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip) | The connector, tests, examples, skill source and documentation; not downloaded Acts. |
-| Understand it before downloading | [Continue with the source-result guide](#four-source-results-a-lawyer-may-see) | Nothing is downloaded. |
+| Understand it before downloading | [Continue with the provision-result guide](#four-provision-results-a-lawyer-may-see) | Nothing is downloaded. |
 | Find a technical explanation | [Open the rendered documentation guide](docs/README.md) | A guided index, not the long alphabetical folder listing. |
 
 The green **Code** button is another way to download or clone the complete source
 repository. It does not install the skill and does not contain downloaded legislation.
 
+The skill-only downloads can inspect packets you supply, but they cannot retrieve a new
+provision. That requires the connector and a downloaded source.
+
 Provision packets and complete Acts are later outputs, not installation downloads. The
 connector creates a packet for each request and keeps downloaded Acts in the local cache.
 
-## Four source results a lawyer may see
+## Four provision results a lawyer may see
+
+Before returning confirmed provision text, the connector checks the source map. If the
+source-level result is `review_required`, an affected provision request returns `unknown`,
+explains why and supplies no confirmed text.
+
+Manual inspection can explain the mismatch, but it does not override the gate. The source
+becomes `supported` only after the indexing logic resolves the mismatch and the complete
+audit passes.
 
 Riksdagen's consolidated text can show outgoing and incoming versions together. It marks
 commencement with `I:` (*ikraftträdande*) and cessation with `U:` (*upphörande*).

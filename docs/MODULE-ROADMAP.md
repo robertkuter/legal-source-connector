@@ -55,6 +55,7 @@ than adding code.
 | Source grounding | Did we retrieve the requested Swedish source/provision? | Riksdagen adapter + capability gate | In progress |
 | Currency comparison | Has the pinned source changed? | Receipt + full-source hash | Done |
 | In-force marker detection/refusal | Does the source contain transition wording requiring date analysis? | Provision packet | Done |
+| Reviewed-source pathway | Can a recorded human review resolve a specific snapshot or locator without clearing the whole source? | Capability-review packet + snapshot hash + scoped review status | Next design |
 | Date-aware version selection | Which visible version should be selected for an explicit `as_of` date? | Parsed markers + selection contract | Next |
 | Source resolver | Which SFS number does “LAS” or a statute name mean? | Riksdagen search | Later |
 | Legal research | What do source hierarchy and preparatory works add? | Grounding + resolver | Later |
@@ -66,6 +67,11 @@ than adding code.
 The other-authority row is only a placeholder. Revisit its public detail after the first
 release, when actual use, questions and repository traffic show whether a shared approach
 would help. It does not reserve a provider, announce a build or invite contributions.
+
+The reviewed-source pathway is not a manual switch from `review_required` to `supported`.
+Any later design should bind the review to an exact source snapshot and hash, state whether
+it covers one locator or a wider source issue, preserve the general capability result, and
+tell the skill how to disclose the human review. Version 0.1.7 does not implement this path.
 
 ## Adding another SFS Act
 
