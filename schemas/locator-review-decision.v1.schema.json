@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/legal-source-connector/locator-review-decision.v1.schema.json",
+  "title": "Swedish SFS locator review decision",
+  "description": "A completed human decision for one locator in one exact Riksdagen source snapshot. It is not a source-wide approval or a date-aware legal selection.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "decision_status",
+    "review_scope",
+    "artifact_sha256",
+    "source",
+    "implementation",
+    "locator",
+    "publisher_anchor",
+    "source_offsets",
+    "provision_text_sha256",
+    "temporal",
+    "reviewer",
+    "decision_record_sha256"
+  ],
+  "properties": {
+    "schema_id": { "const": "sv_sfs_locator_review_decision" },
+    "schema_version": { "const": "1.0.0" },
+    "decision_status": { "enum": ["confirmed", "unresolved"] },
+    "review_scope": { "const": "locator" },
+    "artifact_sha256": { "$ref": "#/$defs/sha256" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider_id", "authority_id", "sfs_number", "source_snapshot", "source_text_sha256", "source_html_sha256"],
+      "properties": {
+        "provider_id": { "const": "riksdagen_open_data" },
+        "authority_id": { "type": "string", "minLength": 1 },
+        "sfs_number": { "type": "string", "minLength": 1 },
+        "source_snapshot": { "type": "string", "minLength": 1 },
+        "source_text_sha256": { "$ref": "#/$defs/sha256" },
+        "source_html_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["connector_review_version", "index_version", "artifact_schema_version", "decision_schema_version"],
+      "properties": {
+        "connector_review_version": { "const": "0.1.0" },
+        "index_version": { "type": "string", "minLength": 1 },
+        "artifact_schema_version": { "const": "1.0.0" },
+        "decision_schema_version": { "const": "1.0.0" }
+      }
+    },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested", "canonical"],
+      "properties": {
+        "requested": { "type": "string", "minLength": 1 },
+        "canonical": { "type": "string", "minLength": 1 }
+      }
+    },
+    "publisher_anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": { "name": { "type": "string", "minLength": 1 } }
+    },
+    "source_offsets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end_exclusive", "unit"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "end_exclusive": { "type": "integer", "minimum": 1 },
+        "unit": { "const": "UTF-16 code units in document.text" }
+      }
+    },
+    "provision_text_sha256": { "$ref": "#/$defs/sha256" },
+    "temporal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_status", "resolution", "markers"],
+      "properties": {
+        "capability_status": { "enum": ["flat", "layered_unresolved"] },
+        "resolution": { "enum": ["not_applicable", "unmarked_locator"] },
+        "markers": { "type": "array", "maxItems": 0 }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "reviewed_at", "rationale"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "reviewed_at": { "type": "string", "format": "date-time" },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    },
+    "decision_record_sha256": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

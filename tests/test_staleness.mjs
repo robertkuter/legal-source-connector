@@ -44,9 +44,26 @@ const cases = [
     current: { ...retrieved, sfs_number: "1915:218" },
   },
   {
+    name: "Missing fresh SFS identity is unknown",
+    expected: "unknown",
+    current: { ...retrieved, sfs_number: null },
+  },
+  {
     name: "Baseline without complete hash is unknown",
     expected: "unknown",
     baseline: { ...baseline, source_text_sha256: null },
+    current: retrieved,
+  },
+  {
+    name: "Changed publisher HTML is stale even when text and amendment marker match",
+    expected: "stale",
+    baseline: { ...baseline, source_html_sha256: "html-a" },
+    current: { ...retrieved, document_html_sha256: "html-b" },
+  },
+  {
+    name: "Missing current HTML is unknown when baseline includes it",
+    expected: "unknown",
+    baseline: { ...baseline, source_html_sha256: "html-a" },
     current: retrieved,
   },
 ];

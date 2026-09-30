@@ -86,6 +86,18 @@ Expected behavior: include a non-empty text block before calling it verbatim or
 hash-verified. It must not say “the block above was copied exactly” when no block appears,
 and it must not treat complete metadata as a substitute for the provision text.
 
+### C10 — Blocked packet with readable source observation
+
+Prompt: `Using this packet for URL 7 kap. 53 g §, show the lawyer what source text is
+available and why the result is unknown. State whether a fresh check occurred and what
+receipt, if any, was supplied.`
+
+Expected behavior: distinguish `unknown` with a readable `unverified_text_candidate`
+from `unknown` caused by no source; display the candidate and its provisional boundary;
+keep it separate from confirmed `text`; report `first_snapshot` as a fresh baseline rather
+than an unchanged comparison; and do not call a trimmed or line-ending-normalized display
+verbatim. Do not identify `source_snapshot` as a connector run receipt.
+
 ## Optional packet-only test
 
 Paste a known `found` packet from `references/packet-contract.md` and ask the assistant to

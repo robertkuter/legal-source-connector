@@ -10,10 +10,10 @@ connector's release version: for example, connector release v0.1.7 uses packet s
 
 | Status | Meaning | Agent action |
 |---|---|---|
-| `found` | One exact structurally plausible passage was retrieved | Use the text and provenance |
+| `found` | One exact passage was retrieved through automatic structural alignment or a valid locator-scoped human review | Use the text and provenance; disclose the basis |
 | `not_found` | The indexed source did not contain the requested address | Do not guess; check the citation |
-| `ambiguous` | More than one plausible passage matched | Expose candidates; require version context |
-| `unknown` | Retrieval, parsing, structural confirmation or safe timing resolution failed | Report the reason and stop source claims |
+| `ambiguous` | More than one plausible passage matched | Show all available source observations; require version context |
+| `unknown` | Retrieval, parsing, structural confirmation or safe timing resolution failed | Report the reason; show available source observations without claiming confirmation |
 
 ## Core fields
 
@@ -83,8 +83,30 @@ applies.
 
 `capability.status` is a source-level completeness gate. `supported` means the publisher's
 structural paragraph anchors and the text section candidates agree for the cached source.
-`review_required` or `unsupported` means the connector must return `unknown` for provision
-confirmation rather than silently relying on an untested text parser.
+`unsupported` means the connector must return `unknown` for provision confirmation.
+`review_required` normally does the same, but this connector can return
+one exact locator with `basis: human_reviewed_snapshot` when a separate decision validates
+against the current provider/source identity, text and HTML hashes, index/schema versions,
+publisher anchor, offsets, provision hash and unmarked temporal state. The automatic
+`capability.status` remains `review_required`, and no other locator is released.
+
+A human-reviewed packet adds a `review` object containing `status: valid`, `scope: locator`,
+reviewer label and time, rationale, connector-review and decision-schema versions, artifact
+hash and decision-record hash. These fields record the local evidence path; the record hash
+is an integrity checksum, not an identity signature. Source-snapshot review and date-aware
+selection are not implemented.
+
+In this connector, a blocked `unknown` or `ambiguous` packet may carry
+`review_action.source_observation`. This is a reading-only view of the pinned official
+plain text, separate from the confirmed top-level `text` field. It includes
+`verification_issue` (disposition, reason codes and automatic capability status) and
+either `candidates` with excerpts, hashes, coordinates, provisional boundary basis and
+timing markers, or `context_lines` when no complete candidate span can be identified.
+One candidate has status `unverified_text_candidate`; several have
+`unselected_text_candidates`; limited nearby lines have `limited_context`. Display the
+available words with those labels and the official source link. Do not select one of
+several candidates or call an observed excerpt a confirmed or applicable provision.
+Fresh retrieval failure does not make stale cached words current.
 
 `capability.temporal.status` is independent of structural capability:
 
@@ -117,6 +139,16 @@ alternatives. Those selection fields must remain separate from legal applicabili
 `retrieved_at` identifies the source snapshot used by the packet when it is available.
 `packet_generated_at` identifies when the local packet was produced. A cached snapshot is
 not a live retrieval; `retrieval_mode` makes that distinction visible.
+
+The connector also accepts `--fresh`. Such a packet has
+`retrieval_mode: fresh_official_check` and a `source_check` object with `checked_at`,
+`status` (`first_snapshot`, `verified_unchanged` or `changed`), the compared and selected
+snapshot filenames, changed fields and hashes for the JSON-embedded text/HTML plus the
+direct text/HTML responses. An unchanged check reuses the prior pinned bytes and review;
+a changed check preserves a new snapshot and requires any locator review to be repeated.
+If the fresh fetch fails, the result is `unknown`, with `source_check.status: unknown`
+and no cached provision presented as current. The fresh check confirms what the official
+consolidation served at that time, not legal applicability on a transaction date.
 
 When presenting `text` as verbatim, preserve its numbering, punctuation and blank lines.
 If the presentation is shortened or reflowed, label it as an excerpt or summary; the

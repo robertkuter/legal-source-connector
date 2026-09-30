@@ -45,7 +45,7 @@ entry-into-force date for every provision below it.
 | Act has no detected timing markers | `found`, `temporal.resolution: not_applicable` | The requested wording is retrievable from this snapshot. No historic start date has been proved. |
 | Act is layered, requested provision is unmarked | `found`, `unmarked_locator` | Other parts of the Act have transitions, but this locator does not. The returned wording is snapshot evidence, not a reconstructed legislative history. |
 | Outgoing and incoming versions share a locator | `ambiguous`, `multiple_versions_unresolved` | Both candidates stay visible. A lawyer must supply the relevant date; the connector does not choose yet. |
-| Only a future or ceasing marked version appears at the locator | `unknown`, `marked_version_unresolved` | The connector can see the passage and marker but will not present it as confirmed without date-aware selection. |
+| Only a marked version appears at the locator, whether its date is past or future | `unknown`, `marked_version_unresolved` | The connector can see the passage and marker but will not present it as confirmed without date-aware selection. |
 | Marker has no determinable date | `unknown`, `marked_version_unresolved` | The source timing is conditional or indeterminate. Human/source-chain work is required. |
 | Only the heading carries a marker | Source reports `layered_unresolved`; an unmarked provision may still be `found` | The heading changed. Do not attribute that date to every underlying rule. |
 | Question asks what applied years before the current snapshot | Outside the present connector evidence | The current consolidation does not reconstruct the full amendment chain. Retrieve the relevant historic SFS sources. |
@@ -56,6 +56,20 @@ single future-marked `7 kap. 68 a §` (`I:2030-01-10`). Earlier code returned it
 Packet contract 0.2 returns `unknown` and omits the text. For `19 kap. 13 §`, the snapshot
 contains outgoing and incoming candidates marked `U:` and `I:` for 2026-12-05, so the
 packet returns `ambiguous`.
+
+A marker date passing does not change a pinned snapshot or authorize selecting its
+incoming passage. Riksdagen may later serve a different consolidation with the markers
+removed. On 2026-09-28, an isolated fresh retrieval of Skadeståndslagen `3 kap. 5 §`
+returned one unmarked provision from a structurally supported source, while the August
+snapshot still held two versions marked `U:/I:2026-09-01`. A fresh Upphovsrättslagen
+snapshot likewise no longer carried those September markers, but retained a separate
+structural mismatch. Both snapshots kept the same top-level amendment ceiling as their
+August counterparts, so a matching `t.o.m. SFS` label alone did not establish byte-level
+currency. Use the exact source hash and retrieval date when comparing them; do not
+silently replace an old review or claim historical legal effect from the new consolidation.
+The `get_provision.mjs --fresh` mode makes that source check explicit and
+preserves changed bytes as a separate snapshot. It still never selects a marked version
+from an old snapshot merely because its date has passed.
 
 ## How to read the receipt
 
@@ -149,9 +163,10 @@ structural capability is `supported`; its temporal capability is
 `layered_unresolved`. The ten locators used by the ABL primer are all unmarked.
 
 Upphovsrättslagen (`SFS 1960:729`), abbreviated here as URL, remains `review_required` in
-an exploratory audit outside the maintained source set. Its first mismatch is a pending
-`I:` provision; other mismatches include text parsed under `6 a kap.` where the HTML anchors
-say `6 b kap.`, plus a separate `53 g §` discrepancy. General lettered chapters are now
+an exploratory audit outside the maintained source set. In the pinned August snapshot,
+its first mismatch is an `I:`-marked provision; other mismatches include text parsed
+under `6 a kap.` where the HTML anchors say `6 b kap.`, plus a separate `53 g §`
+discrepancy. General lettered chapters are now
 parsed, but the Act must pass a complete fresh audit before promotion.
 
 Årsredovisningslag (`SFS 1995:1554`) stays visible as the canonical

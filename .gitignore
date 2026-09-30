@@ -2,6 +2,7 @@
 cache/
 runs/
 temp/
+reviews/
 
 # Machine-local JSON files.
 *.local.json

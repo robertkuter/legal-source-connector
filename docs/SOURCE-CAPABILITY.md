@@ -18,17 +18,21 @@ precondition for local use. An unprofiled snapshot that passes the generic audit
 used; one that does not pass must remain `review_required`, `unsupported` or `unknown`.
 
 This is enforced in the software, not left to the user's memory. `get_provision.mjs`
-builds or rebuilds the index, reads its capability result and withholds confirmed text
-unless the structural status is `supported`. `orient_riksdagen.mjs` is only the retrieval
-step. `review_source_capability.mjs` is an optional diagnostic that explains a mismatch in
-more detail; it is not an extra approval that must be run before every successful lookup.
+builds or rebuilds the index, reads its capability result and withholds automatically
+confirmed text unless the structural status is `supported`. A `review_required` source can
+return one exact locator only when a versioned human-review decision passes fresh snapshot,
+identity, boundary, temporal and scope validation; that result is labelled
+`human_reviewed_snapshot` and does not change the automatic capability.
+`orient_riksdagen.mjs` is only the retrieval step. `review_source_capability.mjs` is an
+optional diagnostic that explains a mismatch in more detail; it is not an extra approval
+that must be run before every successful lookup.
 
 ## Capability states
 
 | State | Meaning | Connector behaviour |
 |---|---|---|
 | `supported` | For this snapshot, structural markers, text boundaries and integrity checks agree | Return normal provision packets |
-| `review_required` | The source is reachable, but a boundary, count or format check is unresolved | Return `unknown` for affected provision requests and expose the reason |
+| `review_required` | The source is reachable, but a boundary, count or format check is unresolved | Return `unknown` unless this exact locator and snapshot have a valid local human-review decision; retain `review_required` in either case |
 | `unsupported` | No reliable locator or structural representation has been established | Do not claim that a provision was confirmed |
 
 ## Temporal capability states
@@ -62,6 +66,26 @@ The connector should build two independent views:
 1. a structural index from publisher markers, preferably paragraph anchors;
 2. a text index used to extract the provision, transition markers, offsets and hashes.
 
+A paragraph anchor is an HTML bookmark supplied by the publisher, not a paragraph count
+invented by the connector. For example,
+`<a class="paragraf" name="K7P7"><b>7 §</b></a>` encodes chapter 7 (`K7`) and section 7
+(`P7`). A review artifact preserves that exact source markup alongside the matching text
+line and source offset so a non-technical reviewer can see what the two independent views
+actually are.
+
+Structural disagreement can take several forms: a count/coverage difference, a changed
+locator identity or order, heading-like text with no corresponding publisher anchor, or
+a missing neighbour that makes an end boundary unsafe. Timing markers are reported beside
+these structural signals but remain a separate temporal problem. The locator review UI
+uses this vocabulary and must stop before confirmation when the boundary chain itself
+cannot be established.
+
+Count differences are source-wide totals, while a locator review is a local zoom. The
+review artifact therefore records heading-like text candidates between the selected and
+next publisher anchors and the text candidate corresponding to that next anchor. The UI
+may explain how much of the net source-wide count gap is visible locally, but it must not
+use matching totals as a substitute for the separate identity/order audit.
+
 The views must agree on locator identity, order, boundaries and source offsets. If they do
 not agree, the connector must return `unknown` or `review_required`; a text-only fallback
 must not silently present itself as complete.
@@ -75,7 +99,9 @@ When a new Act is requested:
 3. compare structural anchors with text sections and inspect the requested locator;
 4. if the snapshot passes, return a normal packet for safe locators;
 5. if it does not, return `review_required`, `unsupported` or `unknown` with the reason;
-6. only if recurring public coverage is useful, add representative first, middle, last,
+6. optionally prepare and import a locator-scoped human decision without promoting the
+   source or releasing any neighbouring locator;
+7. only if recurring public coverage is useful, add representative first, middle, last,
    amended, `a`, transition and missing-locator tests as a maintained profile.
 
 This lets a lawyer use the connector beyond the starter pack without pretending that an
@@ -91,6 +117,7 @@ or a new source shape justifies the regression work.
 | Avtalslagen, SFS 1915:218 | Chaptered, shorter historical Act | `supported` | 41 / 41 |
 | Diskrimineringslagen, SFS 2008:567 | Chaptered, compliance-relevant Act | `supported` | 88 / 88 |
 | Årsredovisningslagen, SFS 1995:1554 | Cross-reference list resembles section headings | `review_required` | 217 / 222 |
+| Upphovsrättslagen, SFS 1960:729 | Timing, locator-sequence and chapter-identity mismatches | `review_required` | 192 / 197 |
 
 These results show that the same structural pattern works across the current Swedish
 pilot set. They do not certify every SFS source; a new formatting variant must still pass

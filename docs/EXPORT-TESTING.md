@@ -20,6 +20,12 @@ not secretly bundle the local cache or connector.
 Claude custom skills are uploaded as a ZIP whose single top-level directory contains the
 skill. Keep the live source connector separate until the packet contract is stable.
 
+For a local Claude Code test, extract the portable skill under the connector test
+folder's `.claude/skills/` and start the Code session with that folder as its working
+directory. Check `/skills` for the intended local-test skill before scoring the run.
+Pasting a folder path into the first chat message does not select the working directory;
+an older account-synced skill may otherwise answer instead.
+
 ## Codex local test
 
 Use the skill directory directly:

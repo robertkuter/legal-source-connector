@@ -165,7 +165,7 @@ function parseParagraphAnchorName(name) {
 
 export function parseHtmlParagraphAnchors(html) {
   const anchors = [];
-  const pattern = /<a\b([^>]*)>\s*<b>([^<]+)<\/b>/gi;
+  const pattern = /<a\b([^>]*)>\s*<b>([^<]+)<\/b>(?:\s*<\/a>)?/gi;
   for (const match of String(html ?? "").matchAll(pattern)) {
     const attributes = match[1];
     const className = htmlAttribute(attributes, "class");
@@ -173,12 +173,13 @@ export function parseHtmlParagraphAnchors(html) {
     const name = htmlAttribute(attributes, "name");
     const identity = parseParagraphAnchorName(name ?? "");
     if (!identity) {
-      anchors.push({ name, heading_text: decodeHtml(match[2]), identity: null });
+      anchors.push({ name, heading_text: decodeHtml(match[2]), source_markup: match[0], identity: null });
       continue;
     }
     anchors.push({
       name,
       heading_text: decodeHtml(match[2]),
+      source_markup: match[0],
       ...identity,
     });
   }
@@ -382,7 +383,8 @@ export async function writeIndex(cacheDir, sourceId) {
     if (existing.index_version === INDEX_VERSION
       && existing.source_id === sourceId
       && existing.raw_file === cached.rawFile
-      && existing.source_text_sha256 === sha256(String(cached.document.text ?? ""))) {
+      && existing.source_text_sha256 === sha256(String(cached.document.text ?? ""))
+      && existing.source_html_sha256 === (cached.document.html ? sha256(cached.document.html) : null)) {
       return { ...cached, index: existing, indexPath, reused: true };
     }
   } catch {

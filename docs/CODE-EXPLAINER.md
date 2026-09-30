@@ -13,8 +13,10 @@ answer. It:
 3. checks whether the HTML structure and text structure agree;
 4. detects publisher timing markers separately from structural health;
 5. builds an addressable index;
-6. returns only a safe requested provision with a receipt, or refuses to choose;
-7. compares a later source with an earlier pinned receipt when asked about staleness.
+6. can validate one exact, unmarked locator under a snapshot-bound human review while
+   leaving automatic source capability unchanged;
+7. returns only a safe requested provision with a receipt, or refuses to choose;
+8. compares a later source with an earlier pinned receipt when asked about staleness.
 
 The assistant skill is a separate layer. It explains the packet and tells the assistant
 when to stop. It does not contain the retrieval code.
@@ -35,6 +37,10 @@ the question “which exact passage did we use?”. Those are the connector's re
 | `connector/sfs_index.mjs` | Finds statutory headings, compares publisher anchors with text candidates, detects `I:`/`U:` timing markers and records offsets | Building a table of contents, checking it against the publisher's contents page and flagging replacement pages dated for later use |
 | `connector/index_sfs.mjs` | Runs the index builder for one cached Act and saves the checked map | Filing the checked table of contents beside the binder |
 | `connector/get_provision.mjs` | Resolves one chapter/section address and creates or refuses a packet | Pulling out one cited paragraph with its page trail, but not choosing between dated versions without instructions |
+| `connector/locator_review.mjs` | Prepares and validates exact locator evidence and rechecks local store records | Filing a signed-off page check that expires when the binder, page address or checking method changes |
+| `connector/prepare_locator_review.mjs` | Writes an immutable artifact, incomplete decision template and self-contained local review page | Preparing the exact page, surrounding tabs and checklist for a reviewer |
+| `connector/serve_locator_review.mjs` | Serves one generated page at an unguessable loopback-only URL with no-store and restrictive browser headers | Opening the private checklist locally without placing it on a shared web server |
+| `connector/import_review_decision.mjs` | Rejects incomplete, stale or widened decisions and stores valid records locally | Accepting a completed checklist into the private file only after every reference matches |
 | `connector/compare_source.mjs` | Compares a fresh source with a pinned receipt | Checking whether the book on the shelf changed since the last review |
 | `connector/staleness_logic.mjs` | Applies the fixed current, stale or unknown comparison rules | Using the same change-checking checklist every time |
 | `connector/cisg_annex_index.mjs` and `connector/get_cisg_article.mjs` | Index and retrieve the CISG translation annex as a separate structure | Using a separate index for an appendix with a different numbering system |
@@ -55,6 +61,8 @@ get_provision
   → load the latest cached official source
   → reuse a matching index, or build a new one
   → check capability status
+  → if review_required, look only for a valid decision matching this canonical locator
+  → revalidate its source, hashes, versions, anchor, offsets, text hash and temporal state
   → normalise the requested address
   → find zero, one or several matches
   → inspect any publisher timing markers
@@ -63,10 +71,20 @@ get_provision
 ```
 
 The important safety decisions are before extraction. If the source structure is not
-supported, the connector returns `unknown` and does not pretend that a text-shaped match is
-confirmed. If a unique provision has an unresolved publisher transition marker, it also
-returns `unknown`; if outgoing and incoming candidates share a locator, it returns
-`ambiguous`. An unmarked provision can remain usable inside a temporally layered Act.
+supported, the connector normally returns `unknown`. A separately imported locator review
+can return only its exact unmarked passage as `human_reviewed_snapshot`; it does not change
+the automatic `review_required` result or release a neighbour. If a unique provision has
+an unresolved publisher transition marker, it also returns `unknown`; if outgoing and
+incoming candidates share a locator, it returns `ambiguous`. An unmarked provision can
+remain usable inside a temporally layered Act.
+
+When a blocked packet has enough evidence for a useful human surface, `review_action`
+names the exact source and locator and reports one of three dispositions. Only
+`decision_available` permits a locator-scoped decision. `explanation_only` presents a
+known blocking pattern, such as temporal layers or editorial renumbering, without approval
+controls. `unsupported_pattern` presents the available evidence and stops because the
+shape is outside the versioned review-signal vocabulary. A host should use this field to
+offer “Review this evidence”; it must not infer that every review page is an approval page.
 
 ## When is the API called, and what is “memory” here?
 
@@ -106,7 +124,7 @@ Every result should disclose at least:
 
 ```text
 source_path: connector packet | packet-only | direct official fetch | no source
-retrieval_mode: live fetch | cached snapshot | unknown
+retrieval_mode: fresh official check | cached snapshot | unknown
 cache_action: fetched | reused | rebuilt | not used
 assistant_memory_used_as_evidence: no
 ```

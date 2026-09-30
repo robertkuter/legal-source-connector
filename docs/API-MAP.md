@@ -90,6 +90,8 @@ The API call and the local lookup do different jobs:
 | Orientation or refresh | Retrieve the official JSON/text/HTML response and store a timestamped snapshot | Establishes which source version was obtained |
 | Index build | Compare structural signals and calculate section offsets and hashes | Makes long text safely addressable |
 | Provision lookup | Read the cached snapshot and index, then return a small packet | Avoids repeated network calls and keeps the assistant context small |
+| Locator review | Prepare one exact local artifact; import a completed versioned decision; revalidate it during lookup | Lets a human confirm one boundary without promoting the source or creating a general override |
+| Blocked-case handoff | Record a deduplicated local case and prepare a privacy-safe GitHub issue draft | Makes unsupported patterns and known capability needs actionable without uploading matter context or source excerpts |
 | Staleness comparison | Retrieve or receive a fresh source and compare it with a pinned receipt | Tests change explicitly rather than silently replacing the baseline |
 
 “Open API” therefore means that the source can be accessed. It does not mean that every

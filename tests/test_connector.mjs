@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { writeFile } from "node:fs/promises";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import {
@@ -14,6 +15,7 @@ import { requireCachedSources } from "./cache_requirements.mjs";
 
 const cacheDir = new URL("../cache/riksdagen/", import.meta.url).pathname;
 const runDir = new URL("../runs/", import.meta.url).pathname;
+const testCaseDir = join(await mkdtemp(join(tmpdir(), "connector-tests-")), "cases");
 const results = [];
 
 if (!await requireCachedSources(cacheDir, [
@@ -139,6 +141,7 @@ const futureOnlyPacket = JSON.parse(execFileSync(process.execPath, [
   "--source", "sfs-2005-551",
   "--locator", "7 kap. 68 a §",
   "--run-dir", runDir,
+  "--case-dir", testCaseDir,
 ], { encoding: "utf8" }));
 check("Provision command refuses a future-only marked locator",
   futureOnlyPacket.packet_version === "0.2"

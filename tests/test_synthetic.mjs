@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { assessComparison } from "../connector/staleness_logic.mjs";
+import { fetchAndPinOfficialSource } from "../connector/fresh_source.mjs";
 import { safeFileSegment } from "../connector/runtime.mjs";
 import {
   buildIndex,
@@ -181,6 +183,75 @@ try {
   missingCacheGuidance = error.message.includes("orient_riksdagen.mjs --source sfs-2005-551");
 }
 check("Missing source cache gives a copyable orientation instruction", missingCacheGuidance);
+
+const freshCache = await mkdtemp(join(tmpdir(), "lsc-fresh-source-"));
+const freshId = "sfs-2099-1";
+const freshDocument = { ...syntheticDocument, beteckning: "2099:1" };
+let responseTextSuffix = "\nOfficial text wrapper v1";
+let responseHtmlSuffix = "\n<!-- Official HTML wrapper v1 -->";
+let failFormat = null;
+let freshTick = 0;
+const fakeFetch = async (url) => {
+  const format = url.split(".").at(-1);
+  if (format === failFormat) throw new Error("Synthetic network failure");
+  const body = format === "json"
+    ? JSON.stringify({ dokumentstatus: { dokument: freshDocument } })
+    : format === "text" ? freshDocument.text + responseTextSuffix : freshDocument.html + responseHtmlSuffix;
+  return { ok: true, status: 200, text: async () => body };
+};
+const freshArgs = {
+  sourceId: freshId,
+  cacheDir: freshCache,
+  fetchImpl: fakeFetch,
+  now: () => new Date(Date.UTC(2026, 8, 28, 12, 0, freshTick++)),
+};
+const firstFresh = await fetchAndPinOfficialSource(freshArgs);
+const sameFresh = await fetchAndPinOfficialSource(freshArgs);
+check("Fresh lookup pins first source and reuses an unchanged snapshot",
+  firstFresh.status === "first_snapshot"
+  && sameFresh.status === "verified_unchanged"
+  && sameFresh.source_snapshot === firstFresh.source_snapshot
+  && (await loadCachedDocument(freshCache, freshId)).rawFile === firstFresh.source_snapshot);
+freshDocument.subtitel = "t.o.m. SFS 2099:2";
+const changedMarker = await fetchAndPinOfficialSource(freshArgs);
+check("Changed publisher amendment marker preserves a new snapshot",
+  changedMarker.status === "changed"
+  && changedMarker.changed_fields.includes("consolidation_signal")
+  && changedMarker.source_snapshot !== firstFresh.source_snapshot);
+freshDocument.text += "\nAdditional wording.";
+const changedFresh = await fetchAndPinOfficialSource(freshArgs);
+check("Changed official wording creates a new snapshot even with the same amendment label",
+  changedFresh.status === "changed"
+  && changedFresh.changed_fields.includes("source_text_sha256")
+  && changedFresh.source_snapshot !== firstFresh.source_snapshot);
+responseHtmlSuffix = "\n<!-- Official HTML wrapper v2 -->";
+const changedHtml = await fetchAndPinOfficialSource(freshArgs);
+check("A changed direct HTML response is included in the fresh comparison",
+  changedHtml.status === "changed"
+  && changedHtml.changed_fields.includes("response_html_sha256")
+  && changedHtml.source_snapshot !== changedFresh.source_snapshot);
+freshDocument.html += '<a class="paragraf" name="K2P2"><b>2 §</b></a>';
+const changedEmbeddedHtml = await fetchAndPinOfficialSource(freshArgs);
+check("Changed HTML anchors invalidate the pinned structural snapshot",
+  changedEmbeddedHtml.status === "changed"
+  && changedEmbeddedHtml.changed_fields.includes("source_html_sha256"));
+failFormat = "html";
+let freshFailed = false;
+try { await fetchAndPinOfficialSource(freshArgs); } catch { freshFailed = true; }
+check("Failed fresh retrieval does not promote a partial source to latest",
+  freshFailed && (await loadCachedDocument(freshCache, freshId)).rawFile === changedEmbeddedHtml.source_snapshot);
+failFormat = null;
+freshDocument.beteckning = "2099:2";
+let identityRejected = false;
+try { await fetchAndPinOfficialSource(freshArgs); } catch { identityRejected = true; }
+check("A mismatched official identity cannot replace the latest snapshot",
+  identityRejected && (await loadCachedDocument(freshCache, freshId)).rawFile === changedEmbeddedHtml.source_snapshot);
+freshDocument.beteckning = "2099:1";
+responseHtmlSuffix = '<a class="paragraf" name="K9P9"><b>9 §</b></a>';
+let formatMismatchRejected = false;
+try { await fetchAndPinOfficialSource(freshArgs); } catch { formatMismatchRejected = true; }
+check("Disagreeing direct and embedded provision maps cannot replace the snapshot",
+  formatMismatchRejected && (await loadCachedDocument(freshCache, freshId)).rawFile === changedEmbeddedHtml.source_snapshot);
 
 const summary = {
   test_suite: "synthetic-core-v0.1",

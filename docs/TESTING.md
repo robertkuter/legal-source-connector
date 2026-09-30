@@ -11,6 +11,7 @@ From a fresh clone, the no-cache core test can run immediately:
 
 ```bash
 node tests/test_synthetic.mjs
+node tests/test_locator_review_synthetic.mjs
 ```
 
 This checks the parser, general lettered and chapterless addressing, structural review
@@ -18,6 +19,16 @@ states, timing markers, dated and indeterminate values, hashes, line offsets and
 logic using synthetic documents. It covers flat sources, unmarked locators in a layered
 source, unique marked versions and paired outgoing/incoming versions. It is the portable
 smoke test for a public checkout.
+
+The locator-review synthetic suite is also cache-free. It models both the ÅRL
+false-heading shape and the URL timing/version shape, then tests complete import plus
+rejection of incomplete, unresolved, wrong-source, wrong-locator, changed-hash,
+changed-index/schema, inconsistent-boundary, tampered-hash and scope-leaking records. It
+also proves that structural review cannot select an `I:`/`U:` passage. Its local-viewer
+check opens an ephemeral `127.0.0.1` port, verifies the token route and security headers,
+and makes no internet request. It also verifies the versioned blocked-case report,
+strict public-field allowlist, GitHub Markdown draft, stable-case/snapshot-occurrence IDs,
+local deduplication and rejection of an attempted source-text field.
 
 The source-profile tests require an explicit orientation step because the public package
 does not bundle complete cached Acts. From a fresh terminal, first move into the project
@@ -52,6 +63,16 @@ It does not require a model or internet access.
 
 The live API should be tested separately because network availability and source changes
 are external conditions. Keep live receipts as evidence, not as the only regression test.
+A narrow live current-source smoke test is:
+
+```bash
+node connector/get_provision.mjs --fresh --source sfs-1972-207 --locator "3 kap. 5 §"
+```
+
+Inspect `source_check.checked_at`, `source_check.status`, `retrieval_mode`, source hashes,
+structural capability and temporal resolution. Repeat once to check that unchanged bytes
+reuse the same snapshot. The synthetic core suite covers changed text, changed HTML,
+failed fetch and source-identity mismatch without depending on the live API.
 A source-profile test run before orientation exits with a missing-source list and a
 copyable orientation command. That means “local source evidence absent”, not “parser
 failed”.
@@ -60,6 +81,7 @@ The curated commercial-law extension has its own cached-snapshot suite:
 
 ```bash
 node tests/test_commercial_coverage.mjs
+node tests/test_locator_review_cached.mjs
 ```
 
 It checks the curated commercial extension sources, including Köplag, the two statutory
@@ -69,6 +91,25 @@ Act, Räntelag, Skadeståndslag, Marknadsföringslag, Konkurrenslag, MBL, Bokfö
 and explicit ambiguous transition locators. Årsredovisningslag is deliberately retained
 as `review_required` because its text contains a cross-reference list that the current
 candidate parser mistakes for section headings.
+
+The cached locator-review suite uses local ÅRL, URL, Skadeståndslagen and Konkurrenslagen
+snapshots without copying them or its temporary store into Git. It confirms ÅRL
+`7 kap. 7 §` and URL `6 b kap. 52 i §` through isolated acceptance decisions, calls the
+normal provision command, checks `human_reviewed_snapshot` plus retained automatic
+`review_required`, and proves that another locator remains blocked. It also prepares two
+real non-decision surfaces: the outgoing/incoming `I:`/`U:` pair at Skadeståndslagen
+`3 kap. 5 §`, and the duplicate publisher identity plus editorial renumbering notice at
+Konkurrenslagen `4 kap. 16 a §`. Those pages must be `explanation_only`, display the
+classified blocking signals and expose no confirmation or decision-download control. Its generated
+decisions are automated fixtures in an operating-system temporary directory, not real
+human legal review records. The suite also checks the shared paired reading component:
+numbered source lines retain the following boundary, the reflowed reader view is clearly
+labelled as presentation, and multi-candidate blockers render one view per candidate
+without acquiring decision controls.
+
+The normal cached lookup also writes its Skadeståndslagen and Konkurrenslagen capability
+needs into an isolated temporary case register and exposes their case identifiers through
+`review_action`; no cached source, case record or receipt is checked into Git.
 
 The Swedish CISG translation annex is tested separately because it is a second structure
 inside the official source, not an ordinary SFS section sequence:

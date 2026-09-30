@@ -71,14 +71,15 @@ async function fetchText(url) {
 async function retrieveCurrent(sourceId, cacheDir) {
   const retrievedAt = new Date().toISOString();
   const safeTimestamp = retrievedAt.replaceAll(/[:.]/g, "-");
-  const sourceDir = join(cacheDir, sourceId);
+  // Comparison evidence stays outside the lookup directory selected by latestRawJson.
+  const sourceDir = join(cacheDir, sourceId, "comparisons");
   await mkdir(sourceDir, { recursive: true });
   const base = `https://data.riksdagen.se/dokument/${sourceId}`;
   const formats = {};
   let document = null;
   let jsonError = null;
 
-  for (const format of ["json", "text"]) {
+  for (const format of ["json", "text", "html"]) {
     try {
       const response = await fetchText(`${base}.${format}`);
       formats[format] = {
@@ -117,20 +118,24 @@ async function retrieveCurrent(sourceId, cacheDir) {
     sfs_number: document?.beteckning ?? document?.sfs_nr ?? null,
     retrieval_status:
       formats.json?.http_status === 200 && formats.text?.http_status === 200
+        && formats.html?.http_status === 200 && document?.text && document?.html
         ? "retrieved"
         : "unknown",
     consolidation_signal:
       formats.text?.currency_signal ?? currencySignal(document?.subtitel, text),
     document_text_length: text.length,
     document_text_sha256: text ? sha256(text) : null,
+    document_html_sha256: document?.html ? sha256(document.html) : null,
     formats,
     raw_snapshots: {
-      json: `${safeTimestamp}.json`,
-      text: `${safeTimestamp}.text`,
+      json: `comparisons/${safeTimestamp}.json`,
+      text: `comparisons/${safeTimestamp}.text`,
+      html: `comparisons/${safeTimestamp}.html`,
     },
     warnings: [
       ...(jsonError ? [`JSON parse/document extraction failed: ${jsonError}`] : []),
       ...(text ? [] : ["No consolidated text was extracted from the JSON response."]),
+      ...(document?.html ? [] : ["No publisher HTML was extracted from the JSON response."]),
     ],
   };
 }
@@ -151,6 +156,7 @@ try {
   const current = await retrieveCurrent(inferredSourceId, args.cacheDir);
   const assessment = assessComparison({ baseline, current, sourceId: inferredSourceId });
   const baselineHash = baseline.document_text_sha256 ?? baseline.source_text_sha256 ?? null;
+  const baselineHtmlHash = baseline.document_html_sha256 ?? baseline.source_html_sha256 ?? null;
   const baselineCurrency = baseline.consolidation_signal ?? null;
 
   result = {
@@ -164,6 +170,7 @@ try {
       sfs_number: baseline.sfs_number ?? baseline.source_id ?? null,
       consolidation_signal: baselineCurrency,
       document_text_sha256: baselineHash,
+      document_html_sha256: baselineHtmlHash,
     },
     current,
     note: "Comparison only; no automatic re-baselining and no legal applicability determination.",

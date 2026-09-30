@@ -19,6 +19,18 @@ export function defaultRunDir() {
   return join(PROJECT_ROOT, "runs");
 }
 
+export function defaultReviewDir() {
+  return join(PROJECT_ROOT, "reviews");
+}
+
+export function defaultReviewStoreDir() {
+  return join(defaultReviewDir(), "store");
+}
+
+export function defaultReviewCaseDir() {
+  return join(defaultReviewDir(), "cases");
+}
+
 export function resolveUserPath(value, fallback) {
   return value ? resolve(value) : fallback;
 }
