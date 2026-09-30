@@ -17,10 +17,12 @@ provision, no exact match, more than one possible version, or a clear statement 
 cannot confirm the source safely. It confirms source text, not meaning, applicability, or
 legal advice.
 
-**Proposed update after v0.1.7:** Run a fresh source check, read labelled source text
-when confirmation is blocked, and review one provision on a local page. The
-[change summary](CHANGELOG.md) and [review guide](docs/LOCATOR-REVIEW-GUIDE.md) explain
-the additions. The v0.1.7 downloads below do not include them yet.
+**Proposed update after v0.1.7:** The connector can check Riksdagen again before a
+lookup. If it cannot confirm a provision but can identify source wording, it shows that
+wording as unverified. When a provision has clear boundaries, a local page lets a
+reviewer record a decision for that provision. The [change summary](CHANGELOG.md) and
+[review guide](docs/LOCATOR-REVIEW-GUIDE.md) explain the additions. The v0.1.7
+downloads below do not include them yet.
 
 ## A concrete example
 
