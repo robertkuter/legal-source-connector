@@ -1,5 +1,7 @@
 # Reviewed-source workflow
 
+For the short reviewer walkthrough, start with the [local review guide](LOCATOR-REVIEW-GUIDE.md).
+
 **Status:** Locator-scoped decision, explanation, privacy-safe blocked-case reporting and local save/import/retry handoff implemented in this candidate; source-snapshot review and host-specific integrations remain future work
 
 **Recorded:** 2026-09-04; implementation updated 2026-09-28

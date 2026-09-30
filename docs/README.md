@@ -9,6 +9,8 @@ README unless you need to inspect a field, test, source check, or extension boun
   version markers, and legal effect.
 - [Source capability](SOURCE-CAPABILITY.md) explains how the connector decides whether
   it can map a downloaded Act safely.
+- [Local review guide](LOCATOR-REVIEW-GUIDE.md) gives the short page, save, fresh-check
+  and file-handoff steps for one provision.
 - [Reviewed-source workflow](REVIEWED-SOURCE-WORKFLOW.md) records the implemented
   locator-review slice and the remaining design for wider snapshot-bound correction and
   host adapters.

@@ -1,0 +1,27 @@
+# Changes
+
+This page tracks changes a user would notice. The [README](README.md) explains how to
+start; the [technical documentation guide](docs/README.md) holds the detailed evidence
+and design notes.
+
+## Unreleased candidate after v0.1.7
+
+- `--fresh` checks the official Riksdagen source again and reports whether its text or
+  HTML changed. A failed check returns `unknown` rather than presenting cached text as
+  current.
+- Blocked results can show identifiable official text as an **unverified source
+  observation**, separate from confirmed provision text.
+- A local page lets a reviewer inspect and record the boundaries of one provision.
+  A valid decision releases only that locator in the reviewed snapshot; timing and
+  unsupported cases remain explanation-only.
+- The same commands and decision file work across local AI assistants. A remote
+  workspace may need the HTML-and-JSON handoff instead of a browser link.
+
+See the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for a short walkthrough.
+The v0.1.7 release downloads do not include these changes.
+
+## v0.1.7
+
+The [existing public prerelease](https://github.com/robertkuter/legal-source-connector/releases/tag/v0.1.7)
+contains the connector, portable skill, source packets, tests and dated ABL example.
+Its downloads do not include the changes above.

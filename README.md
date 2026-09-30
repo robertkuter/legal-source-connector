@@ -2,19 +2,20 @@
 
 Status: explainability alpha; not production legal software.
 
-**Release status:** This branch is a proposed update after v0.1.7. The v0.1.7 download
-links below point to the existing tagged release. They do not contain the locator review
-page, readable blocked-source observations or `--fresh`; updated downloads need a separate
-release decision.
-
-**Start here:** [choose the right download or route](#choose-what-you-want-to-do), or
-[read the concrete example](#a-concrete-example).
-
 This repository contains a small software connector and an assistant skill. The connector
 retrieves an identified Swedish Act from Riksdagen and keeps a working copy on the user's
 computer. It checks the Act's structure, then creates a small evidence packet for the
 requested provision. The skill tells an AI assistant how to use that packet, explain its
 source and know when to stop.
+
+**Start here:** [choose the right download or route](#choose-what-you-want-to-do), or
+[read the concrete example](#a-concrete-example).
+
+**Proposed update after v0.1.7:** A fresh lookup can check the official source again;
+blocked results can show labelled source text for reading; and a local review page can
+release one provision after a recorded boundary check. [See the review guide](docs/LOCATOR-REVIEW-GUIDE.md)
+or [the short change summary](CHANGELOG.md). The v0.1.7 downloads below do not yet include
+these changes.
 
 The current connector handles legislation published through Riksdagen. Another authority
 would need its own connector and tests. For each citation, this connector returns one
@@ -92,85 +93,41 @@ connector creates a packet for each request and keeps downloaded Acts in the loc
 
 ## Four provision results a lawyer may see
 
-Before returning automatically confirmed provision text, the connector checks the source
-map. If the source-level result is `review_required`, a provision request returns `unknown`
-unless a local decision validates for that exact locator and snapshot. A valid locator
-decision returns `found` with `basis: human_reviewed_snapshot` while the automatic
-capability remains `review_required`; every other locator stays blocked.
-
-Manual inspection alone does not override the gate. Only a validated, structured
-prepare/review/import path can release one locator, and it refuses timing-marked passages.
-The source becomes automatically `supported` only after the indexing logic resolves the
-mismatch and the complete audit passes.
-
-A blocked packet also carries a `review_action` when the connector can prepare a useful
-local surface. Its disposition distinguishes a reviewable boundary from an
-explanation-only timing or renumbering case and from an unsupported source pattern. The
-latter pages show the evidence and safe response but deliberately contain no confirmation
-or decision-download controls. They can instead prepare a privacy-safe, user-reviewed
-GitHub issue draft and retain a deduplicated case locally; nothing is submitted
-automatically and the reporting path cannot release a locator.
-Blocked packets with identifiable source passages include
-`review_action.source_observation`. It carries readable candidates, their coordinates
-and the verification issue, while the packet's `status` remains `unknown` or `ambiguous`
-and no confirmed `text` field is set. Multiple timing or renumbering candidates are all
-shown without selecting one. When only nearby lines can be identified, the observation
-is marked `limited_context`. The local page also shows the source material and links to
-the complete official source. Public case reports exclude these excerpts.
-
-Riksdagen's consolidated text can show outgoing and incoming versions together. It marks
-commencement with `I:` (*ikraftträdande*) and cessation with `U:` (*upphörande*).
+The connector checks the downloaded Act's structure before confirming a provision. Its
+packet gives one of four results:
 
 | Source situation | Current packet result |
 |---|---|
-| One provision is found and the source map passes its checks | `found` |
-| One exact locator and snapshot has a valid imported human decision | `found`, basis `human_reviewed_snapshot`; automatic capability remains `review_required` |
-| No exact chapter and section is found after a supported source map | `not_found` |
-| Outgoing and incoming versions share the address | `ambiguous`; both remain visible |
-| A unique passage carries an unresolved `I:` or `U:` marker | `unknown`; marked source text is readable as an unselected observation |
+| Provision confirmed by the source map, or by a valid review of that exact provision and snapshot | `found`; a reviewed result says `human_reviewed_snapshot` and retains the automatic warning |
+| No exact chapter and section found after a supported source map | `not_found` |
+| More than one possible version has the same address | `ambiguous`; candidates remain visible without selecting one |
+| Structure or timing prevents confirmation | `unknown`; identifiable source text may still be shown, clearly labelled as unverified |
 
-The connector refuses unresolved timing layers. It does not yet select a version for a
-requested date (`as_of` in the code) or reconstruct historic law. You should consider
-three questions separately: how old the download is, what Riksdagen's version markers
-say, and which rule applies to the facts. See [Timing in a source packet](docs/TEMPORAL-MODEL.md).
+Showing an unverified passage helps a lawyer read it; it does not make the packet
+`found`. The review page can confirm only one provision with a reproducible boundary.
+Riksdagen can show outgoing and incoming versions together, marked `U:` (cessation) and
+`I:` (commencement). These timing-marked and unsupported cases remain explanation-only. See the
+[local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for the page and its fallback, and
+[timing in a source packet](docs/TEMPORAL-MODEL.md) for the limits on current law.
 
 ### Walk through a locator review locally
 
-The review page in this candidate is part of the evidence boundary, not a general
-approval screen. Use the known ÅRL mismatch
-to see the complete human-facing flow:
+The known ÅRL mismatch provides a short example:
 
 ```bash
-node connector/orient_riksdagen.mjs --source sfs-1995-1554
+node connector/get_provision.mjs --fresh \
+  --source sfs-1995-1554 --locator "7 kap. 7 §"
 node connector/serve_locator_review.mjs \
   --source sfs-1995-1554 \
   --locator "7 kap. 7 §"
 ```
 
-Open the complete printed `127.0.0.1` URL, including its `/review/` path and token;
-`localhost` by itself is not the review page. The page first explains why automation stopped, then shows
-the exact source identity, proposed provision and neighbouring boundary context. The
-reviewer answers short questions about the start and end of this one provision. A question
-about heading-like lines appears only when those lines are part of this locator's issue.
-Each answer is **Yes** or **Cannot confirm**, with no answer chosen in advance. The page
-asks for a reviewer label and offers an optional note. **Cannot confirm** creates no
-decision from this page. The page keeps the one-locator scope and automatic
-`review_required` status visible. **Save review locally**
-uses the existing validator, imports the decision, retries the locator and prints the
-result in the waiting terminal. The process then exits. The JSON download remains a
-portable fallback and still requires the separate import and retry commands. Generated
-source material, review bundles and decisions stay in gitignored local folders. See the
-[reviewed-source workflow](docs/REVIEWED-SOURCE-WORKFLOW.md) for packet semantics and the
-import/retry commands and host handoff.
-For a current-wording request, run `get_provision.mjs --fresh` again after saving the
-review; use that final packet so a source change during the review cannot go unnoticed.
-
-To inspect non-reviewable cards using maintained cached sources, prepare
-Skadeståndslagen `3 kap. 5 §` for the two `I:/U:` versions or Konkurrenslagen
-`4 kap. 16 a §` for the duplicate publisher identity and “Ny beteckning” notice. The same
-command writes an explanation page but no decision template. The Skadeståndslagen cache
-is an August 2026 test snapshot: its `2026-09-01` transition is now past. Use a fresh
-retrieval and compare source hashes before treating any cached example as current law.
+Open the complete printed `127.0.0.1` URL. The page explains the mismatch, shows the
+proposed text and neighbouring boundary, and asks short **Yes** or **Cannot confirm**
+questions. A saved **Yes** decision is validated and retries only this provision. For
+current wording, run a fresh lookup again after saving. The
+[local review guide](docs/LOCATOR-REVIEW-GUIDE.md) gives the exact steps and the
+file-and-JSON fallback for a workspace whose browser cannot reach the local URL.
 
 ## Current alpha scope
 
