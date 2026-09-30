@@ -23,6 +23,7 @@ This project is one implementation of a broader pattern:
 identify authoritative source
   → retrieve and preserve the complete representation
   → test whether its structure is safely addressable
+  → if needed, validate a human decision for one exact locator and snapshot
   → return a small evidence packet
   → let a higher-level skill use the packet without hiding uncertainty
 ```
@@ -75,10 +76,22 @@ multiple plausible passages. These are testable rules, not hidden model judgment
 - return `current`, `stale` or `unknown`;
 - never silently update the pin.
 
-The first comparison command treats the complete consolidated text hash as the primary
-test. It also compares the publisher's “t.o.m. SFS ...” marker after removing the
-presentation-only `Ändrad:` prefix used by the text endpoint. A changed marker or changed
-complete-source hash is reported as `stale`; a failed retrieval is `unknown`.
+An explicit comparison uses the complete consolidated text and publisher amendment
+marker. It also checks publisher HTML when the baseline receipt records an HTML hash.
+For a current-wording lookup, `get_provision.mjs --fresh` fetches the official JSON,
+text and HTML again, reports whether source bytes changed, and keeps a changed snapshot
+separate from prior evidence. A failed fresh check returns `unknown` rather than calling
+an older cached passage current.
+
+### Stage 3a — review one held locator
+
+- prepare a local page when one provision has a reproducible start and end boundary;
+- show the official text and reason for the automatic stop before asking for a decision;
+- validate and import a recorded decision for that locator and snapshot only;
+- keep timing-marked and unsupported cases readable but blocked from confirmation.
+
+The page and file fallback are in the [local review guide](LOCATOR-REVIEW-GUIDE.md).
+The source-wide capability remains `review_required` after a valid locator decision.
 
 ### Stage 4 — consume from skills
 

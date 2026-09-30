@@ -316,9 +316,10 @@ Choose the route that matches what you want to do:
 1. **See the result** — open the [interactive ABL reader](https://robertkuter.github.io/legal-source-connector/examples/abl-primer/)
    or its [GitHub-readable version](examples/abl-primer/README.md).
 2. **Run and test it** — follow the [testing guide](docs/TESTING.md).
-3. **Understand the code** — use the [plain-English code map](docs/CODE-EXPLAINER.md).
-4. **Build on it** — start with the [modular extension roadmap](docs/MODULE-ROADMAP.md).
-5. **Look up technical detail** — use the [technical documentation index](docs/README.md).
+3. **Review a held provision** — use the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md).
+4. **Understand the code** — use the [plain-English code map](docs/CODE-EXPLAINER.md).
+5. **Build on it** — start with the [modular extension roadmap](docs/MODULE-ROADMAP.md).
+6. **Look up technical detail** — use the [technical documentation index](docs/README.md).
 
 ## License and legal boundary
 

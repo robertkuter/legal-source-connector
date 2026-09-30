@@ -37,10 +37,12 @@ the question “which exact passage did we use?”. Those are the connector's re
 | `connector/sfs_index.mjs` | Finds statutory headings, compares publisher anchors with text candidates, detects `I:`/`U:` timing markers and records offsets | Building a table of contents, checking it against the publisher's contents page and flagging replacement pages dated for later use |
 | `connector/index_sfs.mjs` | Runs the index builder for one cached Act and saves the checked map | Filing the checked table of contents beside the binder |
 | `connector/get_provision.mjs` | Resolves one chapter/section address and creates or refuses a packet | Pulling out one cited paragraph with its page trail, but not choosing between dated versions without instructions |
+| `connector/fresh_source.mjs` | Fetches and compares the official JSON, text and HTML for an explicit fresh lookup | Checking whether the official binder changed before using a saved page check |
 | `connector/locator_review.mjs` | Prepares and validates exact locator evidence and rechecks local store records | Filing a signed-off page check that expires when the binder, page address or checking method changes |
 | `connector/prepare_locator_review.mjs` | Writes an immutable artifact, incomplete decision template and self-contained local review page | Preparing the exact page, surrounding tabs and checklist for a reviewer |
 | `connector/serve_locator_review.mjs` | Serves one generated page at an unguessable loopback-only URL with no-store and restrictive browser headers | Opening the private checklist locally without placing it on a shared web server |
 | `connector/import_review_decision.mjs` | Rejects incomplete, stale or widened decisions and stores valid records locally | Accepting a completed checklist into the private file only after every reference matches |
+| `connector/review_case_report.mjs` and `connector/list_review_cases.mjs` | Record a blocked case locally and prepare a privacy-safe report for human review | Keeping a problem note separate from the provision decision |
 | `connector/compare_source.mjs` | Compares a fresh source with a pinned receipt | Checking whether the book on the shelf changed since the last review |
 | `connector/staleness_logic.mjs` | Applies the fixed current, stale or unknown comparison rules | Using the same change-checking checklist every time |
 | `connector/cisg_annex_index.mjs` and `connector/get_cisg_article.mjs` | Index and retrieve the CISG translation annex as a separate structure | Using a separate index for an appendix with a different numbering system |
@@ -92,15 +94,15 @@ These are separate events and should not be blurred together.
 
 ### In the current pilot
 
-`get_provision` is cache-backed. It reads the complete Riksdagen snapshot already stored in
-`cache/riksdagen/<source-id>/`, reuses or builds the local index, extracts the requested
-provision and writes a packet under `runs/`. That lookup does **not** make a live API call.
+`get_provision` without `--fresh` is cache-backed. It reads the complete Riksdagen
+snapshot already stored in `cache/riksdagen/<source-id>/`, reuses or builds the local
+index, extracts the requested provision and writes a packet under `runs/`. That lookup
+does **not** make a live API call.
 
-A Riksdagen API call is made by `orient_riksdagen` when a source is first brought into the
-local build, or when a deliberate refresh is run. The response is then stored as a new
-timestamped snapshot. A future connector bridge may perform this refresh automatically when
-the cache is missing or stale, but that is a deployment decision—not something the skill
-does invisibly.
+`orient_riksdagen` and `get_provision --fresh` make official API calls. The fresh lookup
+compares the live response with the selected local snapshot, keeps changed source bytes
+separate, and reports the check in `source_check`. A failed fresh check returns `unknown`
+instead of presenting cached text as current. The skill does not refresh invisibly.
 
 ### Three different kinds of memory
 

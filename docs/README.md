@@ -44,6 +44,7 @@ README unless you need to inspect a field, test, source check, or extension boun
 
 ## Testing and contribution
 
+- [Changes](../CHANGELOG.md) summarises user-visible updates by release.
 - [Testing guide](TESTING.md) separates no-cache, cached-source and assistant checks.
 - [Export testing](EXPORT-TESTING.md) covers the portable and Codex skill packages.
 - [Contributing](../CONTRIBUTING.md) defines the current public contribution boundary.

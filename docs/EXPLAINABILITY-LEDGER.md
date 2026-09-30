@@ -46,6 +46,15 @@ for preserving understanding about that behaviour.
 | Clean-clone tests explain missing source data | The public repository intentionally excludes complete Acts, so an absent cache should lead to the next safe action rather than a machine stack trace | No-cache preflight checks list missing SFS IDs; the synthetic suite checks the connector's orientation guidance | Show the difference between “software failed” and “source has not been downloaded yet” |
 | Found-packet response must contain the evidence it describes | A pasted Claude Sonnet transcript appeared to omit a provision block while still describing it as verbatim; the later full-box check showed that the rendered answer did contain the block | v0.1.6 transcript record; v0.1.7 adds a final response integrity check and C09; the v0.1.7 positive-path evaluation records the copy/paste artifact | Show the rendered evidence box as well as the prose transcript when reviewing output integrity |
 
+## Entry: locator-review release candidate after v0.1.7
+
+| Code change | Plain-English reason | Evidence | Presentation hook |
+|---|---|---|---|
+| Explicit `--fresh` lookup compares official JSON, text and HTML with the saved snapshot | A consolidation label alone can stay the same while the actual source changes; a current-wording request needs a live check | No-cache synthetic suite 26/26 and staleness logic 9/9 cover unchanged, changed and failed checks | Show “saved copy” and “checked again now” with the source-check result between them |
+| One recorded decision can release one reproducible, unmarked locator while automatic capability stays `review_required` | A whole Act should not disappear from a lawyer's view because one cross-reference list confuses the index, but a local decision should not clear other locators | Locator-review synthetic suite 47/47 checks import, scope, hashes, timing refusal and the loopback page | Show the ÅRL review card, its Yes/Cannot confirm boundary questions and the single provision returned after save |
+| Blocked packets expose source observations separately from confirmed text | A lawyer can still read identifiable official wording when the connector cannot establish its boundary or dated version | Synthetic review cases check one provisional text candidate and multiple unselected versions | Show the text beside its “unverified” label and the precise reason confirmation stopped |
+| One local page and JSON fallback serve hosts with different command and browser access | The reviewer should make the same decision regardless of which assistant launched the process | Loopback and file-only viewer checks in the 47/47 suite; the local review guide gives both routes | Show the same page opened locally, then the decision file being validated in the connector |
+
 ## Reusable presentation pattern
 
 For a future change, present it in this order:
