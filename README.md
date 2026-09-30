@@ -71,10 +71,10 @@ connector from the assistant skill. Use the direct route that matches your task:
 
 | Your aim | Start here | What you receive |
 |---|---|---|
+| Run the current connector and local review | [Download the updated `main` source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip) | The connector with review commands, tests, examples, and updated skill source; not downloaded Acts or ready-to-install skill ZIPs. |
 | Use the skill with Claude or another compatible assistant | [Download for Claude or another compatible assistant](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-portable.zip) | The portable v0.1.7 skill: `SKILL.md` instructions, packet reference, licence and notice; not the connector. |
 | Use the skill with Codex | [Download the Codex skill v0.1.7](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-codex.zip) | The portable skill plus Codex display metadata. |
-| Run or inspect the connector | [Download the complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip) | The connector, tests, examples, skill source and documentation; not downloaded Acts. |
-| Try the update on `main` | [Download the updated source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip) | The unreleased connector, tests, examples, skill source and documentation; not downloaded Acts or installable skill ZIPs. |
+| Reproduce the earlier release | [Download the complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip) | The earlier connector, tests, examples, skill source and documentation; it has no local review flow. |
 | Understand it before downloading | [Continue with the provision-result guide](#four-provision-results-a-lawyer-may-see) | Nothing is downloaded. |
 | Find a technical explanation | [Open the rendered documentation guide](docs/README.md) | A guided index, not the long alphabetical folder listing. |
 
@@ -83,6 +83,12 @@ repository. It does not install the skill and does not contain downloaded legisl
 
 The skill-only downloads can inspect packets you supply, but they cannot retrieve a new
 provision. That requires the connector and a downloaded source.
+
+The updated connector creates the review page and decision template locally when you run
+its review command. A saved decision is validated and stored locally before the connector
+uses it for that locator. These generated files are not part of any download. The `main`
+archive also contains the updated skill source under `skill/sv-legal-source-grounding/`;
+the v0.1.7 skill ZIPs still describe the earlier workflow.
 
 Provision packets and complete Acts are later outputs, not installation downloads. The
 connector creates a packet for each request and keeps downloaded Acts in the local cache.
