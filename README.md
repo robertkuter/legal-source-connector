@@ -2,20 +2,14 @@
 
 Status: explainability alpha; not production legal software.
 
+**Start here:** [choose the right download or route](#choose-what-you-want-to-do), or
+[read the concrete example](#a-concrete-example).
+
 This repository contains a small software connector and an assistant skill. The connector
 retrieves an identified Swedish Act from Riksdagen and keeps a working copy on the user's
 computer. It checks the Act's structure, then creates a small evidence packet for the
 requested provision. The skill tells an AI assistant how to use that packet, explain its
 source and know when to stop.
-
-**Start here:** [choose the right download or route](#choose-what-you-want-to-do), or
-[read the concrete example](#a-concrete-example).
-
-**Proposed update after v0.1.7:** A fresh lookup can check the official source again;
-blocked results can show labelled source text for reading; and a local review page can
-release one provision after a recorded boundary check. [See the review guide](docs/LOCATOR-REVIEW-GUIDE.md)
-or [the short change summary](CHANGELOG.md). The v0.1.7 downloads below do not yet include
-these changes.
 
 The current connector handles legislation published through Riksdagen. Another authority
 would need its own connector and tests. For each citation, this connector returns one
@@ -23,12 +17,10 @@ provision, no exact match, more than one possible version, or a clear statement 
 cannot confirm the source safely. It confirms source text, not meaning, applicability, or
 legal advice.
 
-The named Acts in this repository are tested examples, not a list of Acts users are
-allowed to check. Give the connector an exact SFS identity and it can attempt another
-Riksdagen-published Act with `--fresh`. It checks that snapshot's structure and timing
-before confirming a provision; an unfamiliar source may instead require a one-locator
-review or remain `unknown`. A maintained profile means repeatable regression coverage,
-not that every other Act is excluded.
+**Proposed update after v0.1.7:** Run a fresh source check, read labelled source text
+when confirmation is blocked, and review one provision on a local page. The
+[change summary](CHANGELOG.md) and [review guide](docs/LOCATOR-REVIEW-GUIDE.md) explain
+the additions. The v0.1.7 downloads below do not include them yet.
 
 ## A concrete example
 
@@ -93,41 +85,24 @@ connector creates a packet for each request and keeps downloaded Acts in the loc
 
 ## Four provision results a lawyer may see
 
-The connector checks the downloaded Act's structure before confirming a provision. Its
-packet gives one of four results:
+Before confirming a provision, the connector checks the downloaded Act's structure.
+Riksdagen can show outgoing and incoming versions together, marked `U:` (cessation) and
+`I:` (commencement). The connector reports one of four results:
 
 | Source situation | Current packet result |
 |---|---|
-| Provision confirmed by the source map, or by a valid review of that exact provision and snapshot | `found`; a reviewed result says `human_reviewed_snapshot` and retains the automatic warning |
-| No exact chapter and section found after a supported source map | `not_found` |
-| More than one possible version has the same address | `ambiguous`; candidates remain visible without selecting one |
-| Structure or timing prevents confirmation | `unknown`; identifiable source text may still be shown, clearly labelled as unverified |
+| The connector matches one provision in a supported map, or validates a review for one exact locator | `found`; a reviewed result says `human_reviewed_snapshot` and retains the automatic warning |
+| The checked map has no exact citation | `not_found` |
+| The source shows more than one version at the same address | `ambiguous`; the connector shows the candidates without selecting one |
+| The connector cannot confirm the structure or timing | `unknown`; it may still show identifiable source text labelled as unverified |
 
-Showing an unverified passage helps a lawyer read it; it does not make the packet
-`found`. The review page can confirm only one provision with a reproducible boundary.
-Riksdagen can show outgoing and incoming versions together, marked `U:` (cessation) and
-`I:` (commencement). These timing-marked and unsupported cases remain explanation-only. See the
-[local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for the page and its fallback, and
-[timing in a source packet](docs/TEMPORAL-MODEL.md) for the limits on current law.
-
-### Walk through a locator review locally
-
-The known ÅRL mismatch provides a short example:
-
-```bash
-node connector/get_provision.mjs --fresh \
-  --source sfs-1995-1554 --locator "7 kap. 7 §"
-node connector/serve_locator_review.mjs \
-  --source sfs-1995-1554 \
-  --locator "7 kap. 7 §"
-```
-
-Open the complete printed `127.0.0.1` URL. The page explains the mismatch, shows the
-proposed text and neighbouring boundary, and asks short **Yes** or **Cannot confirm**
-questions. A saved **Yes** decision is validated and retries only this provision. For
-current wording, run a fresh lookup again after saving. The
-[local review guide](docs/LOCATOR-REVIEW-GUIDE.md) gives the exact steps and the
-file-and-JSON fallback for a workspace whose browser cannot reach the local URL.
+When a packet shows source text as an unverified observation, a lawyer can read it, but
+the connector has not confirmed the provision. A recorded review can confirm one exact,
+unmarked provision without clearing the Act's other mismatches. Timing-marked and
+unsupported cases remain blocked from confirmation. The connector does not yet select a
+version for a requested date or reconstruct historic law. See the
+[local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for a worked example and
+[timing in a source packet](docs/TEMPORAL-MODEL.md) for the current-law limits.
 
 ## Current alpha scope
 
@@ -182,28 +157,8 @@ node tests/test_synthetic.mjs
 
 This uses made-up source material and needs neither the internet nor a source cache.
 
-For a request about wording available from the official source now, this candidate has
-one fresh lookup command:
-
-```bash
-node connector/get_provision.mjs --fresh \
-  --source sfs-2005-551 \
-  --locator "13 kap. 6 §"
-```
-
-It fetches JSON, text and HTML, compares their hashes with the latest local snapshot,
-checks that their provision maps agree, and indexes the new bytes if they changed. The
-packet records `source_check.checked_at`
-and whether the source was first seen, unchanged or changed. A failed live fetch returns
-`unknown` without presenting cached text as current. A valid prior locator review remains
-usable when the source is unchanged; changed bytes require a new review. This is a check
-of the retrieved consolidation, not a conclusion about which law governs particular facts.
-An explicit comparison to an older receipt also checks publisher HTML when that receipt
-has an HTML hash; its fetched evidence stays in a `comparisons/` subfolder so the check
-does not silently change the snapshot selected by ordinary cached lookup.
-
-For a reproducible pinned-snapshot request, first download ABL through Riksdagen's
-open-data API—the official machine-readable route to the document:
+For one real request, first download ABL through Riksdagen's open-data API—the official
+machine-readable route to the document:
 
 ```bash
 node connector/orient_riksdagen.mjs \
@@ -218,27 +173,24 @@ node connector/get_provision.mjs \
   --locator "13 kap. 6 §"
 ```
 
-The second command checks the stored Act's structure and writes a packet and receipt in `runs/`.
-Its `retrieval_mode: cached_snapshot` does not claim a live check.
-If it cannot confirm the structure or timing, it reports the limitation instead of
-confirmed text. Replace the SFS identity and citation to audit another Act. See
-[Testing](docs/TESTING.md) for the full test path and timing example.
+The second command checks the stored Act's structure and writes a packet and receipt in
+`runs/`. It uses a saved snapshot, so it does not claim a live check. If it cannot
+confirm the structure or timing, it explains why. Replace the SFS identity and citation
+to try another Act.
 
-### In a Node-capable AI workspace
+When you need wording from the official source now, run a fresh lookup instead:
 
-The assistant can clone this repository into a persistent workspace and run the same
-commands from its root. GitHub supplies the code; the connector itself fetches the Act
-from Riksdagen. No npm installation is needed. The skill ZIP is separate: a checkout
-alone gives the assistant commands and JSON packets, but does not install the skill.
+```bash
+node connector/get_provision.mjs --fresh \
+  --source sfs-2005-551 \
+  --locator "13 kap. 6 §"
+```
 
-The workspace holds its own `cache/`, `runs/` and `reviews/` folders, all excluded from
-Git. The complete Act stays in its cache; the assistant should return the requested
-packet or readable blocked-source observation. Do not assume that a tokenized
-`127.0.0.1` review URL created inside a remote workspace is reachable in a browser on
-another computer. If it is not, use the generated HTML file and decision-JSON
-import/retry route described in the [review workflow](docs/REVIEWED-SOURCE-WORKFLOW.md).
-Keep each user's review store separate unless the workspace has an explicit sharing
-design.
+The connector checks Riksdagen again and reports whether the source changed. If the
+check fails, it returns `unknown` instead of calling the saved text current. The same
+Node commands work in an AI workspace that can run them; the
+[distribution guide](docs/DISTRIBUTION.md) explains that setup and the review-page
+fallback. See [Testing](docs/TESTING.md) for the full test path and timing example.
 
 ## Why the connector checks each Act
 
@@ -260,13 +212,14 @@ The current examples each test a different source shape:
   a separate article index for that annex.
 - **Årsredovisningslagen (ÅRL)** contains a cross-reference list that looks like five extra
   section headings in the text version. The HTML and text maps disagree, so the connector
-  reports `review_required` and does not present a general provision result as confirmed.
+  reports `review_required`. A valid review can confirm one locator; the other locators
+  keep their own blocked result.
 
-The repository records tests and known limits for these maintained examples. For another
-identified Act, the connector downloads the source and runs the same audit. It creates
-local packets if the structure passes; otherwise it returns `review_required` or `unknown`
-and explains why. We add an Act to the maintained set only with repeatable tests and a
-documented source shape.
+The repository records tests and known limits for these examples. They are not an
+allowlist. Give the connector another exact SFS identity with `--fresh` and it will check
+that Act's structure and timing. It returns a provision if it can confirm the locator;
+otherwise it explains the blocker. We add an Act to the maintained set only with
+repeatable tests and a documented source shape.
 
 ## What the receipt lets you check
 
