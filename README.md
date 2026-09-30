@@ -144,8 +144,8 @@ webpage. The reader is a static, dated teaching set: it does not run the connect
 legislation, create packets or receipts, or check the current source. It is not a complete
 ABL guide.
 
-For the review step, open the [synthetic locator-review example](examples/locator-review/README.md)
-or [view its HTML page](https://robertkuter.github.io/legal-source-connector/examples/locator-review/).
+For the review step, read the [synthetic locator-review example](examples/locator-review/README.md).
+After downloading the repository, open `examples/locator-review/index.html` in a browser.
 It shows the stop reason, proposed text, boundary evidence and review questions in the
 local page's layout. The example uses invented text and disabled controls; it cannot save
 a decision. The [local review guide](docs/LOCATOR-REVIEW-GUIDE.md) explains how to run a
@@ -276,7 +276,7 @@ before redistributing source data or operating a service based on it.
 Choose the route that matches what you want to do:
 
 1. **See the examples** — open the [ABL reader](https://robertkuter.github.io/legal-source-connector/examples/abl-primer/)
-   or the [synthetic review page](https://robertkuter.github.io/legal-source-connector/examples/locator-review/).
+   or follow the [synthetic review-page guide](examples/locator-review/README.md).
 2. **Run and test it** — follow the [testing guide](docs/TESTING.md).
 3. **Review a held provision** — use the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md).
 4. **Understand the code** — use the [plain-English code map](docs/CODE-EXPLAINER.md).
