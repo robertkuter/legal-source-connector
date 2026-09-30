@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Locator review — 1 kap. 2 §</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201d;
+      --muted: #5d6964;
+      --line: #d7ddd9;
+      --paper: #fffef9;
+      --surface: #f3f5f1;
+      --surface-strong: #e9ede8;
+      --green: #164f3b;
+      --green-soft: #e6f0eb;
+      --amber: #925816;
+      --amber-soft: #fbf1df;
+      --blue: #345b72;
+      --blue-soft: #e8f0f4;
+      --shadow: 0 18px 50px rgba(30, 45, 39, .09);
+      font: 16px/1.55 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #e9ede9; }
+    .shell { max-width: 78rem; margin: 0 auto; background: var(--paper); min-height: 100vh; box-shadow: var(--shadow); }
+    header { padding: 1.6rem clamp(1.25rem, 5vw, 4.75rem) 1.45rem; color: white; background: var(--green); }
+    .eyebrow { margin: 0 0 .8rem; color: #c7dbd1; font-size: .75rem; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 0; font: 600 clamp(2rem, 3.4vw, 3rem)/1.08 Georgia, "Times New Roman", serif; letter-spacing: -.025em; }
+    .lede { max-width: 52rem; margin: .55rem 0 0; color: #dfebe5; font-size: .96rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .85rem; }
+    .badge { display: inline-flex; align-items: center; gap: .42rem; border: 1px solid currentColor; border-radius: 999px; padding: .32rem .7rem; font-size: .78rem; font-weight: 700; letter-spacing: .015em; }
+    .badge::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; }
+    .badge-light { color: #d9e8e0; }
+    main { padding: 0 clamp(1.25rem, 5vw, 4.75rem) 4.5rem; }
+    .scope-contract { display: grid; grid-template-columns: auto 1fr; gap: .8rem; margin: 0 -1rem 1.25rem; padding: .9rem 1rem; background: var(--amber-soft); border-bottom: 1px solid #ead4af; }
+    .scope-icon { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; color: white; background: var(--amber); font-weight: 800; }
+    .scope-contract h2 { margin: 0 0 .22rem; font-size: 1rem; }
+    .scope-contract p { margin: 0; color: #674a27; }
+    section { margin: 1.8rem 0; }
+    .section-kicker { margin: 0 0 .35rem; color: var(--green); font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h2 { margin: 0; font: 600 1.65rem/1.2 Georgia, "Times New Roman", serif; }
+    h3 { margin: 0 0 .7rem; font-size: .9rem; }
+    .section-intro { max-width: 48rem; margin: .55rem 0 1.25rem; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .card { border: 1px solid var(--line); border-radius: .8rem; padding: 1.25rem; background: white; }
+    .card a { color: var(--blue); font-weight: 750; }
+    .card h3 { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+    .card p:last-child { margin-bottom: 0; }
+    .status-pill { flex: none; border-radius: 999px; padding: .25rem .55rem; color: var(--amber); background: var(--amber-soft); font: 750 .7rem/1.2 ui-sans-serif, sans-serif; letter-spacing: .045em; text-transform: uppercase; }
+    .identity { margin: .4rem 0 .2rem; font: 600 1.16rem/1.35 Georgia, "Times New Roman", serif; }
+    .metadata { display: grid; grid-template-columns: max-content 1fr; gap: .35rem .75rem; margin: 1rem 0 0; font-size: .85rem; }
+    .metadata dt { color: var(--muted); }
+    .metadata dd { margin: 0; overflow-wrap: anywhere; }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code { font-size: .9em; }
+    .issue-list { margin: .8rem 0 0; padding-left: 1.2rem; color: #5f4a2d; }
+    .issue-list li + li { margin-top: .45rem; }
+    .anchor-primer { margin: 1.25rem 0; overflow: hidden; border: 1px solid #c6d4cc; border-radius: .9rem; background: white; box-shadow: 0 8px 24px rgba(30, 45, 39, .05); }
+    .anchor-primer > summary { padding: .85rem 1.15rem; color: var(--green); background: var(--green-soft); font-weight: 750; }
+    .anchor-primer[open] > summary { border-bottom: 1px solid #c6d4cc; }
+    .primer-heading { display: grid; grid-template-columns: 2.5rem 1fr; gap: .9rem; padding: 1.25rem 1.35rem; color: white; background: #294d3e; }
+    .primer-heading .scope-icon { color: var(--green); background: #dbe9e1; }
+    .primer-heading h3 { margin: 0 0 .25rem; font: 600 1.25rem/1.2 Georgia, "Times New Roman", serif; }
+    .primer-heading p { margin: 0; color: #dce8e2; }
+    .anchor-map { display: grid; grid-template-columns: minmax(0, 1fr) 6.5rem minmax(0, 1fr); align-items: stretch; }
+    .evidence-lane { padding: 1.35rem; }
+    .lane-label { display: block; margin-bottom: .55rem; color: var(--muted); font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .source-code { margin: 0; padding: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: #dcefe5; background: #142b22; border-radius: .55rem; font-size: .82rem; line-height: 1.6; }
+    .anchor-token { display: inline-block; margin: .75rem 0 .45rem; padding: .35rem .65rem; border: 1px solid #a8c3b5; border-radius: .4rem; color: var(--green); background: var(--green-soft); font: 800 1rem/1.2 "SFMono-Regular", Consolas, monospace; }
+    .lane-note { margin: .2rem 0 0; color: var(--muted); font-size: .83rem; }
+    .map-bridge { display: grid; align-content: center; justify-items: center; gap: .2rem; color: var(--green); background: var(--surface); font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; text-align: center; }
+    .map-arrow { font-size: 1.8rem; line-height: 1; }
+    .line-sample { display: grid; grid-template-columns: 5.5rem 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: .55rem; }
+    .line-number { padding: .85rem .7rem; color: var(--blue); background: var(--blue-soft); font: 750 .78rem/1.45 ui-sans-serif, sans-serif; }
+    .line-text { padding: .85rem; overflow-wrap: anywhere; font: .82rem/1.5 "SFMono-Regular", Consolas, monospace; }
+    .coordinate-legend { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); background: #fafbf8; }
+    .coordinate-legend div { padding: 1rem 1.15rem; }
+    .coordinate-legend div + div { border-left: 1px solid var(--line); }
+    .coordinate-legend strong { display: block; margin-bottom: .25rem; color: var(--green); }
+    .coordinate-legend span { display: block; color: var(--muted); font-size: .8rem; }
+    .primer-conclusion { margin: 0; padding: 1rem 1.35rem; border-top: 1px solid #d9e4dd; color: #315044; background: #eef5f1; }
+    .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .75rem; margin-top: .9rem; }
+    .signal-card { display: flex; flex-direction: column; padding: 1rem; border: 1px solid var(--line); border-radius: .65rem; background: white; }
+    .signal-card h4 { margin: .55rem 0 .25rem; font-size: .86rem; }
+    .signal-card p { margin: 0; color: var(--muted); font-size: .78rem; }
+    .signal-cue { display: block; margin: .15rem 0 .65rem; padding: .55rem; border-radius: .4rem; color: var(--ink); background: var(--surface); font-size: .72rem; overflow-wrap: anywhere; }
+    .signal-card .signal-effect { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid var(--line); color: #3d4d46; }
+    .signal-effect strong { display: block; margin-bottom: .2rem; color: var(--green); font-size: .65rem; letter-spacing: .06em; text-transform: uppercase; }
+    .signal-state { display: inline-block; border-radius: 999px; padding: .2rem .45rem; font-size: .62rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+    .signal-state.observed { color: var(--amber); background: var(--amber-soft); }
+    .signal-state.guardrail { color: var(--blue); background: var(--blue-soft); }
+    .signal-state.information { color: var(--blue); background: var(--blue-soft); }
+    .signal-state.blocked { color: #873b32; background: #f8e9e6; }
+    .candidate-explainer { display: grid; grid-template-columns: minmax(14rem, .72fr) minmax(0, 1.28fr); gap: 1.25rem; margin: 1.25rem 0; padding: 1.25rem; border: 1px solid #e2cda8; border-radius: .8rem; background: var(--amber-soft); }
+    .candidate-explainer h3 { margin: .65rem 0 .35rem; font: 600 1.18rem/1.25 Georgia, "Times New Roman", serif; }
+    .candidate-explainer p { margin: 0; color: #675235; font-size: .88rem; }
+    .candidate-list { display: grid; gap: .6rem; }
+    .candidate-row { display: grid; grid-template-columns: 2rem 1fr; gap: .7rem; padding: .85rem; border: 1px solid #decaa8; border-radius: .55rem; background: rgba(255,255,255,.72); }
+    .candidate-marker { display: grid; place-items: center; align-self: start; width: 1.75rem; height: 1.75rem; border-radius: 50%; font-weight: 850; }
+    .candidate-target .candidate-marker { color: white; background: var(--green); }
+    .candidate-lookalike .candidate-marker { color: var(--amber); background: #f2dfbd; }
+    .candidate-row strong, .candidate-row code, .candidate-row small { display: block; }
+    .candidate-row strong { font-size: .76rem; }
+    .candidate-row code { margin: .25rem 0; overflow-wrap: anywhere; color: var(--ink); }
+    .candidate-row small { color: var(--muted); }
+    .scale-link { margin-top: 1rem; padding: .85rem; border: 1px solid #decaa8; border-radius: .55rem; background: rgba(255,255,255,.68); }
+    .scale-total { display: inline-flex; align-items: baseline; gap: .25rem; color: #654820; font-size: .75rem; }
+    .scale-total strong { font-size: 1.15rem; }
+    .scale-arrow { display: inline-block; margin: 0 .4rem; color: var(--amber); }
+    .scale-equals { display: block; margin-top: .45rem; color: var(--ink); font-size: .82rem; }
+    .candidate-chips { display: flex; flex-wrap: wrap; gap: .3rem; margin: .55rem 0; }
+    .candidate-chips code { padding: .18rem .4rem; border-radius: .3rem; color: #5f421d; background: #f3dfbc; font-weight: 700; }
+    .scale-link small { display: block; color: var(--muted); font-size: .72rem; }
+    .boundary-chain { margin: 1rem 0 1.25rem; overflow: hidden; border: 1px solid #bfd2c8; border-radius: .8rem; background: white; }
+    .boundary-chain > h3 { margin: 0; padding: 1rem 1.2rem; color: white; background: var(--green); font: 600 1.05rem/1.25 Georgia, "Times New Roman", serif; }
+    .boundary-path { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; padding: 1rem; background: #f6f8f5; }
+    .boundary-node { padding: .9rem; border: 1px solid var(--line); border-radius: .55rem; background: white; }
+    .boundary-node .lane-label { margin-bottom: .35rem; }
+    .boundary-node strong, .boundary-node code, .boundary-node small { display: block; }
+    .boundary-node code { margin: .25rem 0; color: var(--green); font-weight: 800; overflow-wrap: anywhere; }
+    .boundary-node small { color: var(--muted); }
+    .path-arrow { display: grid; place-items: center; padding: 0 .55rem; color: var(--green); font-size: 1.45rem; font-weight: 850; }
+    .next-anchor-markup { margin: 0; padding: .75rem 1rem; border-top: 1px solid var(--line); white-space: pre-wrap; overflow-wrap: anywhere; color: #dcefe5; background: #142b22; font-size: .76rem; }
+    .reading-views { display: grid; gap: 1.25rem; margin-top: 1.25rem; }
+    .reading-comparison { overflow: hidden; border: 1px solid var(--line); border-radius: .85rem; background: white; }
+    .reading-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; color: white; background: #294d3e; }
+    .reading-heading h3 { margin: 0; font: 600 1.08rem/1.25 Georgia, "Times New Roman", serif; }
+    .reading-heading .lane-label { color: #cfe0d8; }
+    .reading-coordinates { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .4rem; }
+    .reading-coordinates span, .reading-warning { border-radius: 999px; padding: .24rem .52rem; background: rgba(255,255,255,.14); font-size: .68rem; font-weight: 750; }
+    .reading-warning { display: block; margin: .8rem 1rem 0; color: #873b32; background: #f8e9e6; overflow-wrap: anywhere; }
+    .reading-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(18rem, .92fr); }
+    .source-pane { min-width: 0; border-right: 1px solid var(--line); background: #f7f8f5; }
+    .reader-pane { min-width: 0; background: #fffef9; }
+    .pane-heading { display: flex; justify-content: space-between; gap: .7rem; padding: .75rem 1rem; border-bottom: 1px solid var(--line); }
+    .pane-heading strong { font-size: .8rem; }
+    .pane-heading span { color: var(--muted); font-size: .72rem; text-align: right; }
+    .source-lines { max-height: 40rem; overflow: auto; padding: .55rem 0; }
+    .source-line { display: grid; grid-template-columns: 4rem minmax(0, 1fr) auto; align-items: start; min-height: 1.7rem; border-left: 4px solid transparent; }
+    .source-line-number { padding: .22rem .65rem; color: var(--blue); font: 750 .7rem/1.45 ui-sans-serif, sans-serif; text-align: right; }
+    .source-line code { padding: .2rem .55rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .73rem; }
+    .line-label { align-self: center; margin: .18rem .55rem .18rem .2rem; border-radius: 999px; padding: .16rem .42rem; color: #5d4524; background: var(--amber-soft); font-size: .59rem; font-weight: 800; white-space: nowrap; }
+    .line-start { border-color: var(--green); background: var(--green-soft); }
+    .line-flagged { border-color: var(--amber); background: var(--amber-soft); }
+    .line-boundary { border-color: #873b32; background: #f8e9e6; }
+    .line-next { border-color: var(--blue); background: var(--blue-soft); }
+    .legal-reading { padding: 1.35rem; font: 1rem/1.7 Georgia, "Times New Roman", serif; }
+    .legal-reading p { margin: 0 0 1rem; }
+    .legal-reading p:first-child::first-line { font-weight: 700; }
+    .reader-boundary { display: grid; grid-template-columns: 1fr auto; gap: .18rem .6rem; margin: 0 1.15rem 1rem; padding: .8rem; border-top: 3px solid var(--blue); background: var(--blue-soft); }
+    .reader-boundary span { grid-column: 1 / -1; color: var(--muted); font-size: .65rem; font-weight: 800; text-transform: uppercase; }
+    .reader-boundary code { color: var(--blue); }
+    .presentation-note { display: block; margin: 0 1.15rem 1.15rem; color: var(--muted); }
+    .reading-hash { display: grid; grid-template-columns: auto 1fr; gap: .6rem; padding: .65rem 1rem; border-top: 1px solid var(--line); color: var(--muted); background: var(--surface); font-size: .68rem; }
+    .reading-hash code { overflow-wrap: anywhere; color: var(--ink); }
+    details { margin-top: 1rem; border-top: 1px solid var(--line); padding-top: .9rem; }
+    summary { cursor: pointer; color: var(--blue); font-weight: 700; }
+    .hashes { margin: .8rem 0 0; padding: .8rem; color: var(--muted); background: var(--blue-soft); border-radius: .45rem; font-size: .73rem; overflow-wrap: anywhere; }
+    .decision { border: 1px solid #bdd0c6; border-radius: .9rem; padding: clamp(1.25rem, 4vw, 2.25rem); background: var(--green-soft); }
+    .effect-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin: 1.25rem 0; }
+    .effect { border-radius: .65rem; padding: 1rem; background: rgba(255,255,255,.68); }
+    .effect h3 { margin: 0 0 .4rem; }
+    .effect ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: .88rem; }
+    .effect li + li { margin-top: .3rem; }
+    .review-question { margin: .75rem 0; padding: .9rem 1rem; border: 1px solid #abc6b8; border-radius: .65rem; background: white; }
+    .review-question legend { padding: 0 .25rem; font-weight: 650; }
+    .review-options { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: .25rem; }
+    .review-options label { display: inline-flex; align-items: center; gap: .35rem; cursor: pointer; }
+    input[type=radio] { width: 1.1rem; height: 1.1rem; accent-color: var(--green); }
+    label.field { display: block; margin: 1rem 0; font-weight: 700; }
+    label.field small { display: block; margin: .2rem 0 .4rem; color: var(--muted); font-weight: 400; }
+    input[type=text], textarea { width: 100%; border: 1px solid #9eaaa4; border-radius: .45rem; padding: .72rem .8rem; color: var(--ink); background: white; font: inherit; }
+    input:focus, textarea:focus { outline: 3px solid rgba(52,91,114,.2); border-color: var(--blue); }
+    .action-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.25rem; }
+    button { border: 0; border-radius: .45rem; padding: .78rem 1rem; color: white; background: var(--green); font: 750 .92rem/1.2 inherit; cursor: pointer; box-shadow: 0 3px 0 #0c3829; }
+    button:disabled { color: #7a847f; background: #d5dad7; box-shadow: none; cursor: not-allowed; }
+    #message { margin: 0; color: var(--green); font-weight: 650; }
+    .next-step { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid #bdd0c6; color: var(--muted); font-size: .88rem; }
+    footer { padding: 1.25rem clamp(1.25rem, 5vw, 4.75rem); color: #d7e3dd; background: #20332b; font-size: .78rem; }
+    footer strong { color: white; }
+    @media (max-width: 760px) {
+      .grid, .effect-grid, .candidate-explainer, .reading-grid { grid-template-columns: 1fr; }
+      .scope-contract { margin-inline: 0; }
+      .anchor-map { grid-template-columns: 1fr; }
+      .map-bridge { padding: .7rem; }
+      .map-arrow { transform: rotate(90deg); }
+      .coordinate-legend { grid-template-columns: 1fr; }
+      .coordinate-legend div + div { border-left: 0; border-top: 1px solid var(--line); }
+      .boundary-path { grid-template-columns: 1fr; gap: .5rem; }
+      .path-arrow { transform: rotate(90deg); padding: .1rem; }
+      .reading-heading { align-items: flex-start; flex-direction: column; }
+      .reading-coordinates { justify-content: flex-start; }
+      .source-pane { border-right: 0; border-bottom: 1px solid var(--line); }
+      .source-line { grid-template-columns: 3.4rem minmax(0, 1fr); }
+      .line-label { grid-column: 2; margin: .1rem .55rem .35rem; }
+      .reading-hash { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: white; }
+      .shell { box-shadow: none; }
+      .decision { break-inside: avoid; }
+      button { display: none; }
+    }
+  .demo-banner { padding: .85rem clamp(1.25rem, 5vw, 4.75rem); color: #173a2e; background: #dcece2; border-bottom: 1px solid #aacbb9; font-weight: 650; }
+    .demo-banner a { color: #164f3b; }
+  </style>
+</head>
+<body>
+  <div class="demo-banner" role="note"><strong>Synthetic, read-only example.</strong> This is invented source text shown in the real review-page layout. It cannot save, download or approve a decision. <a href="https://github.com/robertkuter/legal-source-connector/blob/main/docs/LOCATOR-REVIEW-GUIDE.md">How the live local review works</a>.</div>
+  <div class="shell">
+    <header>
+      <p class="eyebrow">Legal Source Connector · Evidence review</p>
+      <h1>Review one exact provision</h1>
+      <p class="lede">Inspect a synthetic snapshot and the proposed boundary. The live local page validates a review before use; this public example cannot record one.</p>
+      <div class="header-meta">
+        <span class="badge badge-light">Static example</span>
+        <span class="badge badge-light">Scope: one locator</span>
+        <span class="badge badge-light">Schema 1.1.0</span>
+      </div>
+    </header>
+    <main>
+      <aside class="scope-contract" aria-labelledby="scope-title">
+        <div class="scope-icon" aria-hidden="true">!</div>
+        <div><h2 id="scope-title">This review has a hard boundary</h2><p>In the live workflow, a recorded decision can confirm only <code>1 kap. 2 §</code> in this exact snapshot. It does not change automatic capability, approve the source generally, select an I:/U: version, or decide legal effect.</p></div>
+      </aside>
+      <section aria-labelledby="source-heading">
+        <p class="section-kicker">Step 1 · Source and stop reason</p>
+        <h2 id="source-heading">Know exactly what you are reviewing</h2>
+        <p class="section-intro">The source identity and both source representations are fixed into this artifact. In the live workflow, later source or version changes invalidate a decision.</p>
+        <details class="anchor-primer" aria-label="Publisher anchor and offset explainer">
+          <summary>How the publisher anchor, line and offsets relate</summary>
+          <div class="primer-heading">
+            <div class="scope-icon" aria-hidden="true">?</div>
+            <div><h3 id="anchor-primer-heading">First: what is a publisher anchor?</h3><p>An anchor is an invisible bookmark in the publisher's HTML. It is independent structural evidence—not another paragraph number and not a line count.</p></div>
+          </div>
+          <div class="anchor-map">
+            <div class="evidence-lane">
+              <span class="lane-label">Publisher's HTML representation</span>
+              <pre class="source-code">&lt;a class=&quot;paragraf&quot; name=&quot;K1P2&quot;&gt;&lt;b&gt;2 §&lt;/b&gt;&lt;/a&gt;</pre>
+              <code class="anchor-token">K1P2</code>
+              <p class="lane-note"><strong>K1</strong> means chapter 1; <strong>P2</strong> means section 2. The publisher placed this bookmark immediately before the displayed <strong>2 §</strong>.</p>
+            </div>
+            <div class="map-bridge"><span>same legal address</span><span class="map-arrow" aria-hidden="true">→</span></div>
+            <div class="evidence-lane">
+              <span class="lane-label">Plain-text representation</span>
+              <div class="line-sample"><span class="line-number">Line 5</span><code class="line-text">2 § För den påhittade redovisningen nämns följande exempel:</code></div>
+              <code class="anchor-token">offset 80</code>
+              <p class="lane-note">The line number helps a person find the passage. The offset is the exact machine coordinate where extraction begins in this snapshot.</p>
+            </div>
+          </div>
+          <div class="coordinate-legend">
+            <div><strong>Anchor</strong><span>Publisher-assigned legal structure: <code>K1P2</code>.</span></div>
+            <div><strong>Line 5</strong><span>Human-readable location after splitting the example plain text into lines.</span></div>
+            <div><strong>Offsets 80–331</strong><span>Exact UTF-16 range; the end is excluded so the next heading is not captured.</span></div>
+          </div>
+          <p class="primer-conclusion"><strong>The proposition you are reviewing:</strong> publisher bookmark <code>K1P2</code> and text line 5 identify the same 1 kap. 2 §. Extraction starts at offset 80 and ends before the heading leading to <code>K1P3</code> (1 kap. 3 §).</p>
+        </details>
+        <div class="grid">
+          <article class="card">
+            <h3>Synthetic source snapshot <span class="status-pill" style="color:var(--blue);background:var(--blue-soft)">Bound</span></h3>
+            <p class="identity">Fictional records Act — synthetic review example</p>
+            <dl class="metadata">
+              <dt>Example ID</dt><dd>synthetic:1</dd>
+              <dt>Source ID</dt><dd><code>synthetic-review-example</code></dd>
+              <dt>Snapshot</dt><dd><code>synthetic-review-example.json</code></dd>
+              <dt>Provider</dt><dd>Fictional example</dd>
+            </dl>
+          </article>
+          <article class="card">
+            <h3>Automatic result <span class="status-pill">Review required</span></h3>
+            <p><strong>Why this review opened:</strong> 3 publisher HTML anchors were compared with 6 text-parser candidates. The source maps do not align, so unreviewed locators in this snapshot cannot be confirmed automatically.</p>
+            <p>3 heading-like lines sit inside the proposed provision, matching the source's net +3 count gap. <a href="#trigger-evidence">See the yellow-highlighted source lines</a>. This local review does not clear the separate identity or order warning.</p>
+            <ul class="issue-list"><li>HTML paragraph anchors (3) and text section candidates (6) differ.</li><li>Locator order differs at position 3: HTML 1 kap. 3 §, text 1 kap. 2 §.</li></ul>
+          </article>
+        </div>
+        <details id="source-signals">
+          <summary>Show the signals actually found in this source</summary>
+          <p class="section-intro">Each card separates the observed evidence, its plain-language meaning and the connector response. Only signals carried by this exact, hashed artifact appear here.</p>
+          <div class="signal-grid"><article class="signal-card "><span class="signal-state observed">Observed across Act</span><h4>Coverage difference</h4><code class="signal-cue">3 publisher anchors and 6 text candidates</code><p>The text parser found 3 more heading-like items than the publisher supplied as anchors.</p><p class="signal-effect"><strong>Connector response</strong>Automatic source support remains withheld. A locator decision is available only if both local boundaries can still be reproduced.</p></article><article class="signal-card "><span class="signal-state observed">Observed across Act</span><h4>Identity or order difference</h4><code class="signal-cue">Locator order differs at position 3: HTML 1 kap. 3 §, text 1 kap. 2 §.</code><p>The publisher and plain-text representations stop naming provisions in the same sequence.</p><p class="signal-effect"><strong>Connector response</strong>The discrepancy stays visible. Equal counts or a local review never erase this source-wide warning.</p></article><article class="signal-card "><span class="signal-state observed">Observed at locator</span><h4>Duplicate-looking text</h4><code class="signal-cue">2 plain-text candidates look like 1 kap. 2 §</code><p>The text contains more than one heading-like occurrence for this locator, but only one is paired with the publisher anchor at the proposed start.</p><p class="signal-effect"><strong>Connector response</strong>The candidates are shown together. The decision can confirm only the publisher-matched start and its reproduced boundary.</p></article></div>
+        </details>
+        <details>
+          <summary>Show immutable source and artifact hashes</summary>
+          <div class="hashes"><strong>Text SHA-256</strong><br>c91335cf31ca07182a9c03d354fed6d4a3fec811d7bfd47b912fa0907da10f84<br><br><strong>HTML SHA-256</strong><br>c54cdb471309ef62a1e26b839b3e261cd30d65eb910645c3703720f9feae5254<br><br><strong>Review artifact SHA-256</strong><br>4b0e5b116daaf1da3cb7f6c8bf5ddecebc0496249d55fd6a6b071047f8fbd044</div>
+        </details>
+      </section>
+
+      <section aria-labelledby="target-heading">
+        <p class="section-kicker">Step 2 · Provision boundary</p>
+        <h2 id="target-heading">Inspect 1 kap. 2 § only</h2>
+        <p class="section-intro">The comparison above explains the automatic stop. Here, check that the proposed extraction starts at this locator's publisher anchor and stops before the following provision. Duplicate-looking candidates are exposed rather than hidden.</p>
+        <aside class="candidate-explainer" aria-labelledby="candidate-heading"><div><span class="status-pill">Why the parser paused</span><h3 id="candidate-heading">Several lines look like “2 §”, but only one matches this publisher anchor</h3><p>The parser reports each candidate. The reviewer is being asked to confirm the publisher-matched start and the complete provision boundary.</p><div class="scale-link"><span class="scale-total"><strong>3</strong> publisher anchors</span><span class="scale-arrow" aria-hidden="true">→</span><span class="scale-total"><strong>6</strong> text candidates</span><span class="scale-equals">This provision contains <strong>3</strong> intervening heading-like text candidates, matching the source's net +3 count gap.</span><div class="candidate-chips"><code>1 kap. 2 §</code><code>1 kap. 4 §</code><code>1 kap. 5 §</code></div><small>Matching counts provide context; they do not clear other source-wide differences.</small></div></div><div class="candidate-list"><div class="candidate-row candidate-target"><span class="candidate-marker" aria-hidden="true">✓</span><div><strong>Line 5 · offset 80</strong><code>2 § För den påhittade redovisningen nämns följande exempel:</code><small>Matches publisher anchor K1P2; proposed provision start.</small></div></div><div class="candidate-row candidate-lookalike"><span class="candidate-marker" aria-hidden="true">≠</span><div><strong>Line 7 · offset 141</strong><code>2 § om bilagor,</code><small>No corresponding publisher anchor at this line; it is inside the proposed provision, not its anchored start.</small></div></div></div></aside>
+        <aside class="boundary-chain" aria-labelledby="boundary-chain-heading"><h3 id="boundary-chain-heading">See both ends of the reviewed provision</h3><div class="boundary-path"><div class="boundary-node"><span class="lane-label">Start anchor</span><strong>1 kap. 2 §</strong><code>K1P2</code><small>Line 5 · offset 80</small></div><span class="path-arrow" aria-hidden="true">→</span><div class="boundary-node"><span class="lane-label">Stop before</span><strong>Line 16</strong><code>3 § Denna separata påhittade bestämmelse följer efter exemplet.</code><small>Boundary offset 331; this heading is not included.</small></div><span class="path-arrow" aria-hidden="true">→</span><div class="boundary-node"><span class="lane-label">Next anchored provision</span><strong>1 kap. 3 §</strong><code>K1P3</code><small>Line 16 · offset 331</small></div></div><pre class="next-anchor-markup">&lt;a class=&quot;paragraf&quot; name=&quot;K1P3&quot;&gt;&lt;b&gt;3 §&lt;/b&gt;&lt;/a&gt;</pre></aside>
+        <p class="section-intro"><strong>Read across:</strong> the left side preserves every source line from the provision start through the next anchored provision; the right side presents the same provision without source line wrapping. The coloured rows identify the proposition being reviewed.</p>
+        <div id="trigger-evidence"><div class="reading-views"><article class="reading-comparison"><div class="reading-heading"><div><span class="lane-label">Proposed extraction</span><h3>1 kap. 2 §</h3></div><div class="reading-coordinates"><span>Lines 5–15</span><span>Offsets 80–331</span><span>K1P2</span></div></div><div class="reading-grid"><div class="source-pane"><div class="pane-heading"><strong>Numbered source view</strong><span>Exact snapshot lines, including the following boundary</span></div><div class="source-lines" lang="sv"><div class="source-line line-start"><span class="source-line-number">5</span><code>2 § För den påhittade redovisningen nämns följande exempel:</code><span class="line-label">Anchored start</span></div><div class="source-line "><span class="source-line-number">6</span><code> </code></div><div class="source-line line-flagged"><span class="source-line-number">7</span><code>2 § om bilagor,</code><span class="line-label">Same-number text; no anchor</span></div><div class="source-line "><span class="source-line-number">8</span><code> </code></div><div class="source-line line-flagged"><span class="source-line-number">9</span><code>4 § om format, och</code><span class="line-label">Heading-like text; no anchor</span></div><div class="source-line "><span class="source-line-number">10</span><code> </code></div><div class="source-line line-flagged"><span class="source-line-number">11</span><code>5 § om datering.</code><span class="line-label">Heading-like text; no anchor</span></div><div class="source-line "><span class="source-line-number">12</span><code> </code></div><div class="source-line "><span class="source-line-number">13</span><code>Texten i detta stycke är också påhittad. Den visar var den föreslagna</code></div><div class="source-line "><span class="source-line-number">14</span><code>bestämmelsen fortsätter innan nästa förankrade paragraf börjar.</code></div><div class="source-line "><span class="source-line-number">15</span><code> </code></div><div class="source-line line-boundary line-next"><span class="source-line-number">16</span><code>3 § Denna separata påhittade bestämmelse följer efter exemplet.</code><span class="line-label">Boundary · Next anchor K1P3</span></div></div></div><div class="reader-pane"><div class="pane-heading"><strong>Reader view</strong><span>Same words, with source line wrapping removed</span></div><div class="legal-reading" lang="sv"><p>2 § För den påhittade redovisningen nämns följande exempel:</p><p>2 § om bilagor,</p><p>4 § om format, och</p><p>5 § om datering.</p><p>Texten i detta stycke är också påhittad. Den visar var den föreslagna bestämmelsen fortsätter innan nästa förankrade paragraf börjar.</p></div><div class="reader-boundary"><span>Reading stops before</span><strong>1 kap. 3 §</strong><code>K1P3</code></div><small class="presentation-note">This right-hand view is for reading only. The numbered source lines, offsets and SHA-256 hash remain the evidence.</small></div></div><div class="reading-hash"><span>Candidate text SHA-256</span><code>6c1891f029ba3f38a29e962fd4c5a46bf8c30e28153369a66b02336eff961aa6</code></div></article></div></div>
+        <details>
+          <summary>Show duplicate-looking candidates and technical boundary evidence</summary>
+          <div class="card"><p><strong>Selection evidence:</strong> <code>publisher_and_text_prefix_aligned_through_target</code></p><p><strong>Same-locator candidates:</strong></p><ul><li>candidate 2: line 5, offset 80 — proposed target</li><li>candidate 3: line 7, offset 141</li></ul><p><strong>Full provision SHA-256:</strong><br><code>6c1891f029ba3f38a29e962fd4c5a46bf8c30e28153369a66b02336eff961aa6</code></p></div>
+        </details>
+      </section>
+
+      <section class="decision" aria-labelledby="decision-heading">
+        <p class="section-kicker">Step 3 · Human decision</p>
+        <h2 id="decision-heading">Confirm this provision's boundary</h2>
+        <p class="section-intro">These are the questions the live local page asks. <a href="#trigger-evidence">Recheck the numbered source lines</a>. You can try the answer choices here, but this static page cannot save or validate a decision. In the live workflow, Cannot confirm creates no decision, and the connector rechecks a saved decision on each matching lookup.</p>
+        <details><summary>What a live decision can and cannot do</summary><div class="effect-grid">
+          <div class="effect"><h3>This decision can</h3><ul><li>release this locator for this snapshot</li><li>return it with <code>human_reviewed_snapshot</code> basis</li><li>retain your review label, time and recorded choices</li></ul></div>
+          <div class="effect"><h3>This decision cannot</h3><ul><li>release another locator or the full Act</li><li>erase the <code>review_required</code> capability result</li><li>resolve a dated I:/U: version or legal applicability</li></ul></div>
+        </div></details>
+        <fieldset class="review-question"><legend>Does publisher anchor K1P2 match the start of 1 kap. 2 § in the displayed source text?</legend><div class="review-options"><label><input type="radio" name="review-start" value="yes">Yes</label><label><input type="radio" name="review-start" value="cannot_confirm">Cannot confirm</label></div></fieldset><fieldset class="review-question"><legend>Are the 3 highlighted heading-like lines inside 1 kap. 2 §, rather than separate provisions?</legend><div class="review-options"><label><input type="radio" name="review-inside" value="yes">Yes</label><label><input type="radio" name="review-inside" value="cannot_confirm">Cannot confirm</label></div></fieldset><fieldset class="review-question"><legend>Does the proposed text stop before 1 kap. 3 § at publisher anchor K1P3?</legend><div class="review-options"><label><input type="radio" name="review-stop" value="yes">Yes</label><label><input type="radio" name="review-stop" value="cannot_confirm">Cannot confirm</label></div></fieldset>
+        <label class="field" for="reviewer">Reviewer label<small>A local name or role label that identifies who performed this review.</small><input disabled id="reviewer" type="text" autocomplete="name" placeholder="e.g. reviewer initials · legal review"></label>
+        <label class="field" for="review-note">Optional note<small>Add anything the recorded choices do not capture. You do not need to restate the evidence above.</small><textarea disabled id="review-note" rows="3" placeholder="Optional context for the next reviewer"></textarea></label>
+        <div class="action-row"><button id="save" type="button" disabled>Save review locally</button><button id="download" type="button" disabled>Download decision record</button><p id="message" role="status" aria-live="polite">Try the answer choices. This preview cannot save or download a decision.</p></div>
+        <p class="next-step"><strong>Live workflow:</strong> open the local review page through the connector, answer the questions and save there. This static example cannot import a decision or change a lookup result.</p>
+      </section>
+    </main>
+    <footer><strong>Synthetic demonstration only.</strong> The wording and source identity are invented; the hashes were computed from that invented material. This page does not contact Riksdagen or store a decision.</footer>
+  </div>
+</body>
+</html>

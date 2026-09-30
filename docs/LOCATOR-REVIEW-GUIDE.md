@@ -5,6 +5,9 @@ local review page shows what stopped it, the proposed provision, and the text im
 after it. A reviewer can confirm one exact provision in one downloaded snapshot. Other
 provisions in the Act keep their own result.
 
+For a visual preview, see the [synthetic, read-only review example](../examples/locator-review/README.md).
+The commands below open the live local page for an actual source.
+
 ## Open the page
 
 From the connector folder, use Årsredovisningslagen (1995:1554), `7 kap. 7 §`, as a

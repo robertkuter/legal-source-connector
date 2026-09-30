@@ -18,6 +18,8 @@ and design notes.
   workspace may need the HTML-and-JSON handoff instead of a browser link.
 
 See the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for a short walkthrough.
+The [synthetic HTML example](examples/locator-review/README.md) shows the review layout
+without offering a live decision.
 The v0.1.7 release downloads do not include these changes.
 
 ## v0.1.7
