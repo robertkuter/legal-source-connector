@@ -175,7 +175,7 @@ orientation or an explicit refresh. A skill installation alone does not create a
 connection, and the assistant's learned knowledge or conversation memory is not a substitute
 for a packet.
 
-This candidate adds `get_provision.mjs --fresh` as that explicit
+The source on `main` adds `get_provision.mjs --fresh` as that explicit
 refresh and lookup in one command. It fetches official JSON, text and HTML, keeps a changed
 snapshot separate from prior evidence, and reports the live check time in the packet. A
 failed fetch produces `unknown`; a plain `get_provision.mjs` call remains a pinned local

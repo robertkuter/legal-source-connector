@@ -69,12 +69,12 @@ release, when actual use, questions and repository traffic show whether a shared
 would help. It does not reserve a provider, announce a build or invite contributions.
 
 The reviewed-source pathway is not a manual switch from `review_required` to `supported`.
-This candidate implements versioned locator preparation, local HTML
+The source on `main` implements versioned locator preparation, local HTML
 review, validation/import, a gitignored store and lookup disclosure. It binds the review to
 the exact text and HTML snapshot, locator, anchor, offsets, hashes and implementation
 versions while preserving the general capability result. Source-snapshot correction sets
 and host adapters are not implemented. The existing v0.1.7 release does not contain this
-candidate work.
+work.
 
 ## Adding another SFS Act
 

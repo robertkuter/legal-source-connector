@@ -17,12 +17,13 @@ provision, no exact match, more than one possible version, or a clear statement 
 cannot confirm the source safely. It confirms source text, not meaning, applicability, or
 legal advice.
 
-**Proposed update after v0.1.7:** Use `--fresh` to check Riksdagen again. If the connector
+**On `main` after v0.1.7:** Use `--fresh` to check Riksdagen again. If the connector
 finds wording but cannot confirm the provision, read it with an **unverified** label.
 If the connector can show where that provision starts and stops, open the local review
 page, check both ends, and save a confirming decision for that locator only. See the
-[change summary](CHANGELOG.md) and [review guide](docs/LOCATOR-REVIEW-GUIDE.md). The
-v0.1.7 downloads below do not include this update yet.
+[change summary](CHANGELOG.md) and [review guide](docs/LOCATOR-REVIEW-GUIDE.md). Download
+the [updated source from `main`](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip)
+to try it; the v0.1.7 release downloads below contain the earlier version.
 
 ## A concrete example
 
@@ -73,6 +74,7 @@ connector from the assistant skill. Use the direct route that matches your task:
 | Use the skill with Claude or another compatible assistant | [Download for Claude or another compatible assistant](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-portable.zip) | The portable v0.1.7 skill: `SKILL.md` instructions, packet reference, licence and notice; not the connector. |
 | Use the skill with Codex | [Download the Codex skill v0.1.7](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-codex.zip) | The portable skill plus Codex display metadata. |
 | Run or inspect the connector | [Download the complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip) | The connector, tests, examples, skill source and documentation; not downloaded Acts. |
+| Try the update on `main` | [Download the updated source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip) | The unreleased connector, tests, examples, skill source and documentation; not downloaded Acts or installable skill ZIPs. |
 | Understand it before downloading | [Continue with the provision-result guide](#four-provision-results-a-lawyer-may-see) | Nothing is downloaded. |
 | Find a technical explanation | [Open the rendered documentation guide](docs/README.md) | A guided index, not the long alphabetical folder listing. |
 
@@ -144,8 +146,9 @@ webpage. The reader is a static, dated teaching set: it does not run the connect
 legislation, create packets or receipts, or check the current source. It is not a complete
 ABL guide.
 
-For the review step, read the [synthetic locator-review example](examples/locator-review/README.md).
-After downloading the repository, open `examples/locator-review/index.html` in a browser.
+For the review step, open the [synthetic locator-review page](https://robertkuter.github.io/legal-source-connector/examples/locator-review/)
+or read its [GitHub-friendly guide](examples/locator-review/README.md).
+After downloading the repository, you can also open `examples/locator-review/index.html` in a browser.
 It shows the stop reason, proposed text, boundary evidence and review questions in the
 local page's layout. The example uses invented text and disabled controls; it cannot save
 a decision. The [local review guide](docs/LOCATOR-REVIEW-GUIDE.md) explains how to run a
@@ -276,7 +279,7 @@ before redistributing source data or operating a service based on it.
 Choose the route that matches what you want to do:
 
 1. **See the examples** — open the [ABL reader](https://robertkuter.github.io/legal-source-connector/examples/abl-primer/)
-   or follow the [synthetic review-page guide](examples/locator-review/README.md).
+   or the [synthetic review page](https://robertkuter.github.io/legal-source-connector/examples/locator-review/).
 2. **Run and test it** — follow the [testing guide](docs/TESTING.md).
 3. **Review a held provision** — use the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md).
 4. **Understand the code** — use the [plain-English code map](docs/CODE-EXPLAINER.md).

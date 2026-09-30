@@ -4,7 +4,7 @@ This page tracks changes a user would notice. The [README](README.md) explains h
 start; the [technical documentation guide](docs/README.md) holds the detailed evidence
 and design notes.
 
-## Unreleased candidate after v0.1.7
+## On `main` after v0.1.7 (unreleased)
 
 - `--fresh` checks the official Riksdagen source again and reports whether its text or
   HTML changed. A failed check returns `unknown` rather than presenting cached text as
@@ -20,7 +20,9 @@ and design notes.
 See the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for a short walkthrough.
 The [synthetic HTML example](examples/locator-review/README.md) shows the review layout
 without offering a live decision.
-The v0.1.7 release downloads do not include these changes.
+The v0.1.7 release downloads do not include these changes. Download the
+[current `main` source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip)
+to try the updated connector.
 
 ## v0.1.7
 

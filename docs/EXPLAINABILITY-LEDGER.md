@@ -46,7 +46,7 @@ for preserving understanding about that behaviour.
 | Clean-clone tests explain missing source data | The public repository intentionally excludes complete Acts, so an absent cache should lead to the next safe action rather than a machine stack trace | No-cache preflight checks list missing SFS IDs; the synthetic suite checks the connector's orientation guidance | Show the difference between “software failed” and “source has not been downloaded yet” |
 | Found-packet response must contain the evidence it describes | A pasted Claude Sonnet transcript appeared to omit a provision block while still describing it as verbatim; the later full-box check showed that the rendered answer did contain the block | v0.1.6 transcript record; v0.1.7 adds a final response integrity check and C09; the v0.1.7 positive-path evaluation records the copy/paste artifact | Show the rendered evidence box as well as the prose transcript when reviewing output integrity |
 
-## Entry: locator-review release candidate after v0.1.7
+## Entry: locator-review update on `main` after v0.1.7
 
 | Code change | Plain-English reason | Evidence | Presentation hook |
 |---|---|---|---|
