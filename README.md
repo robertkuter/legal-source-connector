@@ -5,6 +5,13 @@ Status: explainability alpha; not production legal software.
 **Start here:** [choose the right download or route](#choose-what-you-want-to-do), or
 [read the concrete example](#a-concrete-example).
 
+**Why this exists:** An AI assistant can cite Swedish legislation confidently and still
+give a lawyer the wrong words. Riksdagen can show two versions of a section at once. A
+program that divides an Act into sections can mistake a list of references for new
+sections. A saved copy can also differ from the source Riksdagen shows now. In one
+Årsredovisningslagen test, the program read five references inside `7 kap. 7 §` as five
+extra sections.
+
 This repository contains a small software connector and an assistant skill. The connector
 retrieves an identified Swedish Act from Riksdagen and keeps a working copy on the user's
 computer. It checks the Act's structure, then creates a small evidence packet for the
