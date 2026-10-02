@@ -1,9 +1,21 @@
 # Review one provision locally
 
-The connector may find official source text but be unable to confirm its boundary. The
-local review page shows what stopped it, the proposed provision, and the text immediately
-after it. A reviewer can confirm one exact provision in one downloaded snapshot. Other
-provisions in the Act keep their own result.
+## Why this page exists
+
+The connector may find the words of a provision in Riksdagen's source but still be unsure
+where that provision begins and ends. In Årsredovisningslagen, for example, five references
+inside `7 kap. 7 §` look like separate sections to the section finder. The connector flags
+the mismatch rather than silently cutting the provision at the wrong place.
+
+For some mismatches, the connector can propose where the requested provision starts and
+ends. The local review page shows why the automatic check stopped, the proposed text, and
+the text on either side. A human reviewer can check those boundaries and save a decision for
+that one locator.
+
+The connector validates the decision against the exact downloaded source before it
+retries the lookup. Other provisions keep their own result. The decision does not approve
+the whole Act, choose a version for a date, or decide what the law means. When the
+connector cannot offer confirmation, the page explains why without a save button.
 
 For a visual preview, see the [synthetic, read-only review example](../examples/locator-review/README.md).
 The commands below open the live local page for an actual source.
@@ -31,7 +43,7 @@ using an older saved source as current.
 Read the reason for the stop, the proposed text, and where that text starts and ends.
 The page asks short **Yes** or **Cannot confirm** questions about those boundaries. A
 question about heading-like lines appears only when relevant. No answer is selected in
-advance. Enter a reviewer label; the note is optional.
+advance. Enter a label for the person making the decision; the note is optional.
 
 **Save review locally** validates the completed answers, imports the decision, retries
 this locator and prints the result in the waiting terminal. **Cannot confirm** does not

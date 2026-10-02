@@ -4,14 +4,14 @@ This page tracks changes a user would notice. The [README](README.md) explains h
 start; the [technical documentation guide](docs/README.md) holds the detailed evidence
 and design notes.
 
-## On `main` after v0.1.7 (unreleased)
+## Available in the current source (not in v0.1.7)
 
 - `--fresh` checks the official Riksdagen source again and reports whether its text or
   HTML changed. A failed check returns `unknown` rather than presenting cached text as
   current.
 - Blocked results can show identifiable official text as an **unverified source
   observation**, separate from confirmed provision text.
-- A local page lets a reviewer inspect and record the boundaries of one provision.
+- A local page lets a person inspect and record the boundaries of one provision.
   A valid decision releases only that locator in the reviewed snapshot; timing and
   unsupported cases remain explanation-only.
 - The same commands and decision file work across local AI assistants. A remote
@@ -21,7 +21,7 @@ See the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for a short walkthrou
 The [synthetic HTML example](examples/locator-review/README.md) shows the review layout
 without offering a live decision.
 The v0.1.7 release downloads do not include these changes. Download the
-[current `main` source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip)
+[current connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip)
 to try the updated connector.
 
 ## v0.1.7

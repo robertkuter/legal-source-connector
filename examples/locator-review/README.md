@@ -3,7 +3,7 @@
 This static page shows the connector's local review layout using invented Swedish text.
 It models a provision whose cross-reference lines look like extra section headings. The
 page connects the automatic stop to those highlighted lines, shows both ends of the
-proposed extraction, and displays the questions a reviewer would answer.
+proposed extraction, and displays the questions a person would answer.
 
 [Open the rendered example on GitHub Pages](https://robertkuter.github.io/legal-source-connector/examples/locator-review/).
 You can also download the repository and open [`index.html`](index.html) in a browser.
