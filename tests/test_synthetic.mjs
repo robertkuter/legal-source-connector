@@ -92,6 +92,19 @@ check("Lettered chapters beyond a are parsed and addressed",
   && parseLocator("6 b kap. 52 i §").chapter === "6 b"
   && letteredChapter.sections[0].locator === "6 b kap. 52 i §");
 
+const inlineMarker = buildIndex({
+  sourceId: "synthetic:inline-marker",
+  document: {
+    text: "1 § /Träder i kraft I:2030-01-01/ New rule applies.\n",
+    html: '<a class="paragraf" name="P1"><b>1 §</b></a>',
+  },
+  rawFile: "synthetic.json",
+});
+check("An inline commencement marker blocks a structurally supported provision",
+  inlineMarker.capability.status === "supported"
+  && inlineMarker.capability.temporal.status === "layered_unresolved"
+  && inlineMarker.sections[0].temporal_marker?.date === "2030-01-01");
+
 const layered = buildIndex({
   sourceId: "synthetic:layered",
   document: {
@@ -184,11 +197,24 @@ try {
 }
 check("Missing source cache gives a copyable orientation instruction", missingCacheGuidance);
 
+const identityCache = await mkdtemp(join(tmpdir(), "lsc-cached-identity-"));
+await mkdir(join(identityCache, "sfs-2099-1"));
+await writeFile(join(identityCache, "sfs-2099-1", "2099-01-01T00-00-00-000Z.json"),
+  JSON.stringify({ dokumentstatus: { dokument: { ...syntheticDocument, beteckning: "2099:2" } } }));
+let wrongCachedIdentityRejected = false;
+try {
+  await loadCachedDocument(identityCache, "sfs-2099-1");
+} catch (error) {
+  wrongCachedIdentityRejected = error.message.includes("Cached source identity does not match sfs-2099-1");
+}
+check("Cached lookup rejects a snapshot belonging to another SFS", wrongCachedIdentityRejected);
+
 const freshCache = await mkdtemp(join(tmpdir(), "lsc-fresh-source-"));
 const freshId = "sfs-2099-1";
 const freshDocument = { ...syntheticDocument, beteckning: "2099:1" };
 let responseTextSuffix = "\nOfficial text wrapper v1";
 let responseHtmlSuffix = "\n<!-- Official HTML wrapper v1 -->";
+let directTextOverride = null;
 let failFormat = null;
 let freshTick = 0;
 const fakeFetch = async (url) => {
@@ -196,7 +222,7 @@ const fakeFetch = async (url) => {
   if (format === failFormat) throw new Error("Synthetic network failure");
   const body = format === "json"
     ? JSON.stringify({ dokumentstatus: { dokument: freshDocument } })
-    : format === "text" ? freshDocument.text + responseTextSuffix : freshDocument.html + responseHtmlSuffix;
+    : format === "text" ? directTextOverride ?? freshDocument.text + responseTextSuffix : freshDocument.html + responseHtmlSuffix;
   return { ok: true, status: 200, text: async () => body };
 };
 const freshArgs = {
@@ -205,6 +231,14 @@ const freshArgs = {
   fetchImpl: fakeFetch,
   now: () => new Date(Date.UTC(2026, 8, 28, 12, 0, freshTick++)),
 };
+const brokenCache = await mkdtemp(join(tmpdir(), "lsc-broken-cache-"));
+await mkdir(join(brokenCache, freshId));
+await writeFile(join(brokenCache, freshId, "2026-01-01T00-00-00-000Z.json"), "<html>503</html>");
+const recoveredFresh = await fetchAndPinOfficialSource({ ...freshArgs, cacheDir: brokenCache });
+check("Fresh lookup recovers from an invalid cached JSON response",
+  recoveredFresh.status === "first_snapshot"
+  && recoveredFresh.prior_snapshot_ignored === true
+  && (await loadCachedDocument(brokenCache, freshId)).rawFile === recoveredFresh.source_snapshot);
 const firstFresh = await fetchAndPinOfficialSource(freshArgs);
 const sameFresh = await fetchAndPinOfficialSource(freshArgs);
 check("Fresh lookup pins first source and reuses an unchanged snapshot",
@@ -252,6 +286,12 @@ let formatMismatchRejected = false;
 try { await fetchAndPinOfficialSource(freshArgs); } catch { formatMismatchRejected = true; }
 check("Disagreeing direct and embedded provision maps cannot replace the snapshot",
   formatMismatchRejected && (await loadCachedDocument(freshCache, freshId)).rawFile === changedEmbeddedHtml.source_snapshot);
+responseHtmlSuffix = "\n<!-- Official HTML wrapper v2 -->";
+directTextOverride = freshDocument.text.replace("First rule.", "Different rule.") + responseTextSuffix;
+let wordingMismatchRejected = false;
+try { await fetchAndPinOfficialSource(freshArgs); } catch { wordingMismatchRejected = true; }
+check("Matching section maps cannot conceal different direct source wording",
+  wordingMismatchRejected && (await loadCachedDocument(freshCache, freshId)).rawFile === changedEmbeddedHtml.source_snapshot);
 
 const summary = {
   test_suite: "synthetic-core-v0.1",

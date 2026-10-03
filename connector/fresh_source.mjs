@@ -31,9 +31,16 @@ async function officialBody(url, fetchImpl) {
 
 async function priorSnapshot(cacheDir, sourceId) {
   try {
-    return await loadCachedDocument(cacheDir, sourceId);
+    return { snapshot: await loadCachedDocument(cacheDir, sourceId), ignoredInvalid: false };
   } catch (error) {
-    if (error.message.startsWith("No cached source snapshot for ")) return null;
+    if (error.message.startsWith("No cached source snapshot for ")) {
+      return { snapshot: null, ignoredInvalid: false };
+    }
+    if (error instanceof SyntaxError
+      || error.message.startsWith("Cached response has no consolidated text:")
+      || error.message.startsWith("Cached source identity does not match ")) {
+      return { snapshot: null, ignoredInvalid: true };
+    }
     throw error;
   }
 }
@@ -57,7 +64,7 @@ export async function fetchAndPinOfficialSource({
 }) {
   const sourceMatch = String(sourceId ?? "").match(/^sfs-(\d{4})-(\d+)$/);
   if (!sourceMatch) throw new Error("A fresh lookup requires an exact SFS source ID such as sfs-1972-207.");
-  const prior = await priorSnapshot(cacheDir, sourceId);
+  const { snapshot: prior, ignoredInvalid } = await priorSnapshot(cacheDir, sourceId);
   const checkedAt = now().toISOString();
   const base = `https://data.riksdagen.se/dokument/${sourceId}`;
   const [jsonBody, textBody, htmlBody] = await Promise.all([
@@ -85,6 +92,9 @@ export async function fetchAndPinOfficialSource({
   if (JSON.stringify(anchors(document.html)) !== JSON.stringify(anchors(htmlBody))
     || JSON.stringify(candidates(document.text)) !== JSON.stringify(candidates(textBody))) {
     throw new Error("The fresh JSON and direct text/HTML responses disagree on provision structure.");
+  }
+  if (!textBody.includes(document.text)) {
+    throw new Error("The fresh JSON and direct plain-text responses disagree on consolidated wording.");
   }
 
   const hashes = {
@@ -126,6 +136,7 @@ export async function fetchAndPinOfficialSource({
     status: prior ? "changed" : "first_snapshot",
     checked_at: checkedAt,
     compared_snapshot: prior?.rawFile ?? null,
+    ...(ignoredInvalid ? { prior_snapshot_ignored: true } : {}),
     source_snapshot: `${stamp}.json`,
     changed_fields: changedFields,
     hashes,

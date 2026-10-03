@@ -381,6 +381,22 @@ const exactReview = await findValidLocatorReview({
   document: annualAccountsStyle,
   rawFile: "synthetic-arl.json",
 });
+await writeFile(join(storeDir, "damaged.json"), JSON.stringify({
+  store_schema: "sv_sfs_locator_review_store_record",
+  store_schema_version: "1.0.0",
+  artifact: null,
+  decision: validDecision,
+}), "utf8");
+const reviewWithDamagedNeighbour = await findValidLocatorReview({
+  storeDir,
+  sourceId: "synthetic-arl",
+  requestedLocator: "1 kap. 2 §",
+  document: annualAccountsStyle,
+  rawFile: "synthetic-arl.json",
+});
+check("A damaged decision file cannot hide a valid review for the same locator",
+  reviewWithDamagedNeighbour.status === "found"
+  && reviewWithDamagedNeighbour.rejected.some((item) => item.file === "damaged.json"));
 const leakedReview = await findValidLocatorReview({
   storeDir,
   sourceId: "synthetic-arl",
@@ -612,7 +628,7 @@ async function syntheticPacket(sourceId, locator, document) {
   const sourceDir = join(packetCacheDir, sourceId);
   await mkdir(sourceDir, { recursive: true });
   await writeFile(join(sourceDir, "synthetic-snapshot.json"), JSON.stringify({
-    dokumentstatus: { dokument: { ...document, beteckning: sourceId } },
+    dokumentstatus: { dokument: { ...document, beteckning: sourceId.replace(/^sfs-(\d{4})-(\d+)$/, "$1:$2") } },
   }));
   return JSON.parse(execFileSync(process.execPath, [
     getProvisionPath,

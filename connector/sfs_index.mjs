@@ -7,25 +7,25 @@ const INDEX_VERSION = "0.6";
 
 const TEMPORAL_MARKER_PATTERNS = [
   {
-    pattern: /^\/Träder i kraft I:(.+)\/$/i,
+    pattern: /\/Träder i kraft I:([^/]+)\//i,
     kind: "enters_on",
     marker_code: "I",
     target: "provision",
   },
   {
-    pattern: /^\/Upphör att gälla U:(.+)\/$/i,
+    pattern: /\/Upphör att gälla U:([^/]+)\//i,
     kind: "ceases_on",
     marker_code: "U",
     target: "provision",
   },
   {
-    pattern: /^\/Rubriken träder i kraft I:(.+)\/$/i,
+    pattern: /\/Rubriken träder i kraft I:([^/]+)\//i,
     kind: "heading_enters_on",
     marker_code: "I",
     target: "heading",
   },
   {
-    pattern: /^\/Rubriken upphör att gälla U:(.+)\/$/i,
+    pattern: /\/Rubriken upphör att gälla U:([^/]+)\//i,
     kind: "heading_ceases_on",
     marker_code: "U",
     target: "heading",
@@ -47,7 +47,7 @@ export function parseTemporalMarker(value) {
       kind: definition.kind,
       marker_code: definition.marker_code,
       target: definition.target,
-      raw,
+      raw: match[0],
       value: markerValue,
       date: isIsoDate ? markerValue : null,
       date_status: isIsoDate ? "dated" : "indeterminate",
@@ -372,6 +372,10 @@ export async function loadCachedDocument(cacheDir, sourceId) {
   const payload = JSON.parse(await readFile(rawPath, "utf8"));
   const document = payload?.dokumentstatus?.dokument ?? payload?.dokument?.dokument ?? payload?.dokument;
   if (!document?.text) throw new Error(`Cached response has no consolidated text: ${rawPath}`);
+  const sourceMatch = String(sourceId).match(/^sfs-(\d{4})-(\d+)$/);
+  if (sourceMatch && document.beteckning !== `${sourceMatch[1]}:${sourceMatch[2]}`) {
+    throw new Error(`Cached source identity does not match ${sourceId}: ${rawPath}`);
+  }
   return { sourceDir, rawFile, rawPath, document };
 }
 

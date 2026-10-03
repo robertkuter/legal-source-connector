@@ -1026,15 +1026,19 @@ export async function findValidLocatorReview({ storeDir, sourceId, requestedLoca
       rejected.push({ file, errors: ["Unsupported review-store record schema."] });
       continue;
     }
-    const validation = validateReviewDecision({
-      artifact: record.artifact,
-      decision: record.decision,
-      sourceId,
-      document,
-      rawFile,
-    });
-    if (validation.valid) valid.push({ file, record, currentArtifact: validation.current_artifact });
-    else rejected.push({ file, errors: validation.errors });
+    try {
+      const validation = validateReviewDecision({
+        artifact: record.artifact,
+        decision: record.decision,
+        sourceId,
+        document,
+        rawFile,
+      });
+      if (validation.valid) valid.push({ file, record, currentArtifact: validation.current_artifact });
+      else rejected.push({ file, errors: validation.errors });
+    } catch (error) {
+      rejected.push({ file, errors: [`Invalid review-store record: ${error.message}`] });
+    }
   }
   if (!valid.length) return { status: "not_found", rejected };
   valid.sort((left, right) => left.record.decision.reviewer.reviewed_at

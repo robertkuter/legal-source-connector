@@ -111,18 +111,27 @@ async function inspectSource(sourceId, locators, cacheDir) {
         bytes: response.bytes,
         sha256: response.sha256,
       };
-      await writeFile(join(sourceDir, `${safeTimestamp}.${format}`), response.body, "utf8");
       if (format === "json" && response.ok) {
         try {
           document = findDocument(JSON.parse(response.body));
+          if (!document?.text) throw new Error("The JSON response has no consolidated text.");
+          const sourceMatch = sourceId.match(/^sfs-(\d{4})-(\d+)$/);
+          if (sourceMatch && document.beteckning !== `${sourceMatch[1]}:${sourceMatch[2]}`) {
+            throw new Error("The JSON response has a different SFS identity.");
+          }
+          await writeFile(join(sourceDir, `${safeTimestamp}.${format}`), response.body, "utf8");
           formats.json.currency_signal = currencySignal(
             document?.subtitel,
             document?.subtitle,
             document?.text,
           );
         } catch (error) {
+          document = null;
           jsonError = error.message;
         }
+      }
+      if (format !== "json" && response.ok) {
+        await writeFile(join(sourceDir, `${safeTimestamp}.${format}`), response.body, "utf8");
       }
       if (format !== "json") {
         formats[format].currency_signal = currencySignal(response.body);
@@ -144,7 +153,7 @@ async function inspectSource(sourceId, locators, cacheDir) {
     retrieved_at: retrievedAt,
     title,
     sfs_number: sfsNumber,
-    retrieval_status: formats.json?.http_status === 200 && formats.text?.http_status === 200 ? "retrieved" : "unknown",
+    retrieval_status: document?.text && formats.json?.ok && formats.text?.ok ? "retrieved" : "unknown",
     consolidation_signal: textCurrencySignal ?? currencySignal(subtitle, consolidatedText),
     document_text_length: consolidatedText.length,
     document_text_sha256: consolidatedText ? sha256(consolidatedText) : null,
