@@ -346,7 +346,7 @@ export function buildIndex({ sourceId, document, rawFile }) {
   };
 }
 
-export async function latestRawJson(sourceDir, sourceId = null) {
+export async function cachedRawJsonFiles(sourceDir, sourceId = null) {
   let directoryEntries;
   try {
     directoryEntries = await readdir(sourceDir);
@@ -362,12 +362,20 @@ export async function latestRawJson(sourceDir, sourceId = null) {
     const identity = sourceId ?? sourceDir;
     throw new Error(`No cached source snapshot for ${identity}. Run node connector/orient_riksdagen.mjs --source ${identity}, then retry.`);
   }
-  return files.at(-1);
+  return files;
 }
 
-export async function loadCachedDocument(cacheDir, sourceId) {
+export async function latestRawJson(sourceDir, sourceId = null) {
+  return (await cachedRawJsonFiles(sourceDir, sourceId)).at(-1);
+}
+
+export async function loadCachedDocument(cacheDir, sourceId, { rawFile: selectedRawFile = null } = {}) {
   const sourceDir = join(cacheDir, sourceId);
-  const rawFile = await latestRawJson(sourceDir, sourceId);
+  const rawFile = selectedRawFile ?? await latestRawJson(sourceDir, sourceId);
+  if (rawFile.includes("/") || rawFile.includes("\\")
+    || !rawFile.endsWith(".json") || rawFile === "index.json" || rawFile.endsWith("-index.json")) {
+    throw new Error("Cached snapshot filename must be a JSON file in the source directory.");
+  }
   const rawPath = join(sourceDir, rawFile);
   const payload = JSON.parse(await readFile(rawPath, "utf8"));
   const document = payload?.dokumentstatus?.dokument ?? payload?.dokument?.dokument ?? payload?.dokument;
@@ -379,8 +387,8 @@ export async function loadCachedDocument(cacheDir, sourceId) {
   return { sourceDir, rawFile, rawPath, document };
 }
 
-export async function writeIndex(cacheDir, sourceId) {
-  const cached = await loadCachedDocument(cacheDir, sourceId);
+export async function writeIndex(cacheDir, sourceId, { rawFile = null } = {}) {
+  const cached = await loadCachedDocument(cacheDir, sourceId, { rawFile });
   const indexPath = join(cached.sourceDir, "index.json");
   try {
     const existing = JSON.parse(await readFile(indexPath, "utf8"));

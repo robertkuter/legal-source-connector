@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { assessComparison } from "../connector/staleness_logic.mjs";
 import { fetchAndPinOfficialSource } from "../connector/fresh_source.mjs";
+import { inspectSource } from "../connector/orient_riksdagen.mjs";
 import { safeFileSegment } from "../connector/runtime.mjs";
 import {
   buildIndex,
@@ -13,6 +14,7 @@ import {
   parseTemporalMarker,
   provisionTemporalState,
   sha256,
+  writeIndex,
 } from "../connector/sfs_index.mjs";
 import { splitLinesWithOffsets } from "../connector/text_lines.mjs";
 
@@ -231,14 +233,67 @@ const freshArgs = {
   fetchImpl: fakeFetch,
   now: () => new Date(Date.UTC(2026, 8, 28, 12, 0, freshTick++)),
 };
-const brokenCache = await mkdtemp(join(tmpdir(), "lsc-broken-cache-"));
-await mkdir(join(brokenCache, freshId));
-await writeFile(join(brokenCache, freshId, "2026-01-01T00-00-00-000Z.json"), "<html>503</html>");
-const recoveredFresh = await fetchAndPinOfficialSource({ ...freshArgs, cacheDir: brokenCache });
-check("Fresh lookup recovers from an invalid cached JSON response",
-  recoveredFresh.status === "first_snapshot"
-  && recoveredFresh.prior_snapshot_ignored === true
-  && (await loadCachedDocument(brokenCache, freshId)).rawFile === recoveredFresh.source_snapshot);
+for (const [name, jsonStatus, jsonDocument] of [
+  ["HTTP 503", 503, null],
+  ["wrong SFS identity", 200, { ...freshDocument, beteckning: "2099:2" }],
+  ["missing consolidated text", 200, { ...freshDocument, text: null }],
+  ["valid official JSON", 200, freshDocument],
+]) {
+  const cacheDir = await mkdtemp(join(tmpdir(), "lsc-orient-cache-"));
+  const orientFetch = async (url) => {
+    const format = url.split(".").at(-1);
+    const status = format === "json" ? jsonStatus : 200;
+    const body = format === "json"
+      ? jsonDocument ? JSON.stringify({ dokumentstatus: { dokument: jsonDocument } }) : "<html>503</html>"
+      : format === "text" ? freshDocument.text : freshDocument.html;
+    return { ok: status === 200, status, text: async () => body };
+  };
+  const result = await inspectSource(freshId, [], cacheDir, orientFetch);
+  const jsonFiles = (await readdir(join(cacheDir, freshId))).filter((file) => file.endsWith(".json"));
+  const valid = name === "valid official JSON";
+  check(`Orientation ${valid ? "saves" : "does not save"} ${name}`,
+    result.retrieval_status === (valid ? "retrieved" : "unknown")
+    && jsonFiles.length === (valid ? 1 : 0));
+}
+let brokenCache;
+let recoveredFresh;
+for (const [name, invalidBody] of [
+  ["malformed JSON", "<html>503</html>"],
+  ["missing text", JSON.stringify({ dokumentstatus: { dokument: { beteckning: "2099:1" } } })],
+  ["wrong SFS identity", JSON.stringify({ dokumentstatus: { dokument: { ...freshDocument, beteckning: "2099:2" } } })],
+]) {
+  const cacheDir = await mkdtemp(join(tmpdir(), "lsc-broken-cache-"));
+  await mkdir(join(cacheDir, freshId));
+  await writeFile(join(cacheDir, freshId, "2026-01-01T00-00-00-000Z.json"), invalidBody);
+  const recovered = await fetchAndPinOfficialSource({ ...freshArgs, cacheDir });
+  check(`Fresh lookup recovers from cached ${name}`,
+    recovered.status === "first_snapshot"
+    && recovered.prior_snapshot_ignored === true
+    && (await loadCachedDocument(cacheDir, freshId)).rawFile === recovered.source_snapshot);
+  if (name === "malformed JSON") {
+    brokenCache = cacheDir;
+    recoveredFresh = recovered;
+  }
+}
+const invalidNewerFile = "2099-01-01T00-00-00-000Z.json";
+await writeFile(join(brokenCache, freshId, invalidNewerFile), "<html>503</html>");
+const comparedWithLastGood = await fetchAndPinOfficialSource({ ...freshArgs, cacheDir: brokenCache });
+const comparedIndex = await writeIndex(brokenCache, freshId, {
+  rawFile: comparedWithLastGood.source_snapshot,
+});
+check("Fresh lookup compares with the last valid pin despite a broken newer file",
+  comparedWithLastGood.status === "verified_unchanged"
+  && comparedWithLastGood.compared_snapshot === recoveredFresh.source_snapshot
+  && comparedWithLastGood.source_snapshot === recoveredFresh.source_snapshot
+  && comparedWithLastGood.ignored_snapshots.includes(invalidNewerFile)
+  && comparedIndex.rawFile === comparedWithLastGood.source_snapshot);
+freshDocument.text += "\nChanged after the last valid pin.";
+const changedAfterBroken = await fetchAndPinOfficialSource({ ...freshArgs, cacheDir: brokenCache });
+check("Fresh lookup reports drift from the last valid pin despite a broken newer file",
+  changedAfterBroken.status === "changed"
+  && changedAfterBroken.compared_snapshot === recoveredFresh.source_snapshot
+  && changedAfterBroken.changed_fields.includes("source_text_sha256"));
+freshDocument.text = syntheticDocument.text;
 const firstFresh = await fetchAndPinOfficialSource(freshArgs);
 const sameFresh = await fetchAndPinOfficialSource(freshArgs);
 check("Fresh lookup pins first source and reuses an unchanged snapshot",

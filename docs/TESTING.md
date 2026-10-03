@@ -20,6 +20,10 @@ logic using synthetic documents. It covers flat sources, unmarked locators in a 
 source, unique marked versions and paired outgoing/incoming versions. It is the portable
 smoke test for a public checkout.
 
+The core suite also checks that `--fresh` compares with the newest valid pin when a
+newer cache file is broken, and that orientation does not save failed, wrong-identity
+or textless JSON as a source snapshot.
+
 The locator-review synthetic suite is also cache-free. It models both the ÅRL
 false-heading shape and the URL timing/version shape, then tests complete import plus
 rejection of incomplete, unresolved, wrong-source, wrong-locator, changed-hash,

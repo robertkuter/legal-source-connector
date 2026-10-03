@@ -144,8 +144,10 @@ The connector also accepts `--fresh`. Such a packet has
 `retrieval_mode: fresh_official_check` and a `source_check` object with `checked_at`,
 `status` (`first_snapshot`, `verified_unchanged` or `changed`), the compared and selected
 snapshot filenames, changed fields and hashes for the JSON-embedded text/HTML plus the
-direct text/HTML responses. An unchanged check reuses the prior pinned bytes and review;
-a changed check preserves a new snapshot and requires any locator review to be repeated.
+direct text/HTML responses. An unchanged check reuses the last valid pinned bytes and
+review. If it skipped a newer invalid local cache file, it names that file in
+`ignored_snapshots` and indexes the last valid snapshot for the fresh packet.
+A changed check preserves a new snapshot and requires any locator review to be repeated.
 If the fresh fetch fails, the result is `unknown`, with `source_check.status: unknown`
 and no cached provision presented as current. The fresh check confirms what the official
 consolidation served at that time, not legal applicability on a transaction date.

@@ -2,7 +2,8 @@
 
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   defaultCacheDir,
   defaultRunDir,
@@ -68,11 +69,11 @@ function locatorPresent(text, locator) {
   return normalizedText.includes(normalizedLocator);
 }
 
-async function fetchText(url) {
+async function fetchText(url, fetchImpl = fetch) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
   try {
-    const response = await fetch(url, {
+    const response = await fetchImpl(url, {
       signal: controller.signal,
       headers: { "user-agent": "legal-source-connector-pilot/0.1" },
     });
@@ -90,7 +91,7 @@ async function fetchText(url) {
   }
 }
 
-async function inspectSource(sourceId, locators, cacheDir) {
+export async function inspectSource(sourceId, locators, cacheDir, fetchImpl = fetch) {
   const base = `https://data.riksdagen.se/dokument/${sourceId}`;
   const retrievedAt = new Date().toISOString();
   const safeTimestamp = retrievedAt.replaceAll(/[:.]/g, "-");
@@ -103,7 +104,7 @@ async function inspectSource(sourceId, locators, cacheDir) {
   for (const format of ["json", "text", "html"]) {
     const url = `${base}.${format}`;
     try {
-      const response = await fetchText(url);
+      const response = await fetchText(url, fetchImpl);
       formats[format] = {
         url: response.url,
         http_status: response.httpStatus,
@@ -171,30 +172,36 @@ async function inspectSource(sourceId, locators, cacheDir) {
   return result;
 }
 
-const args = parseArgs(process.argv.slice(2));
-if (args.help) {
-  printHelp();
-  process.exit(0);
-}
-
-const cases = args.cases.length ? args.cases : [{ sourceId: "sfs-2005-551", locators: ["13 kap. 6 §"] }];
-const retrieved = [];
-for (const testCase of cases) {
-  try {
-    const locators = testCase.locators.length ? testCase.locators : args.globalLocators;
-    retrieved.push(await inspectSource(testCase.sourceId, locators, args.cacheDir));
-  } catch (error) {
-    retrieved.push({ source_id: testCase.sourceId, status: "unknown", error: error.message });
+export async function main(items = process.argv.slice(2)) {
+  const args = parseArgs(items);
+  if (args.help) {
+    printHelp();
+    return;
   }
+
+  const cases = args.cases.length ? args.cases : [{ sourceId: "sfs-2005-551", locators: ["13 kap. 6 §"] }];
+  const retrieved = [];
+  for (const testCase of cases) {
+    try {
+      const locators = testCase.locators.length ? testCase.locators : args.globalLocators;
+      retrieved.push(await inspectSource(testCase.sourceId, locators, args.cacheDir));
+    } catch (error) {
+      retrieved.push({ source_id: testCase.sourceId, status: "unknown", error: error.message });
+    }
+  }
+
+  const receipt = {
+    receipt_version: "0.1",
+    run_id: new Date().toISOString(),
+    purpose: "Riksdagen API orientation; not legal advice",
+    sources: retrieved,
+  };
+  await mkdir(args.runDir, { recursive: true });
+  const runPath = join(args.runDir, `riksdagen-orientation-${receipt.run_id.replaceAll(/[:.]/g, "-")}.json`);
+  await writeFile(runPath, JSON.stringify(receipt, null, 2) + "\n", "utf8");
+  console.log(JSON.stringify({ run_receipt: runPath, ...receipt }, null, 2));
 }
 
-const receipt = {
-  receipt_version: "0.1",
-  run_id: new Date().toISOString(),
-  purpose: "Riksdagen API orientation; not legal advice",
-  sources: retrieved,
-};
-await mkdir(args.runDir, { recursive: true });
-const runPath = join(args.runDir, `riksdagen-orientation-${receipt.run_id.replaceAll(/[:.]/g, "-")}.json`);
-await writeFile(runPath, JSON.stringify(receipt, null, 2) + "\n", "utf8");
-console.log(JSON.stringify({ run_receipt: runPath, ...receipt }, null, 2));
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  await main();
+}

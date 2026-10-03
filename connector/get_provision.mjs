@@ -163,7 +163,9 @@ try {
     ? await fetchAndPinOfficialSource({ sourceId: args.sourceId, cacheDir: args.cacheDir })
     : null;
   packetGeneratedAt = new Date().toISOString();
-  const indexed = await writeIndex(args.cacheDir, args.sourceId);
+  const indexed = await writeIndex(args.cacheDir, args.sourceId, {
+    rawFile: sourceCheck?.source_snapshot ?? null,
+  });
   if (sourceCheck && indexed.rawFile !== sourceCheck.source_snapshot) {
     throw new Error("The indexed source snapshot differs from the completed fresh check.");
   }

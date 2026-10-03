@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  cachedRawJsonFiles,
   findTextSectionCandidates,
   loadCachedDocument,
   parseHtmlParagraphAnchors,
@@ -30,19 +31,33 @@ async function officialBody(url, fetchImpl) {
 }
 
 async function priorSnapshot(cacheDir, sourceId) {
+  let files;
   try {
-    return { snapshot: await loadCachedDocument(cacheDir, sourceId), ignoredInvalid: false };
+    files = (await cachedRawJsonFiles(join(cacheDir, sourceId), sourceId)).reverse();
   } catch (error) {
     if (error.message.startsWith("No cached source snapshot for ")) {
-      return { snapshot: null, ignoredInvalid: false };
-    }
-    if (error instanceof SyntaxError
-      || error.message.startsWith("Cached response has no consolidated text:")
-      || error.message.startsWith("Cached source identity does not match ")) {
-      return { snapshot: null, ignoredInvalid: true };
+      return { snapshot: null, ignoredSnapshots: [] };
     }
     throw error;
   }
+  const ignoredSnapshots = [];
+  for (const rawFile of files) {
+    try {
+      return {
+        snapshot: await loadCachedDocument(cacheDir, sourceId, { rawFile }),
+        ignoredSnapshots,
+      };
+    } catch (error) {
+      if (error instanceof SyntaxError
+        || error.message.startsWith("Cached response has no consolidated text:")
+        || error.message.startsWith("Cached source identity does not match ")) {
+        ignoredSnapshots.push(rawFile);
+        continue;
+      }
+      throw error;
+    }
+  }
+  return { snapshot: null, ignoredSnapshots };
 }
 
 async function priorFormatHash(prior, format) {
@@ -64,7 +79,10 @@ export async function fetchAndPinOfficialSource({
 }) {
   const sourceMatch = String(sourceId ?? "").match(/^sfs-(\d{4})-(\d+)$/);
   if (!sourceMatch) throw new Error("A fresh lookup requires an exact SFS source ID such as sfs-1972-207.");
-  const { snapshot: prior, ignoredInvalid } = await priorSnapshot(cacheDir, sourceId);
+  const { snapshot: prior, ignoredSnapshots } = await priorSnapshot(cacheDir, sourceId);
+  const ignoredDetails = ignoredSnapshots.length
+    ? { prior_snapshot_ignored: true, ignored_snapshots: ignoredSnapshots }
+    : {};
   const checkedAt = now().toISOString();
   const base = `https://data.riksdagen.se/dokument/${sourceId}`;
   const [jsonBody, textBody, htmlBody] = await Promise.all([
@@ -119,6 +137,7 @@ export async function fetchAndPinOfficialSource({
       status: "verified_unchanged",
       checked_at: checkedAt,
       compared_snapshot: prior.rawFile,
+      ...ignoredDetails,
       source_snapshot: prior.rawFile,
       changed_fields: [],
       hashes,
@@ -136,7 +155,7 @@ export async function fetchAndPinOfficialSource({
     status: prior ? "changed" : "first_snapshot",
     checked_at: checkedAt,
     compared_snapshot: prior?.rawFile ?? null,
-    ...(ignoredInvalid ? { prior_snapshot_ignored: true } : {}),
+    ...ignoredDetails,
     source_snapshot: `${stamp}.json`,
     changed_fields: changedFields,
     hashes,
