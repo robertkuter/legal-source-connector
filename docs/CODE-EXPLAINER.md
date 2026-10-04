@@ -60,7 +60,7 @@ the question “which exact passage did we use?”. Those are the connector's re
 
 ```text
 get_provision
-  → load the latest cached official source
+  → load the latest cached official source (for a lookup without --fresh)
   → reuse a matching index, or build a new one
   → check capability status
   → if review_required, look only for a valid decision matching this canonical locator
@@ -100,9 +100,11 @@ index, extracts the requested provision and writes a packet under `runs/`. That 
 does **not** make a live API call.
 
 `orient_riksdagen` and `get_provision --fresh` make official API calls. The fresh lookup
-compares the live response with the selected local snapshot, keeps changed source bytes
-separate, and reports the check in `source_check`. A failed fresh check returns `unknown`
-instead of presenting cached text as current. The skill does not refresh invisibly.
+compares the live response with the newest valid local snapshot. It reports any newer
+invalid snapshots in `source_check.ignored_snapshots`, reuses the valid snapshot when
+the source is unchanged, and saves a separate snapshot when it changed. A failed fresh
+check returns `unknown` instead of presenting cached text as current. The skill does not
+refresh invisibly.
 
 ### Three different kinds of memory
 

@@ -19,7 +19,7 @@ sequenceDiagram
   opt First orientation or explicit --fresh check
     T->>R: Fetch complete official response
     R-->>T: JSON/text/HTML source forms
-    T->>C: Store snapshot, hash and section index
+    T->>C: Validate and reuse a matching snapshot, or store a new one
   end
   C-->>T: Saved source and checked index
   T-->>A: Small evidence packet and receipt, or a blocked result
