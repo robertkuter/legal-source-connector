@@ -43,6 +43,9 @@ statutory text from memory.
 The packet's `source_snapshot` filename identifies pinned source bytes; it is not the
 connector run receipt. For a packet-only handoff without `run_receipt`, say the run receipt
 was not supplied and name the source snapshot separately.
+When `cached_snapshot_ignored` or `source_check.prior_snapshot_ignored` is present, name
+the files in top-level `ignored_snapshots` or `source_check.ignored_snapshots` and the
+`source_snapshot` used; do not call skipped local copies a source change or currency result.
 
 If a user asks for a whole-document review while only the base skill is available, explain
 that citation checking is possible only for supplied references or packets. Any broader

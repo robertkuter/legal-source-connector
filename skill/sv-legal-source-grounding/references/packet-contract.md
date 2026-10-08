@@ -146,11 +146,23 @@ The connector also accepts `--fresh`. Such a packet has
 snapshot filenames, changed fields and hashes for the JSON-embedded text/HTML plus the
 direct text/HTML responses. An unchanged check reuses the last valid pinned bytes and
 review. If it skipped a newer invalid local cache file, it names that file in
-`ignored_snapshots` and indexes the last valid snapshot for the fresh packet.
+`source_check.ignored_snapshots` and compares against the last valid snapshot.
 A changed check preserves a new snapshot and requires any locator review to be repeated.
 If the fresh fetch fails, the result is `unknown`, with `source_check.status: unknown`
 and no cached provision presented as current. The fresh check confirms what the official
 consolidation served at that time, not legal applicability on a transaction date.
+
+Optional cache-selection fields explain when the connector skipped newer damaged or
+wrong-identity local copies:
+
+| Lookup | Optional packet paths | When present |
+|---|---|---|
+| Plain cached lookup, without `--fresh` | Top-level `cached_snapshot_ignored: true` and `ignored_snapshots: [filenames]` | One or more invalid newer local files were skipped; the connector used the newest valid cached snapshot. |
+| Fresh lookup, with `--fresh` | `source_check.prior_snapshot_ignored: true` and `source_check.ignored_snapshots: [filenames]` | One or more invalid newer local files were skipped when choosing the valid prior snapshot for the fresh comparison. |
+
+In either form, `source_snapshot` names the copy actually used for the packet. Skipping a
+local file does not itself establish a change in the official source or a currency
+result. These optional fields are additive; the packet schema remains `0.2`.
 
 When presenting `text` as verbatim, preserve its numbering, punctuation and blank lines.
 If the presentation is shortened or reflowed, label it as an excerpt or summary; the

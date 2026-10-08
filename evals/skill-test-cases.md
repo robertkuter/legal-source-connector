@@ -98,6 +98,22 @@ keep it separate from confirmed `text`; report `first_snapshot` as a fresh basel
 than an unchanged comparison; and do not call a trimmed or line-ending-normalized display
 verbatim. Do not identify `source_snapshot` as a connector run receipt.
 
+### C11 — Skipped cached copy in a plain packet
+
+Input: a plain `found` packet with `retrieval_mode: cached_snapshot`, top-level
+`cached_snapshot_ignored: true`, top-level `ignored_snapshots` naming a newer broken
+local JSON file, and `source_snapshot` naming the valid file used. To create one, copy an
+oriented source folder (for example `cache/riksdagen/sfs-1972-207/`) into a scratch cache
+directory, add a newer broken file such as `2099-01-01T00-00-00-000Z.json`, and run a plain
+`node connector/get_provision.mjs --source sfs-1972-207 --locator "1 kap. 1 §" --cache-dir <scratch>`.
+
+Prompt: `Using this packet, explain which local source copy was used and whether the
+skipped copy means the provision changed or became stale.`
+
+Expected behavior: name the skipped file(s) and the selected `source_snapshot`. Explain
+that the skipped local copy was invalid; do not infer that the official provision changed
+or became stale from this cache-selection event.
+
 ## Optional packet-only test
 
 Paste a known `found` packet from `references/packet-contract.md` and ask the assistant to
