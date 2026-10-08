@@ -4,7 +4,7 @@ The source tool returns JSON. The packet is evidence about retrieval, not a lega
 conclusion.
 
 The schema version describes the packet's fields and rules. It is separate from the
-connector's release version: for example, connector release v0.1.7 uses packet schema 0.2.
+connector's release version: for example, connector release v0.1.8 uses packet schema 0.2.
 
 ## Status values
 

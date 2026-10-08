@@ -4,7 +4,7 @@ This page tracks changes a user would notice. The [README](README.md) explains h
 start; the [technical documentation guide](docs/README.md) holds the detailed evidence
 and design notes.
 
-## Available in the current source (not in v0.1.7)
+## v0.1.8
 
 - `--fresh` checks the official Riksdagen source again and reports whether its text or
   HTML changed. A failed check returns `unknown` rather than presenting cached text as
@@ -26,9 +26,10 @@ and design notes.
 See the [local review guide](docs/LOCATOR-REVIEW-GUIDE.md) for a short walkthrough.
 The [synthetic HTML example](examples/locator-review/README.md) shows the review layout
 without offering a live decision.
-The v0.1.7 release downloads do not include these changes. Download the
-[current connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip)
-to try the updated connector.
+Download the [v0.1.8 connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.8.zip)
+or the [portable](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.8/sv-legal-source-grounding-v0.1.8-portable.zip)
+or [Codex](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.8/sv-legal-source-grounding-v0.1.8-codex.zip)
+skill ZIP for this release.
 
 ### In plain terms
 
@@ -77,6 +78,6 @@ returned packet status `found`. Both selected
 
 ## v0.1.7
 
-The [existing public prerelease](https://github.com/robertkuter/legal-source-connector/releases/tag/v0.1.7)
+The [previous public prerelease](https://github.com/robertkuter/legal-source-connector/releases/tag/v0.1.7)
 contains the connector, portable skill, source packets, tests and dated ABL example.
 Its downloads do not include the changes above.

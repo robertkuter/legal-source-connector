@@ -26,13 +26,13 @@ its own connector and tests. The connector checks source text; it does not decid
 the law means or whether it applies.
 
 **Try the new review flow:**
-[Download the current connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip).
+[Download the v0.1.8 connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.8.zip).
 It includes fresh source checks (`--fresh`) and a local page for cases where the connector
 can propose a provision's boundaries but cannot confirm them automatically. A person
 checks the proposed text and can save a decision for that locator in that saved source. The
 [review guide](docs/LOCATOR-REVIEW-GUIDE.md) explains the steps; the
-[change summary](CHANGELOG.md) lists the update. The v0.1.7 release downloads below
-contain the earlier version.
+[change summary](CHANGELOG.md) lists the update. The v0.1.8 release downloads below
+contain this version.
 
 ## A concrete example
 
@@ -82,12 +82,12 @@ connector from the assistant skill. Use the direct route that matches your task:
 
 | Your aim | Start here | What you receive |
 |---|---|---|
-| Run the current connector and local review | [Download the current connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip) | The connector, review commands, examples, tests and updated skill files. You run the connector with Node.js; this download has no ready-to-install skill ZIP. |
-| Add an earlier assistant skill | [Claude or another compatible assistant (v0.1.7)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-portable.zip) · [Codex (v0.1.7)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.7/sv-legal-source-grounding-v0.1.7-codex.zip) | These skill ZIPs guide an assistant through supplied packets. They do not include the connector or the new review flow. |
+| Run the current connector and local review | [Download the v0.1.8 connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.8.zip) | The connector, review commands, examples, tests and updated skill files. You run the connector with Node.js; the ready-to-install skill ZIPs are separate. |
+| Add an assistant skill | [Claude or another compatible assistant (v0.1.8)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.8/sv-legal-source-grounding-v0.1.8-portable.zip) · [Codex (v0.1.8)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.8/sv-legal-source-grounding-v0.1.8-codex.zip) | These skill ZIPs guide an assistant through supplied packets. They do not include the connector; install the connector separately to use the local review flow. |
 
-The current source download includes the updated skill files in
-`skill/sv-legal-source-grounding/`. Ready-to-install skill ZIPs for this update are not
-available yet. To reproduce the earlier version, download the
+The v0.1.8 source download includes the updated skill files in
+`skill/sv-legal-source-grounding/`. The ready-to-install skill ZIPs above contain those
+files without the connector. To reproduce the earlier version, download the
 [complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip).
 To understand the results before downloading, read the
 [four provision results](#four-provision-results-a-lawyer-may-see) or the

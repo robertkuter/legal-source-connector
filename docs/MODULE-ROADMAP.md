@@ -73,8 +73,8 @@ The source on `main` implements versioned locator preparation, local HTML
 review, validation/import, a gitignored store and lookup disclosure. It binds the review to
 the exact text and HTML snapshot, locator, anchor, offsets, hashes and implementation
 versions while preserving the general capability result. Source-snapshot correction sets
-and host adapters are not implemented. The existing v0.1.7 release does not contain this
-work.
+and host adapters are not implemented. The v0.1.8 release includes this work; v0.1.7
+does not.
 
 ## Adding another SFS Act
 

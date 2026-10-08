@@ -2,7 +2,7 @@
 name: sv-legal-source-grounding
 description: Verify Swedish statutory references against a pinned official Riksdagen source, retrieve an exact SFS provision, report currency and evidence, and explain uncertainty. Use for contract citation checks, compliance authority checks, legislation-reference staleness, or requests to confirm Swedish chapter/section text. Do not use as a substitute for legal interpretation or applicability analysis.
 metadata:
-  skill_version: "0.1.8-rc.1"
+  skill_version: "0.1.8"
   packet_contract: "0.2"
 ---
 
