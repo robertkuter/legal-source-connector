@@ -1,0 +1,70 @@
+{
+  "source_id": "sfs-1960-729",
+  "official_urls": {
+    "json": "https://data.riksdagen.se/dokument/sfs-1960-729.json",
+    "text": "https://data.riksdagen.se/dokument/sfs-1960-729.text",
+    "html": "https://data.riksdagen.se/dokument/sfs-1960-729.html"
+  },
+  "original_snapshot": "2026-08-24T13-02-29-802Z",
+  "full_source_sha256": {
+    "json": "91a72beb672fad5d4de15d49fd7e9d663ac4a01abcd642ce6162505fbcf7502b",
+    "text": "5cfcac8e9080272c68b2c05fc80af236b508f4798513d64e816767eecb3c98ef",
+    "html": "96c32ffce0a643ea9b99d208911d98dc1f9e0a88421d6435e3f1a5c3fa334aa0"
+  },
+  "excerpt_sha256": {
+    "json": "c7f69cea0d73b47cf8c0066504755744e3a02f7325dfe6af178d5c9de689e61f",
+    "text": "0be721e0e6fb00093670f9f66abaa492bf15f751dad99ba05b867b6709ac60e9",
+    "html": "effca61878e511856e0bc1f59b1648c0f9fc4d165fc8d2b90a1b0ad639fb8ac6"
+  },
+  "excerpt_boundaries": [
+    {
+      "first_locator": "2 a kap. 26 n §",
+      "last_locator": "2 a kap. 26 n §",
+      "next_anchor": {
+        "locator": "2 a kap. 26 o §",
+        "name": "K2aP26o"
+      },
+      "source_text_spans": [
+        {
+          "start": 36375,
+          "end_exclusive": 36417,
+          "role": "verbatim_chapter_heading"
+        },
+        {
+          "start": 41952,
+          "end_exclusive": 44183,
+          "role": "verbatim_provisions_through_next_heading"
+        }
+      ],
+      "source_html_span": {
+        "start": 56594,
+        "end_exclusive": 59036
+      }
+    },
+    {
+      "first_locator": "6 b kap. 52 i §",
+      "last_locator": "6 b kap. 52 i §",
+      "next_anchor": {
+        "locator": "6 b kap. 52 j §",
+        "name": "K6bP52j"
+      },
+      "source_text_spans": [
+        {
+          "start": 104240,
+          "end_exclusive": 104325,
+          "role": "verbatim_chapter_heading"
+        },
+        {
+          "start": 104348,
+          "end_exclusive": 104924,
+          "role": "verbatim_provisions_through_next_heading"
+        }
+      ],
+      "source_html_span": {
+        "start": 131524,
+        "end_exclusive": 132333
+      }
+    }
+  ],
+  "note": "Each text and HTML span is verbatim from the original JSON document. Only complete provision boundaries and chapter headings were selected; blank lines join the disjoint spans. The JSON envelope retains original identity metadata and contains excerpts, not a complete Act."
+}

@@ -7,11 +7,13 @@ import { execFileSync } from "node:child_process";
 import {
   buildIndex,
   parseLocator,
+  parseTemporalMarker,
   provisionTemporalState,
   sha256,
   writeIndex,
 } from "../connector/sfs_index.mjs";
 import { requireCachedSources } from "./cache_requirements.mjs";
+import { stagePinnedFixture } from "./pinned_fixture.mjs";
 
 const cacheDir = new URL("../cache/riksdagen/", import.meta.url).pathname;
 const runDir = new URL("../runs/", import.meta.url).pathname;
@@ -45,6 +47,8 @@ function normalizedSectionText(documentText, section) {
 
 const abl = await writeIndex(cacheDir, "sfs-2005-551");
 const ablAgain = await writeIndex(cacheDir, "sfs-2005-551");
+const pinnedAbl = await stagePinnedFixture("sfs-2005-551", "2026-10-08T13-19-29-020Z");
+const pinnedAblIndex = await writeIndex(pinnedAbl.cacheDir, "sfs-2005-551");
 const las = await writeIndex(cacheDir, "sfs-1982-80");
 const avtalslagen = await writeIndex(cacheDir, "sfs-1915-218");
 const diskrimineringslagen = await writeIndex(cacheDir, "sfs-2008-567");
@@ -52,39 +56,51 @@ const diskrimineringslagen = await writeIndex(cacheDir, "sfs-2008-567");
 check("ABL structural capability is supported", abl.index.capability.status === "supported", {
   capability: abl.index.capability,
 });
-check("ABL temporal capability exposes unresolved publisher markers",
-  abl.index.capability.temporal.status === "layered_unresolved"
-  && abl.index.capability.temporal.section_marker_count === 28
-  && abl.index.capability.temporal.heading_marker_count === 7, {
+check("ABL temporal capability matches indexed publisher markers",
+  (abl.index.capability.temporal.status === "flat"
+    && abl.index.capability.temporal.section_marker_count === 0
+    && abl.index.capability.temporal.heading_marker_count === 0)
+  || (abl.index.capability.temporal.status === "layered_unresolved"
+    && abl.index.capability.temporal.section_marker_count > 0
+    && abl.index.capability.temporal.heading_marker_count > 0
+    && abl.index.capability.temporal.section_marker_count
+      === abl.index.sections.filter((section) => section.temporal_marker).length
+    && abl.index.capability.temporal.heading_marker_count
+      === abl.document.text.split(/\r\n|\r|\n/)
+        .filter((line) => parseTemporalMarker(line)?.target === "heading").length), {
   temporal: abl.index.capability.temporal,
 });
 check("Existing ABL index is reused when the snapshot and version match", ablAgain.reused === true);
-check("ABL index matches every HTML paragraph anchor", abl.index.section_count === 1025
-  && abl.index.capability.html_anchor_count === abl.index.section_count, {
+check("ABL index matches every HTML paragraph anchor", abl.index.section_count > 0
+  && abl.index.capability.html_anchor_count === abl.index.section_count
+  && abl.index.capability.text_candidate_count === abl.index.section_count, {
   section_count: abl.index.section_count,
   html_anchor_count: abl.index.capability.html_anchor_count,
 });
 check("LAS structural capability is supported", las.index.capability.status === "supported", {
   capability: las.index.capability,
 });
-check("LAS index matches every HTML paragraph anchor", las.index.section_count === 70
-  && las.index.capability.html_anchor_count === las.index.section_count, {
+check("LAS index matches every HTML paragraph anchor", las.index.section_count > 0
+  && las.index.capability.html_anchor_count === las.index.section_count
+  && las.index.capability.text_candidate_count === las.index.section_count, {
   section_count: las.index.section_count,
   html_anchor_count: las.index.capability.html_anchor_count,
 });
 check("Avtalslagen structural capability is supported", avtalslagen.index.capability.status === "supported", {
   capability: avtalslagen.index.capability,
 });
-check("Avtalslagen index matches every HTML paragraph anchor", avtalslagen.index.section_count === 41
-  && avtalslagen.index.capability.html_anchor_count === avtalslagen.index.section_count, {
+check("Avtalslagen index matches every HTML paragraph anchor", avtalslagen.index.section_count > 0
+  && avtalslagen.index.capability.html_anchor_count === avtalslagen.index.section_count
+  && avtalslagen.index.capability.text_candidate_count === avtalslagen.index.section_count, {
   section_count: avtalslagen.index.section_count,
   html_anchor_count: avtalslagen.index.capability.html_anchor_count,
 });
 check("Diskrimineringslagen structural capability is supported", diskrimineringslagen.index.capability.status === "supported", {
   capability: diskrimineringslagen.index.capability,
 });
-check("Diskrimineringslagen index matches every HTML paragraph anchor", diskrimineringslagen.index.section_count === 88
-  && diskrimineringslagen.index.capability.html_anchor_count === diskrimineringslagen.index.section_count, {
+check("Diskrimineringslagen index matches every HTML paragraph anchor", diskrimineringslagen.index.section_count > 0
+  && diskrimineringslagen.index.capability.html_anchor_count === diskrimineringslagen.index.section_count
+  && diskrimineringslagen.index.capability.text_candidate_count === diskrimineringslagen.index.section_count, {
   section_count: diskrimineringslagen.index.section_count,
   html_anchor_count: diskrimineringslagen.index.capability.html_anchor_count,
 });
@@ -128,18 +144,19 @@ if (ablThirteenSix.length === 1) {
 }
 
 check("Missing locator returns no match", matchesFor(abl.index, "13 kap. 999 §").length === 0);
-check("Transition locator remains visible as ambiguous", matchesFor(abl.index, "4 kap. 47 §").length > 1, {
-  match_count: matchesFor(abl.index, "4 kap. 47 §").length,
+check("Pinned ABL transition locator remains ambiguous", matchesFor(pinnedAblIndex.index, "4 kap. 47 §").length > 1, {
+  match_count: matchesFor(pinnedAblIndex.index, "4 kap. 47 §").length,
 });
-const futureOnlyLocator = matchesFor(abl.index, "7 kap. 68 a §");
-check("Future-only ABL locator is marked unresolved",
+const futureOnlyLocator = matchesFor(pinnedAblIndex.index, "7 kap. 68 a §");
+check("Pinned future-only ABL locator is marked unresolved",
   futureOnlyLocator.length === 1
-  && provisionTemporalState(abl.index.capability, futureOnlyLocator).resolution === "marked_version_unresolved"
+  && provisionTemporalState(pinnedAblIndex.index.capability, futureOnlyLocator).resolution === "marked_version_unresolved"
   && futureOnlyLocator[0].temporal_marker?.date === "2030-01-10");
 const futureOnlyPacket = JSON.parse(execFileSync(process.execPath, [
   new URL("../connector/get_provision.mjs", import.meta.url).pathname,
   "--source", "sfs-2005-551",
   "--locator", "7 kap. 68 a §",
+  "--cache-dir", pinnedAbl.cacheDir,
   "--run-dir", runDir,
   "--case-dir", testCaseDir,
 ], { encoding: "utf8" }));

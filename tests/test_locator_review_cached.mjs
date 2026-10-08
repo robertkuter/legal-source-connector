@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { copyFile, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -16,30 +16,20 @@ import { buildReviewOrientation } from "../connector/review_orientation.mjs";
 import { completeLocatorReview } from "../connector/serve_locator_review.mjs";
 import { loadCachedDocument, sha256 } from "../connector/sfs_index.mjs";
 import { requireCachedSources } from "./cache_requirements.mjs";
+import { stagePinnedFixture } from "./pinned_fixture.mjs";
 
 const cacheDir = new URL("../cache/riksdagen/", import.meta.url).pathname;
 const getProvisionPath = new URL("../connector/get_provision.mjs", import.meta.url).pathname;
 const importReviewPath = new URL("../connector/import_review_decision.mjs", import.meta.url).pathname;
 if (!await requireCachedSources(cacheDir, [
   "sfs-1995-1554",
-  "sfs-1960-729",
   "sfs-1972-207",
   "sfs-2008-579",
 ])) process.exit(2);
 
 const tempRoot = await mkdtemp(join(tmpdir(), "locator-review-cached-"));
-// The URL timing cases intentionally use the pre-2026-09-01 publisher snapshot.
-// Pin it so a later live cache refresh cannot silently change their meaning.
-const urlCacheDir = join(tempRoot, "pinned-url-cache");
-const urlSourceDir = join(urlCacheDir, "sfs-1960-729");
-const urlSnapshot = "2026-08-24T13-02-29-802Z";
-await mkdir(urlSourceDir, { recursive: true });
-for (const format of ["json", "text", "html"]) {
-  await copyFile(
-    join(cacheDir, "sfs-1960-729", `${urlSnapshot}.${format}`),
-    join(urlSourceDir, `${urlSnapshot}.${format}`),
-  );
-}
+const urlFixture = await stagePinnedFixture("sfs-1960-729", "2026-08-24T13-02-29-802Z");
+const urlCacheDir = urlFixture.cacheDir;
 const storeDir = join(tempRoot, "store");
 const runDir = join(tempRoot, "runs");
 const caseDir = join(tempRoot, "cases");
@@ -56,16 +46,14 @@ const cases = [
     expectedAnchor: "K7P7",
     expectedNextAnchor: "K7P8",
     expectedInterveningSections: ["3 a", "4", "5", "6", "7"],
-    expectedCounts: [217, 222],
   },
   {
     sourceId: "sfs-1960-729",
     locator: "6 b kap. 52 i §",
-    unreleasedLocator: "1 kap. 1 §",
+    unreleasedLocator: "2 a kap. 26 n §",
     expectedAnchor: "K6bP52i",
     expectedNextAnchor: "K6bP52j",
     expectedInterveningSections: [],
-    expectedCounts: [192, 197],
   },
 ];
 
@@ -105,8 +93,8 @@ for (const [position, testCase] of cases.entries()) {
         && html.includes(`Inspect ${testCase.locator} only`)));
   check(`${testCase.sourceId} prepares exact cached locator evidence`,
     artifact.automatic_capability.status === "review_required"
-    && artifact.automatic_capability.html_anchor_count === testCase.expectedCounts[0]
-    && artifact.automatic_capability.text_candidate_count === testCase.expectedCounts[1]
+    && artifact.automatic_capability.html_anchor_count > 0
+    && artifact.automatic_capability.text_candidate_count > artifact.automatic_capability.html_anchor_count
     && artifact.publisher_anchor.name === testCase.expectedAnchor
     && artifact.publisher_anchor.source_markup.includes(`name="${testCase.expectedAnchor}"`)
     && artifact.boundary.next_publisher_anchor.name === testCase.expectedNextAnchor
@@ -225,58 +213,63 @@ for (const [position, testCase] of cases.entries()) {
   });
 }
 
-const copyright = await loadCachedDocument(urlCacheDir, "sfs-1960-729");
-let cachedTemporalRejected = false;
-try {
-  prepareLocatorReview({
+{
+  const copyright = await loadCachedDocument(urlCacheDir, "sfs-1960-729");
+  let cachedTemporalRejected = false;
+  try {
+    prepareLocatorReview({
+      sourceId: "sfs-1960-729",
+      requestedLocator: "2 a kap. 26 n §",
+      document: copyright.document,
+      rawFile: copyright.rawFile,
+    });
+  } catch (error) {
+    cachedTemporalRejected = error.message.includes("I:/U:");
+  }
+  check("Cached URL I:/U: locator cannot be released by structural review", cachedTemporalRejected);
+  const copyrightTransition = prepareLocatorReviewSurface({
     sourceId: "sfs-1960-729",
     requestedLocator: "2 a kap. 26 n §",
     document: copyright.document,
     rawFile: copyright.rawFile,
+    preparedAt: "2026-09-08T12:25:00.000Z",
   });
-} catch (error) {
-  cachedTemporalRejected = error.message.includes("I:/U:");
+  const copyrightTransitionPacket = JSON.parse(execFileSync(process.execPath, [
+    getProvisionPath,
+    "--source", "sfs-1960-729",
+    "--locator", "2 a kap. 26 n §",
+    "--cache-dir", urlCacheDir,
+    "--review-store", storeDir,
+    "--run-dir", runDir,
+    "--case-dir", caseDir,
+  ], { encoding: "utf8" }));
+  check("Source-map mismatch still exposes both marked URL text candidates without selecting either",
+    copyrightTransition.review_disposition.status === "explanation_only"
+    && copyrightTransition.explanation_context.reading_views.length === 2
+    && copyrightTransition.explanation_context.reading_views.every((view) => view.evidence_status === "provisional_text_candidate")
+    && copyrightTransition.explanation_context.reading_views[0].source_text.includes("Ny beteckning 26 q §")
+    && copyrightTransition.explanation_context.reading_views[1].temporal_marker?.kind === "enters_on"
+    && copyrightTransitionPacket.status === "unknown"
+    && !Object.hasOwn(copyrightTransitionPacket, "text")
+    && copyrightTransitionPacket.review_action.source_observation.status === "unselected_text_candidates"
+    && copyrightTransitionPacket.review_action.source_observation.candidates.length === 2
+    && copyrightTransitionPacket.review_action.source_observation.candidates.every((candidate) => candidate.excerpt)
+    && copyrightTransitionPacket.review_action.source_observation.candidates[1].temporal_marker?.kind === "enters_on");
 }
-check("Cached URL I:/U: locator cannot be released by structural review", cachedTemporalRejected);
-const copyrightTransition = prepareLocatorReviewSurface({
-  sourceId: "sfs-1960-729",
-  requestedLocator: "2 a kap. 26 n §",
-  document: copyright.document,
-  rawFile: copyright.rawFile,
-  preparedAt: "2026-09-08T12:25:00.000Z",
-});
-const copyrightTransitionPacket = JSON.parse(execFileSync(process.execPath, [
-  getProvisionPath,
-  "--source", "sfs-1960-729",
-  "--locator", "2 a kap. 26 n §",
-  "--cache-dir", urlCacheDir,
-  "--review-store", storeDir,
-  "--run-dir", runDir,
-  "--case-dir", caseDir,
-], { encoding: "utf8" }));
-check("Source-map mismatch still exposes both marked URL text candidates without selecting either",
-  copyrightTransition.review_disposition.status === "explanation_only"
-  && copyrightTransition.explanation_context.reading_views.length === 2
-  && copyrightTransition.explanation_context.reading_views.every((view) => view.evidence_status === "provisional_text_candidate")
-  && copyrightTransition.explanation_context.reading_views[0].source_text.includes("Ny beteckning 26 q §")
-  && copyrightTransition.explanation_context.reading_views[1].temporal_marker?.kind === "enters_on"
-  && copyrightTransitionPacket.status === "unknown"
-  && !Object.hasOwn(copyrightTransitionPacket, "text")
-  && copyrightTransitionPacket.review_action.source_observation.status === "unselected_text_candidates"
-  && copyrightTransitionPacket.review_action.source_observation.candidates.length === 2
-  && copyrightTransitionPacket.review_action.source_observation.candidates.every((candidate) => candidate.excerpt)
-  && copyrightTransitionPacket.review_action.source_observation.candidates[1].temporal_marker?.kind === "enters_on");
 
 const damages = await loadCachedDocument(cacheDir, "sfs-1972-207");
-const damagesExplanation = prepareLocatorReviewSurface({
-  sourceId: "sfs-1972-207",
-  requestedLocator: "3 kap. 5 §",
-  document: damages.document,
-  rawFile: damages.rawFile,
-  preparedAt: "2026-09-08T12:30:00.000Z",
-});
-const damagesHtml = renderReviewHtml(damagesExplanation, null);
-const damagesOrientation = buildReviewOrientation(damagesExplanation);
+let damagesReviewNotNeeded = false;
+try {
+  prepareLocatorReviewSurface({
+    sourceId: "sfs-1972-207",
+    requestedLocator: "3 kap. 5 §",
+    document: damages.document,
+    rawFile: damages.rawFile,
+    preparedAt: "2026-09-08T12:30:00.000Z",
+  });
+} catch (error) {
+  damagesReviewNotNeeded = error.message.includes("automatic structural capability supports this unique unmarked locator");
+}
 const damagesPacket = JSON.parse(execFileSync(process.execPath, [
   getProvisionPath,
   "--source", "sfs-1972-207",
@@ -286,35 +279,16 @@ const damagesPacket = JSON.parse(execFileSync(process.execPath, [
   "--run-dir", runDir,
   "--case-dir", caseDir,
 ], { encoding: "utf8" }));
-check("Skadeståndslagen duplicate I:/U: versions produce explanation only",
-  damagesExplanation.automatic_capability.status === "supported"
-  && damagesExplanation.review_disposition.status === "explanation_only"
-  && damagesExplanation.explanation_context.matching_publisher_anchors.length === 2
-  && damagesExplanation.explanation_context.matching_text_candidates.length === 2
-  && damagesExplanation.explanation_context.reading_views.length === 2
-  && damagesExplanation.review_signals.some((signal) => signal.kind === "temporal_layer" && signal.blocks_decision)
-  && damagesHtml.includes("Temporal versions")
-  && damagesHtml.includes("Source candidate 1 of 2")
-  && damagesHtml.includes("Numbered source view")
-  && damagesHtml.includes("Reader view")
-  && damagesHtml.includes("Upphör att gälla U:2026-09-01")
-  && damagesHtml.includes("Träder i kraft I:2026-09-01")
-  && damagesPacket.status === "ambiguous"
-  && damagesPacket.review_action.disposition === "explanation_only"
-  && damagesPacket.review_action.decision_allowed === false
-  && damagesPacket.review_action.source_observation.status === "unselected_text_candidates"
-  && damagesPacket.review_action.source_observation.candidates.length === 2
-  && damagesPacket.review_action.source_observation.candidates.every((candidate) => candidate.excerpt && candidate.temporal_marker)
-  && !Object.hasOwn(damagesPacket, "text")
-  && damagesPacket.review_action.case_report.report_kind === "capability_need"
-  && damagesPacket.review_action.case_report.local_record_status === "recorded"
-  && !damagesHtml.includes('id="confirm"'));
-check("Temporal orientation points to unselected evidence without enabling review",
-  damagesOrientation.kind === "temporal_versions"
-  && damagesOrientation.evidenceTarget === "source-evidence"
-  && damagesHtml.includes('href="#source-evidence"')
-  && damagesHtml.includes("Compare the unselected source candidates")
-  && !damagesHtml.includes('id="confirm"'));
+check("Current Skadeståndslagen 3 kap. 5 § is a unique unmarked provision",
+  damagesPacket.status === "found"
+  && damagesPacket.capability.status === "supported"
+  && damagesPacket.canonical_locator === "3 kap. 5 §"
+  && damagesPacket.anchor_name === "K3P5"
+  && damagesPacket.temporal.resolution === "not_applicable"
+  && sha256(damagesPacket.text) === damagesPacket.section_sha256
+  && damagesPacket.source_snapshot === damages.rawFile
+  && !Object.hasOwn(damagesPacket, "review_action"));
+check("Current Skadeståndslagen 3 kap. 5 § needs no locator review", damagesReviewNotNeeded);
 
 const competition = await loadCachedDocument(cacheDir, "sfs-2008-579");
 const renumberingExplanation = prepareLocatorReviewSurface({

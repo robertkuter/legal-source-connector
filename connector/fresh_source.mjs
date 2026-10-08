@@ -2,9 +2,8 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
-  cachedRawJsonFiles,
   findTextSectionCandidates,
-  loadCachedDocument,
+  newestValidCachedSnapshot,
   parseHtmlParagraphAnchors,
   sha256,
 } from "./sfs_index.mjs";
@@ -30,36 +29,6 @@ async function officialBody(url, fetchImpl) {
   }
 }
 
-async function priorSnapshot(cacheDir, sourceId) {
-  let files;
-  try {
-    files = (await cachedRawJsonFiles(join(cacheDir, sourceId), sourceId)).reverse();
-  } catch (error) {
-    if (error.message.startsWith("No cached source snapshot for ")) {
-      return { snapshot: null, ignoredSnapshots: [] };
-    }
-    throw error;
-  }
-  const ignoredSnapshots = [];
-  for (const rawFile of files) {
-    try {
-      return {
-        snapshot: await loadCachedDocument(cacheDir, sourceId, { rawFile }),
-        ignoredSnapshots,
-      };
-    } catch (error) {
-      if (error instanceof SyntaxError
-        || error.message.startsWith("Cached response has no consolidated text:")
-        || error.message.startsWith("Cached source identity does not match ")) {
-        ignoredSnapshots.push(rawFile);
-        continue;
-      }
-      throw error;
-    }
-  }
-  return { snapshot: null, ignoredSnapshots };
-}
-
 async function priorFormatHash(prior, format) {
   if (!prior) return null;
   try {
@@ -79,7 +48,7 @@ export async function fetchAndPinOfficialSource({
 }) {
   const sourceMatch = String(sourceId ?? "").match(/^sfs-(\d{4})-(\d+)$/);
   if (!sourceMatch) throw new Error("A fresh lookup requires an exact SFS source ID such as sfs-1972-207.");
-  const { snapshot: prior, ignoredSnapshots } = await priorSnapshot(cacheDir, sourceId);
+  const { snapshot: prior, ignoredSnapshots } = await newestValidCachedSnapshot(cacheDir, sourceId);
   const ignoredDetails = ignoredSnapshots.length
     ? { prior_snapshot_ignored: true, ignored_snapshots: ignoredSnapshots }
     : {};

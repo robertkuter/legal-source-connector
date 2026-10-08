@@ -1,0 +1,70 @@
+{
+  "source_id": "sfs-2005-551",
+  "official_urls": {
+    "json": "https://data.riksdagen.se/dokument/sfs-2005-551.json",
+    "text": "https://data.riksdagen.se/dokument/sfs-2005-551.text",
+    "html": "https://data.riksdagen.se/dokument/sfs-2005-551.html"
+  },
+  "original_snapshot": "2026-10-08T13-19-29-020Z",
+  "full_source_sha256": {
+    "json": "560a6b7313d0545d118540cc92224bc049f0938fe9d879963b0fbb4447432ac5",
+    "text": "997a3395628a18024d0e33ba91ae8442b8af75885d49e3a9ea59cd949d510f43",
+    "html": "662f6748f0d2719583516b2ce6bded3eac0b4a99911a00b76956146251d8772e"
+  },
+  "excerpt_sha256": {
+    "json": "e5df36cfdd82d95942d352367554d9e261037c16478e8d788f004a8c01e08906",
+    "text": "114c65e932e1795f70376a79125f1d45640714d648baf3868a8f557f1f502547",
+    "html": "6b12c09e1a044f7a86dd4f2698382fb4eab6a31c92a46a91d5167533b8c3cc7b"
+  },
+  "excerpt_boundaries": [
+    {
+      "first_locator": "4 kap. 46 §",
+      "last_locator": "4 kap. 47 §",
+      "next_anchor": {
+        "locator": "4 kap. 48 §",
+        "name": "K4P48"
+      },
+      "source_text_spans": [
+        {
+          "start": 31753,
+          "end_exclusive": 31772,
+          "role": "verbatim_chapter_heading"
+        },
+        {
+          "start": 52709,
+          "end_exclusive": 55288,
+          "role": "verbatim_provisions_through_next_heading"
+        }
+      ],
+      "source_html_span": {
+        "start": 77629,
+        "end_exclusive": 80539
+      }
+    },
+    {
+      "first_locator": "7 kap. 68 §",
+      "last_locator": "7 kap. 68 a §",
+      "next_anchor": {
+        "locator": "7 kap. 69 §",
+        "name": "K7P69"
+      },
+      "source_text_spans": [
+        {
+          "start": 74731,
+          "end_exclusive": 74754,
+          "role": "verbatim_chapter_heading"
+        },
+        {
+          "start": 119566,
+          "end_exclusive": 121676,
+          "role": "verbatim_provisions_through_next_heading"
+        }
+      ],
+      "source_html_span": {
+        "start": 167117,
+        "end_exclusive": 169894
+      }
+    }
+  ],
+  "note": "Each text and HTML span is verbatim from the original JSON document. Only complete provision boundaries and chapter headings were selected; blank lines join the disjoint spans. The JSON envelope retains original identity metadata and contains excerpts, not a complete Act."
+}

@@ -370,8 +370,18 @@ export async function latestRawJson(sourceDir, sourceId = null) {
 }
 
 export async function loadCachedDocument(cacheDir, sourceId, { rawFile: selectedRawFile = null } = {}) {
+  if (selectedRawFile === null) {
+    const { snapshot, ignoredSnapshots } = await newestValidCachedSnapshot(cacheDir, sourceId);
+    if (!snapshot) {
+      if (!ignoredSnapshots.length) {
+        throw new Error(`No cached source snapshot for ${sourceId}. Run node connector/orient_riksdagen.mjs --source ${sourceId}, then retry.`);
+      }
+      throw new Error(`No valid cached source snapshot for ${sourceId}; skipped: ${ignoredSnapshots.join(", ")}.`);
+    }
+    return { ...snapshot, ignoredSnapshots };
+  }
   const sourceDir = join(cacheDir, sourceId);
-  const rawFile = selectedRawFile ?? await latestRawJson(sourceDir, sourceId);
+  const rawFile = selectedRawFile;
   if (rawFile.includes("/") || rawFile.includes("\\")
     || !rawFile.endsWith(".json") || rawFile === "index.json" || rawFile.endsWith("-index.json")) {
     throw new Error("Cached snapshot filename must be a JSON file in the source directory.");
@@ -385,6 +395,36 @@ export async function loadCachedDocument(cacheDir, sourceId, { rawFile: selected
     throw new Error(`Cached source identity does not match ${sourceId}: ${rawPath}`);
   }
   return { sourceDir, rawFile, rawPath, document };
+}
+
+export async function newestValidCachedSnapshot(cacheDir, sourceId) {
+  let files;
+  try {
+    files = (await cachedRawJsonFiles(join(cacheDir, sourceId), sourceId)).reverse();
+  } catch (error) {
+    if (error.message.startsWith("No cached source snapshot for ")) {
+      return { snapshot: null, ignoredSnapshots: [] };
+    }
+    throw error;
+  }
+  const ignoredSnapshots = [];
+  for (const rawFile of files) {
+    try {
+      return {
+        snapshot: await loadCachedDocument(cacheDir, sourceId, { rawFile }),
+        ignoredSnapshots,
+      };
+    } catch (error) {
+      if (error instanceof SyntaxError
+        || error.message.startsWith("Cached response has no consolidated text:")
+        || error.message.startsWith("Cached source identity does not match ")) {
+        ignoredSnapshots.push(rawFile);
+        continue;
+      }
+      throw error;
+    }
+  }
+  return { snapshot: null, ignoredSnapshots };
 }
 
 export async function writeIndex(cacheDir, sourceId, { rawFile = null } = {}) {

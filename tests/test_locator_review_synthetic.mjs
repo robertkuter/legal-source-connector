@@ -257,6 +257,16 @@ const valid = validateReviewDecision({
   rawFile: "synthetic-arl.json",
 });
 check("Complete locator decision validates", valid.valid, { errors: valid.errors });
+const differentFilenameValidation = validateReviewDecision({
+  artifact,
+  decision: validDecision,
+  sourceId: "synthetic-arl",
+  document: annualAccountsStyle,
+  rawFile: "newer-snapshot.json",
+});
+check("Locator decision remains bound to its exact snapshot filename",
+  !differentFilenameValidation.valid
+  && differentFilenameValidation.errors.some((error) => error.includes("snapshot filename")));
 
 const changedAnchorArtifact = structuredClone(artifact);
 changedAnchorArtifact.publisher_anchor.source_markup = '<a class="paragraf" name="K1P9"><b>9 §</b></a>';
@@ -405,6 +415,23 @@ const leakedReview = await findValidLocatorReview({
   rawFile: "synthetic-arl.json",
 });
 check("Imported review is reusable only for its exact locator", exactReview.status === "found" && leakedReview.status === "not_found");
+const reviewedCacheDir = join(tempRoot, "reviewed-cache");
+const reviewedSourceDir = join(reviewedCacheDir, "synthetic-arl");
+await mkdir(reviewedSourceDir, { recursive: true });
+await writeFile(join(reviewedSourceDir, "synthetic-arl.json"),
+  JSON.stringify({ dokumentstatus: { dokument: annualAccountsStyle } }));
+await writeFile(join(reviewedSourceDir, "zz-broken.json"), "<html>503</html>");
+const reviewedPacket = JSON.parse(execFileSync(process.execPath, [
+  new URL("../connector/get_provision.mjs", import.meta.url).pathname,
+  "--source", "synthetic-arl", "--locator", "1 kap. 2 §",
+  "--cache-dir", reviewedCacheDir, "--review-store", storeDir,
+  "--case-dir", join(tempRoot, "cases"), "--run-dir", join(tempRoot, "runs"),
+], { encoding: "utf8" }));
+check("Plain lookup retains exact reviewed-snapshot binding after skipping a broken newer file",
+  reviewedPacket.status === "found"
+  && reviewedPacket.basis === "human_reviewed_snapshot"
+  && reviewedPacket.source_snapshot === "synthetic-arl.json"
+  && JSON.stringify(reviewedPacket.ignored_snapshots) === JSON.stringify(["zz-broken.json"]));
 
 const unmarkedCopyrightArtifact = prepareLocatorReview({
   sourceId: "synthetic-url",

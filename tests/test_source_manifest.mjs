@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { buildSourceManifest } from "../connector/source_manifest.mjs";
 import { buildIndex, writeIndex } from "../connector/sfs_index.mjs";
 import { requireCachedSources } from "./cache_requirements.mjs";
+import { stagePinnedFixture } from "./pinned_fixture.mjs";
 
 const cacheDir = new URL("../cache/riksdagen/", import.meta.url).pathname;
 if (!await requireCachedSources(cacheDir, ["sfs-2005-551"])) process.exit(2);
@@ -13,7 +14,15 @@ const generatedAt = "2026-08-24T00:00:00.000Z";
 const manifest = buildSourceManifest({
   indexed,
   sourceId: "sfs-2005-551",
-  testedLocators: ["13 kap. 6 §", "13 kap. 999 §", "ABL 13 §", "4 kap. 47 §", "7 kap. 68 a §"],
+  testedLocators: ["13 kap. 6 §", "13 kap. 999 §", "ABL 13 §"],
+  generatedAt,
+});
+const pinnedAbl = await stagePinnedFixture("sfs-2005-551", "2026-10-08T13-19-29-020Z");
+const pinnedIndexed = await writeIndex(pinnedAbl.cacheDir, "sfs-2005-551");
+const pinnedManifest = buildSourceManifest({
+  indexed: pinnedIndexed,
+  sourceId: "sfs-2005-551",
+  testedLocators: ["4 kap. 47 §", "7 kap. 68 a §"],
   generatedAt,
 });
 const results = [];
@@ -41,19 +50,20 @@ check("Manifest carries index health without copying every section",
   manifest.index.index_version === indexed.index.index_version
   && manifest.index.section_count === indexed.index.section_count
   && manifest.index.capability.status === "supported"
-  && manifest.index.capability.temporal.status === "layered_unresolved"
+  && manifest.index.capability.temporal.status === indexed.index.capability.temporal.status
   && !Object.hasOwn(manifest.index, "sections"));
 
-const [found, missing, invalid, ambiguous, futureOnly] = manifest.tested_locators;
+const [found, missing, invalid] = manifest.tested_locators;
+const [ambiguous, futureOnly] = pinnedManifest.tested_locators;
 check("Found sample locator records its canonical address and hash",
   found.status === "found"
   && found.canonical_locator === "13 kap. 6 §"
   && found.section_sha256);
 check("Missing sample locator is not treated as found", missing.status === "not_found");
 check("Invalid sample locator is rejected", invalid.status === "invalid");
-check("Ambiguous sample locator remains visible", ambiguous.status === "ambiguous"
+check("Pinned ambiguous sample locator remains visible", ambiguous.status === "ambiguous"
   && ambiguous.match_count > 1);
-check("Future-only marked locator remains unknown", futureOnly.status === "unknown"
+check("Pinned future-only marked locator remains unknown", futureOnly.status === "unknown"
   && futureOnly.temporal.resolution === "marked_version_unresolved");
 check("Manifest does not embed the complete cached Act", JSON.stringify(manifest).length < 10000);
 

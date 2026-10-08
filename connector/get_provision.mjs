@@ -188,6 +188,9 @@ try {
     source_text_sha256: indexed.index.source_text_sha256,
     source_html_sha256: indexed.index.source_html_sha256,
     ...(sourceCheck ? { source_check: sourceCheck } : {}),
+    ...(!sourceCheck && indexed.ignoredSnapshots?.length
+      ? { cached_snapshot_ignored: true, ignored_snapshots: indexed.ignoredSnapshots }
+      : {}),
     capability: indexed.index.capability,
     attribution: riksdagenAttribution(),
     source_snapshot: indexed.rawFile,

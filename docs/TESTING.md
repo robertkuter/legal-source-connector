@@ -22,7 +22,58 @@ smoke test for a public checkout.
 
 The core suite also checks that `--fresh` compares with the newest valid pin when a
 newer cache file is broken, and that orientation does not save failed, wrong-identity
-or textless JSON as a source snapshot.
+or textless JSON as a source snapshot. The plain cached lookup uses that same valid-pin
+selection, reports skipped snapshots in `ignored_snapshots`, and keeps index reuse and
+locator-review decisions bound to the selected snapshot.
+
+## Pinned excerpts for dated source behaviour
+
+A test about how a statute read on a particular date uses a pinned excerpt under
+`tests/fixtures/riksdagen/<source-id>/<original-snapshot-stamp>/`. Each directory has
+JSON, text and HTML excerpts in the normal Riksdagen payload shape, plus
+`provenance.json`. The fixtures contain only the relevant provisions, adjacent
+boundaries and publisher markup; the full Acts stay in the ignored local cache. Tests
+verify excerpt hashes and identity, copy the fixture to an isolated temporary cache,
+then use the normal connector commands. A fresh clone can run these cases without the
+historical full source.
+
+To add or refresh a fixture, retrieve the official JSON, text and HTML; verify its SFS
+identity and record the timestamp and SHA-256 of **each complete original response**.
+Copy the target provision and enough neighbors to reproduce its condition, ending at
+the next anchor. Preserve all selected source text and markup verbatim. Record the
+first and last locator, next anchor, and offsets in the original JSON document's
+`text` and `html` fields in
+`provenance.json`; the JSON envelope may contain only the fields needed by the
+connector. Check the excerpt hashes, structural capability and packet outcome. Add a
+new stamped directory when the publisher changes rather than overwriting an older
+fixture, and rerun the synthetic and real-source suites. An excerpt establishes the
+historical test condition; a live check establishes what the publisher serves now.
+
+## Required checks before any release tag
+
+1. Orient a fresh cache from the real Riksdagen sources, then run all six real-source
+   suites below. Each suite prints its copyable `orient_riksdagen.mjs` command if a
+   required source is missing. These are the only suites that test real Riksdagen text
+   and markup; record their check counts and any failures in the release notes.
+
+   ```bash
+   node tests/test_connector.mjs
+   node tests/test_locator_review_cached.mjs
+   node tests/test_commercial_coverage.mjs
+   node tests/test_source_manifest.mjs
+   node tests/test_source_manifest_coverage.mjs
+   node tests/test_cisg_annex.mjs
+   ```
+
+2. Make one live fresh check, then repeat the same locator from the cache. Record both
+   packet statuses and the selected `source_snapshot` in the release notes. This checks
+   that an ordinary lookup works immediately after `--fresh`; all other `--fresh` tests
+   use a stubbed fetch.
+
+   ```bash
+   node connector/get_provision.mjs --fresh --source sfs-1972-207 --locator "1 kap. 1 §"
+   node connector/get_provision.mjs --source sfs-1972-207 --locator "1 kap. 1 §"
+   ```
 
 The locator-review synthetic suite is also cache-free. It models both the ÅRL
 false-heading shape and the URL timing/version shape, then tests complete import plus
@@ -60,9 +111,10 @@ node tests/test_connector.mjs
 ```
 
 This checks the full cached ABL index, every indexed section hash and offset, ABL and LAS
-locators, missing and ambiguous addresses, chapterless statutes and malformed locators.
-It also verifies ABL's 28 section and seven heading timing markers and invokes the real
-packet command to confirm that future-only `7 kap. 68 a §` returns `unknown` without text.
+locators, missing addresses, chapterless statutes and malformed locators. Live temporal
+counts are checked against the markers actually indexed. The pinned 2026-10-08 ABL
+excerpt checks the `4 kap. 47 §` U:/I: pair and invokes the real packet command to
+confirm that future-only `7 kap. 68 a §` returns `unknown` without text.
 It does not require a model or internet access.
 
 The live API should be tested separately because network availability and source changes
@@ -70,7 +122,7 @@ are external conditions. Keep live receipts as evidence, not as the only regress
 A narrow live current-source smoke test is:
 
 ```bash
-node connector/get_provision.mjs --fresh --source sfs-1972-207 --locator "3 kap. 5 §"
+node connector/get_provision.mjs --fresh --source sfs-1972-207 --locator "1 kap. 1 §"
 ```
 
 Inspect `source_check.checked_at`, `source_check.status`, `retrieval_mode`, source hashes,
@@ -96,24 +148,27 @@ and explicit ambiguous transition locators. Årsredovisningslag is deliberately 
 as `review_required` because its text contains a cross-reference list that the current
 candidate parser mistakes for section headings.
 
-The cached locator-review suite uses local ÅRL, URL, Skadeståndslagen and Konkurrenslagen
+The cached locator-review suite uses local ÅRL, Skadeståndslagen and Konkurrenslagen
 snapshots without copying them or its temporary store into Git. It confirms ÅRL
-`7 kap. 7 §` and URL `6 b kap. 52 i §` through isolated acceptance decisions, calls the
-normal provision command, checks `human_reviewed_snapshot` plus retained automatic
-`review_required`, and proves that another locator remains blocked. It also prepares two
-real non-decision surfaces: the outgoing/incoming `I:`/`U:` pair at Skadeståndslagen
-`3 kap. 5 §`, and the duplicate publisher identity plus editorial renumbering notice at
-Konkurrenslagen `4 kap. 16 a §`. Those pages must be `explanation_only`, display the
-classified blocking signals and expose no confirmation or decision-download control. Its generated
-decisions are automated fixtures in an operating-system temporary directory, not real
-human legal review records. The suite also checks the shared paired reading component:
-numbered source lines retain the following boundary, the reflowed reader view is clearly
-labelled as presentation, and multi-candidate blockers render one view per candidate
-without acquiring decision controls.
+`7 kap. 7 §` through an isolated acceptance decision, calls the normal provision
+command, checks `human_reviewed_snapshot` plus retained automatic `review_required`,
+and proves that another locator remains blocked. On the current Skadeståndslagen
+snapshot, `3 kap. 5 §` is a unique unmarked provision, so the suite confirms ordinary
+lookup and that no review surface is needed. Konkurrenslagen `4 kap. 16 a §` still has
+a duplicate publisher identity and editorial renumbering notice. Its page must be
+`explanation_only`, display the classified blocking signals and expose no confirmation
+or decision-download control. Generated decisions are automated fixtures in an
+operating-system temporary directory, not real human legal review records. The shared
+paired reading component is also checked by the synthetic locator-review suite.
 
-The normal cached lookup also writes its Skadeståndslagen and Konkurrenslagen capability
-needs into an isolated temporary case register and exposes their case identifiers through
-`review_action`; no cached source, case record or receipt is checked into Git.
+The bundled URL excerpt is pinned to `2026-08-24T13-02-29-802Z`. It tests
+`6 b kap. 52 i §` through an isolated locator decision and `2 a kap. 26 n §` as an
+unresolved timing/source-map surface. Both cases run in a fresh clone without a
+historical full-Act cache.
+
+The unresolved Konkurrenslagen lookup writes its capability need into an isolated
+temporary case register and exposes its case identifier through `review_action`; no
+cached source, case record or receipt is checked into Git.
 
 The Swedish CISG translation annex is tested separately because it is a second structure
 inside the official source, not an ordinary SFS section sequence:
@@ -123,11 +178,12 @@ node tests/test_cisg_annex.mjs
 node connector/get_cisg_article.mjs --article "Artikel 1"
 ```
 
-The 18-check suite verifies all 101 article headings, offsets, hashes, representative
+The 19-check suite verifies all 101 article headings, offsets, hashes, representative
 article packets and the Act's own scope signal. It also records the partial HTML
 cross-check: 48 article headings have publisher HTML anchors, while the text contains
-101 standalone article headings. This is evidence for the separate index design, not a
-claim that the translation layer has independent legal authority.
+101 standalone article headings. It checks recovery from newer invalid cache files.
+This is evidence for the separate index design, not a claim that the translation layer
+has independent legal authority.
 
 To understand why Årsredovisningslag is not yet promoted, produce the capability-review
 packet:
@@ -139,6 +195,27 @@ node connector/review_source_capability.mjs --source sfs-1995-1554
 The packet reports the first alignment mismatch, the exact false-positive candidates and
 the surrounding source lines. It is intentionally a review artifact, not a provision
 retrieval packet.
+
+### Live source assertions still needing a fixture decision
+
+The dated URL and ABL timing outcomes above are pinned. Other source-specific live
+expectations remain in these suites and could change when the publisher consolidates
+new amendments:
+
+- `test_connector`: the named ABL and LAS locators, the LAS `7 §` wording phrase, and
+  ABL chapter reach and heading boundaries.
+- `test_commercial_coverage`: curated exact locators, ÅRL's `review_required` profile,
+  Konkurrenslagen `4 kap. 16 a §` ambiguity and editorial notice, and the CISG annex
+  length assertion. Exact whole-Act section counts have been replaced with structural
+  invariants.
+- `test_locator_review_cached`: the live ÅRL review surface, current Skadeståndslagen
+  `3 kap. 5 §` uniqueness, and Konkurrenslagen's renumbering surface.
+- `test_source_manifest`: the live ABL `13 kap. 6 §` found sample.
+- `test_cisg_annex`: the publisher's partial HTML cross-check count of 48.
+
+Decide whether to pin more excerpts for those specific behaviours or narrow those
+tests to structural invariants. Do not silently update a dated expectation when a
+live source changes.
 
 The compact source-manifest layer has its own deterministic test:
 

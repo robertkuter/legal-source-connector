@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { join } from "node:path";
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
+import { newestValidCachedSnapshot } from "./sfs_index.mjs";
 import { splitLinesWithOffsets } from "./text_lines.mjs";
 
 const INDEX_VERSION = "0.2";
@@ -137,31 +138,15 @@ export function buildCisgAnnexIndex({ sourceId, document, rawFile }) {
   };
 }
 
-async function latestRawJson(sourceDir, sourceId) {
-  let directoryEntries;
-  try {
-    directoryEntries = await readdir(sourceDir);
-  } catch (error) {
-    if (error?.code !== "ENOENT") throw error;
-    throw new Error(`No cached source snapshot for ${sourceId}. Run node connector/orient_riksdagen.mjs --source ${sourceId}, then retry.`);
-  }
-  const files = directoryEntries
-    .filter((file) => file.endsWith(".json") && file !== "index.json" && file !== "cisg-annex-index.json")
-    .sort();
-  if (!files.length) {
-    throw new Error(`No cached source snapshot for ${sourceId}. Run node connector/orient_riksdagen.mjs --source ${sourceId}, then retry.`);
-  }
-  return files.at(-1);
-}
-
 export async function loadCachedCisgDocument(cacheDir, sourceId) {
-  const sourceDir = join(cacheDir, sourceId);
-  const rawFile = await latestRawJson(sourceDir, sourceId);
-  const rawPath = join(sourceDir, rawFile);
-  const payload = JSON.parse(await readFile(rawPath, "utf8"));
-  const document = payload?.dokumentstatus?.dokument ?? payload?.dokument?.dokument ?? payload?.dokument;
-  if (!document?.text) throw new Error(`Cached response has no consolidated text: ${rawPath}`);
-  return { sourceDir, rawFile, rawPath, document };
+  const { snapshot, ignoredSnapshots } = await newestValidCachedSnapshot(cacheDir, sourceId);
+  if (!snapshot) {
+    if (!ignoredSnapshots.length) {
+      throw new Error(`No cached source snapshot for ${sourceId}. Run node connector/orient_riksdagen.mjs --source ${sourceId}, then retry.`);
+    }
+    throw new Error(`No valid cached source snapshot for ${sourceId}; skipped: ${ignoredSnapshots.join(", ")}.`);
+  }
+  return { ...snapshot, ignoredSnapshots };
 }
 
 export async function writeCisgAnnexIndex(cacheDir, sourceId) {

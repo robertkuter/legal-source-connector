@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { mkdir, mkdtemp, readdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { assessComparison } from "../connector/staleness_logic.mjs";
@@ -205,11 +206,19 @@ await writeFile(join(identityCache, "sfs-2099-1", "2099-01-01T00-00-00-000Z.json
   JSON.stringify({ dokumentstatus: { dokument: { ...syntheticDocument, beteckning: "2099:2" } } }));
 let wrongCachedIdentityRejected = false;
 try {
-  await loadCachedDocument(identityCache, "sfs-2099-1");
+  await loadCachedDocument(identityCache, "sfs-2099-1", { rawFile: "2099-01-01T00-00-00-000Z.json" });
 } catch (error) {
   wrongCachedIdentityRejected = error.message.includes("Cached source identity does not match sfs-2099-1");
 }
-check("Cached lookup rejects a snapshot belonging to another SFS", wrongCachedIdentityRejected);
+check("Explicit cached snapshot rejects another SFS identity", wrongCachedIdentityRejected);
+let noValidIdentityRejected = false;
+try {
+  await loadCachedDocument(identityCache, "sfs-2099-1");
+} catch (error) {
+  noValidIdentityRejected = error.message.includes("No valid cached source snapshot for sfs-2099-1")
+    && error.message.includes("2099-01-01T00-00-00-000Z.json");
+}
+check("Plain lookup refuses a cache with no valid snapshot", noValidIdentityRejected);
 
 const freshCache = await mkdtemp(join(tmpdir(), "lsc-fresh-source-"));
 const freshId = "sfs-2099-1";
@@ -278,15 +287,40 @@ for (const [name, invalidBody] of [
 const invalidNewerFile = "2099-01-01T00-00-00-000Z.json";
 await writeFile(join(brokenCache, freshId, invalidNewerFile), "<html>503</html>");
 const comparedWithLastGood = await fetchAndPinOfficialSource({ ...freshArgs, cacheDir: brokenCache });
-const comparedIndex = await writeIndex(brokenCache, freshId, {
-  rawFile: comparedWithLastGood.source_snapshot,
-});
+const comparedIndex = await writeIndex(brokenCache, freshId, { rawFile: comparedWithLastGood.source_snapshot });
 check("Fresh lookup compares with the last valid pin despite a broken newer file",
   comparedWithLastGood.status === "verified_unchanged"
   && comparedWithLastGood.compared_snapshot === recoveredFresh.source_snapshot
   && comparedWithLastGood.source_snapshot === recoveredFresh.source_snapshot
   && comparedWithLastGood.ignored_snapshots.includes(invalidNewerFile)
   && comparedIndex.rawFile === comparedWithLastGood.source_snapshot);
+const plainPacket = (cacheDir) => JSON.parse(execFileSync(process.execPath, [
+  new URL("../connector/get_provision.mjs", import.meta.url).pathname,
+  "--source", freshId, "--locator", "1 kap. 1 §",
+  "--cache-dir", cacheDir, "--run-dir", join(cacheDir, "runs"),
+], { encoding: "utf8" }));
+const cachedAfterBroken = await writeIndex(brokenCache, freshId);
+const plainAfterBroken = plainPacket(brokenCache);
+check("Plain lookup skips a newer malformed JSON and reuses the valid index",
+  cachedAfterBroken.reused === true
+  && cachedAfterBroken.rawFile === recoveredFresh.source_snapshot
+  && plainAfterBroken.status === "found"
+  && plainAfterBroken.source_snapshot === recoveredFresh.source_snapshot
+  && plainAfterBroken.cached_snapshot_ignored === true
+  && JSON.stringify(plainAfterBroken.ignored_snapshots) === JSON.stringify([invalidNewerFile])
+  && (JSON.parse(await readFile(join(brokenCache, freshId, "index.json"), "utf8"))).raw_file === recoveredFresh.source_snapshot);
+const wrongIdentityCache = await mkdtemp(join(tmpdir(), "lsc-wrong-identity-after-valid-"));
+await mkdir(join(wrongIdentityCache, freshId));
+await writeFile(join(wrongIdentityCache, freshId, recoveredFresh.source_snapshot),
+  await readFile(join(brokenCache, freshId, recoveredFresh.source_snapshot), "utf8"));
+await writeFile(join(wrongIdentityCache, freshId, invalidNewerFile),
+  JSON.stringify({ dokumentstatus: { dokument: { ...freshDocument, beteckning: "2099:2" } } }));
+const plainAfterWrongIdentity = plainPacket(wrongIdentityCache);
+check("Plain lookup skips a newer wrong-identity JSON",
+  plainAfterWrongIdentity.status === "found"
+  && plainAfterWrongIdentity.source_snapshot === recoveredFresh.source_snapshot
+  && plainAfterWrongIdentity.cached_snapshot_ignored === true
+  && JSON.stringify(plainAfterWrongIdentity.ignored_snapshots) === JSON.stringify([invalidNewerFile]));
 freshDocument.text += "\nChanged after the last valid pin.";
 const changedAfterBroken = await fetchAndPinOfficialSource({ ...freshArgs, cacheDir: brokenCache });
 check("Fresh lookup reports drift from the last valid pin despite a broken newer file",

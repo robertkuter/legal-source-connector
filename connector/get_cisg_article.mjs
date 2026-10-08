@@ -60,6 +60,9 @@ try {
     consolidation_signal: indexed.document.subtitel ?? null,
     source_text_sha256: indexed.index.source_text_sha256,
     source_html_sha256: indexed.index.source_html_sha256,
+    ...(indexed.ignoredSnapshots?.length
+      ? { cached_snapshot_ignored: true, ignored_snapshots: indexed.ignoredSnapshots }
+      : {}),
     capability: indexed.index.capability,
     annex_index_version: indexed.index.index_version,
     annex_start_offset: indexed.index.annex_start_offset,

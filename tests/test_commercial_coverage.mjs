@@ -13,57 +13,48 @@ const sources = [
   {
     sourceId: "sfs-1990-931",
     expectedTitle: "Köplag (1990:931)",
-    expectedSectionCount: 82,
     exactLocators: ["1 §", "17 §", "40 §", "82 §"],
     missingLocator: "83 §",
   },
   {
     sourceId: "sfs-1987-822",
     expectedTitleIncludes: "1987:822",
-    expectedSectionCount: 2,
     exactLocators: ["1 §", "2 §"],
     missingLocator: "3 §",
   },
   {
     sourceId: "sfs-1999-116",
     expectedTitle: "Lag (1999:116) om skiljeförfarande",
-    expectedSectionCount: 64,
     exactLocators: ["1 §", "4 a §", "27 a §", "60 §"],
     missingLocator: "61 §",
   },
   {
     sourceId: "sfs-1991-351",
     expectedTitleIncludes: "1991:351",
-    expectedSectionCount: 36,
     exactLocators: ["1 §", "13 §", "36 §"],
     missingLocator: "37 §",
   },
   {
     sourceId: "sfs-1975-635",
     expectedTitleIncludes: "1975:635",
-    expectedSectionCount: 13,
     exactLocators: ["1 §", "2 a §", "4 §", "9 §"],
     missingLocator: "10 §",
   },
   {
     sourceId: "sfs-1972-207",
     expectedTitle: "Skadeståndslag (1972:207)",
-    expectedSectionCount: 39,
-    exactLocators: ["1 kap. 1 §", "2 kap. 3 a §", "6 kap. 7 §"],
-    ambiguousLocators: ["3 kap. 5 §"],
+    exactLocators: ["1 kap. 1 §", "2 kap. 3 a §", "3 kap. 5 §", "6 kap. 7 §"],
     missingLocator: "7 kap. 1 §",
   },
   {
     sourceId: "sfs-2008-486",
     expectedTitle: "Marknadsföringslag (2008:486)",
-    expectedSectionCount: 79,
     exactLocators: ["1 §", "7 a §", "22 a §", "66 §"],
     missingLocator: "67 §",
   },
   {
     sourceId: "sfs-2008-579",
     expectedTitle: "Konkurrenslag (2008:579)",
-    expectedSectionCount: 151,
     exactLocators: ["1 kap. 1 §", "3 kap. 1 a §", "8 kap. 18 §"],
     ambiguousLocators: ["4 kap. 16 a §"],
     missingLocator: "9 kap. 1 §",
@@ -71,14 +62,12 @@ const sources = [
   {
     sourceId: "sfs-1976-580",
     expectedTitle: "Lag (1976:580) om medbestämmande i arbetslivet",
-    expectedSectionCount: 83,
     exactLocators: ["1 §", "19 a §", "41 d §", "70 §"],
     missingLocator: "71 §",
   },
   {
     sourceId: "sfs-1999-1078",
     expectedTitle: "Bokföringslag (1999:1078)",
-    expectedSectionCount: 66,
     exactLocators: ["1 kap. 1 §", "6 kap. 3 a §", "9 kap. 1 §"],
     missingLocator: "10 kap. 1 §",
   },
@@ -86,7 +75,6 @@ const sources = [
     sourceId: "sfs-1995-1554",
     expectedTitle: "Årsredovisningslag (1995:1554)",
     expectedCapability: "review_required",
-    expectedSectionCount: 0,
     exactLocators: [],
   },
 ];
@@ -126,7 +114,11 @@ for (const expected of sources) {
   check(`${expected.sourceId} title is present`, expected.expectedTitle
     ? cached.document.titel === expected.expectedTitle
     : String(cached.document.titel ?? "").includes(expected.expectedTitleIncludes));
-  check(`${expected.sourceId} section count is stable for this snapshot`, index.section_count === expected.expectedSectionCount, {
+  check(`${expected.sourceId} section count follows structural capability`, expectedCapability === "supported"
+    ? index.section_count > 0
+      && index.capability.html_anchor_count === index.section_count
+      && index.capability.text_candidate_count === index.section_count
+    : index.section_count === 0, {
     section_count: index.section_count,
   });
 
@@ -183,13 +175,6 @@ for (const expected of sources) {
       annex_text_length: annexText.length,
     });
     check("1987:822 current index does not claim article-level locators", !index.sections.some((section) => section.locator === "Artikel 1"));
-  }
-
-  if (expected.sourceId === "sfs-1972-207") {
-    const ambiguous = matchesFor(index, "3 kap. 5 §");
-    check("1972:207 ambiguous candidates expose transition headings",
-      ambiguous.some((match) => match.heading_text.includes("Upphör"))
-      && ambiguous.some((match) => match.heading_text.includes("Träder")));
   }
 
   if (expected.sourceId === "sfs-2008-579") {

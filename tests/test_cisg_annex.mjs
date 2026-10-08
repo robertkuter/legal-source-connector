@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-import { writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   loadCachedCisgDocument,
@@ -86,6 +88,32 @@ try {
   invalidRejected = true;
 }
 check("CISG article outside 1-101 is rejected", invalidRejected);
+
+const mixedCacheDir = await mkdtemp(join(tmpdir(), "lsc-cisg-mixed-cache-"));
+const mixedSourceDir = join(mixedCacheDir, "sfs-1987-822");
+await mkdir(mixedSourceDir);
+await writeFile(join(mixedSourceDir, indexed.rawFile),
+  await readFile(join(cacheDir, "sfs-1987-822", indexed.rawFile), "utf8"));
+await writeFile(join(mixedSourceDir, "9998-wrong-identity.json"),
+  JSON.stringify({ dokumentstatus: { dokument: { ...document, beteckning: "1987:823" } } }));
+await writeFile(join(mixedSourceDir, "9999-broken.json"), "<html>503</html>");
+const selected = await loadCachedCisgDocument(mixedCacheDir, "sfs-1987-822");
+const mixedIndex = await writeCisgAnnexIndex(mixedCacheDir, "sfs-1987-822");
+const reusedMixedIndex = await writeCisgAnnexIndex(mixedCacheDir, "sfs-1987-822");
+const mixedPacket = JSON.parse(execFileSync(process.execPath, [
+  new URL("../connector/get_cisg_article.mjs", import.meta.url).pathname,
+  "--article", "Artikel 1", "--cache-dir", mixedCacheDir,
+  "--run-dir", join(mixedCacheDir, "runs"),
+], { encoding: "utf8" }));
+check("CISG annex skips newer invalid snapshots and reuses the valid index",
+  selected.rawFile === indexed.rawFile
+  && JSON.stringify(selected.ignoredSnapshots) === JSON.stringify(["9999-broken.json", "9998-wrong-identity.json"])
+  && mixedIndex.rawFile === indexed.rawFile
+  && reusedMixedIndex.reused === true
+  && mixedPacket.status === "found"
+  && mixedPacket.source_snapshot === indexed.rawFile
+  && mixedPacket.cached_snapshot_ignored === true
+  && JSON.stringify(mixedPacket.ignored_snapshots) === JSON.stringify(selected.ignoredSnapshots));
 
 const receipt = {
   test_suite: "cisg-annex-index-v0.1",
