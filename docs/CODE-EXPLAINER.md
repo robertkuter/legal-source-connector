@@ -54,6 +54,7 @@ the question “which exact passage did we use?”. Those are the connector's re
 | `examples/abl-primer/build_grounded_artifact.mjs` | Adapts the ABL reader draft and builds the inspectable artifact | Separating the explanatory memo from its source file |
 | `tests/test_grounded_claims.mjs` | Rejects unknown packet IDs and checks deterministic evidence enrichment | Checking that every footnote points to a real file and that the copy has not changed |
 | `tests/test_synthetic.mjs` | Runs the core parser and receipt logic without a source cache | The portable smoke test a new public checkout can run immediately |
+| `tests/fixtures/riksdagen/` and `tests/pinned_fixture.mjs` | Keep short verbatim excerpts of dated official snapshots, check their fingerprints, and load them as an ordinary cache for tests | A photocopy of the page as it read on a given date, kept in the case file with a note of where and when it was copied |
 | `tests/*.mjs` | Exercises source profiles, success, ambiguity, missing sections and structural failures | A checklist of things that must continue to work after a change |
 
 ## What happens during one lookup

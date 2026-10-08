@@ -30,6 +30,28 @@ The v0.1.7 release downloads do not include these changes. Download the
 [current connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/heads/main.zip)
 to try the updated connector.
 
+### In plain terms
+
+The connector keeps dated copies of Swedish laws downloaded from Riksdagen. Two things
+changed.
+
+**A damaged copy no longer blocks lookups.** If a download failed and left a broken or
+wrong file behind, the connector used to stop. It now skips that file, uses the most
+recent good copy, and says which file it skipped.
+
+**Tests no longer break when the law changes.** Some tests check how the connector
+handles a provision printed in two versions: the old wording and the new wording that
+takes effect on a set date. Once the new wording is in force, Riksdagen publishes only
+that version, and the test has nothing left to check. Short, exact passages from the
+dated copies are now kept with the tests, each with a record of where it came from and
+a fingerprint that proves it has not been altered. Those tests keep working whatever
+Riksdagen publishes today.
+
+One test expectation changed because the law itself changed: Skadeståndslagen
+3 kap. 5 §, amended by SFS 2026:1207. A person checked the new wording against the
+official page before the test was updated. The tests never quietly accept a change in
+the law.
+
 ### Pre-release check on 2026-10-08
 
 Fresh orientation retrieved all 16 required Riksdagen sources. The current
