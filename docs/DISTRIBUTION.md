@@ -41,7 +41,7 @@ The public package should contain:
 - a small source descriptor;
 - the tool interface;
 - the assistant skill/instructions;
-- synthetic fixtures and tests;
+- synthetic fixtures, two short dated official excerpts used only by tests, and tests;
 - the API map, README and lawyer explanation;
 - the Apache 2.0 licence and the project notice.
 
