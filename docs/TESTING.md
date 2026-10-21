@@ -63,7 +63,31 @@ historical test condition; a live check establishes what the publisher serves no
    node tests/test_source_manifest.mjs
    node tests/test_source_manifest_coverage.mjs
    node tests/test_cisg_annex.mjs
+   node tests/test_heading_boundaries.mjs
+   node tests/test_subdivisions_references.mjs
    ```
+
+   `test_subdivisions_references` (added 2026-10-20, decision D014) checks the locator grammar
+   for stycke and point addresses, then a synthetic Act through the index and the CLI: stycke
+   and point packets (exact part, own hash, offsets into the packet text), refusals
+   (`not_found`, `ambiguous`, `unknown` with the section shown), cross-references (internal,
+   external, range, unresolved with a warning) and `last_amended_by`; with cached sources, ABL
+   `13 kap. 6 § första stycket 4`, `13 kap. 7 § andra stycket`, LAS `7 § fjärde stycket` and the
+   refused LAS `39 § andra stycket`.
+
+   `test_heading_boundaries` (added 2026-10-20, finding C9, decision D011) always runs its
+   synthetic cases. With cached sources it also checks named ABL and Köplag sections and scans
+   every cached, supported Act: no section may end with a publisher heading, every heading
+   between two sections must be matched in the text, and ÅRL `7 kap. 7 §`'s cross-reference
+   list must stay inside the provision. Since index 0.8 (decision D012) it also checks section
+   starts and the heading stop: synthetic reference lists stay statute text, while an
+   unanchored section-like line, a repeal line or a reference before the first section holds
+   the source; a section before an unmatched heading is returned `unknown` with its published
+   text as an unverified observation; since index 0.9 (D013) a section printed inside another
+   (synthetic, and ABL `15 kap. 29/30 §` and `40/41 §`) is held the same way; every
+   cached Act is supported except Upphovsrättslagen (URL), and only ÅRL has in-text
+   references; ÅRL `7 kap. 7 §` and `2 kap. 3 §` are found and URL `7 kap. 53 g §` stays
+   held. Without a cache it reports the cached parts as skipped.
 
 2. Make one live fresh check, then repeat the same locator from the cache. Record both
    packet statuses and the selected `source_snapshot` in the release notes. This checks
@@ -75,8 +99,9 @@ historical test condition; a live check establishes what the publisher serves no
    node connector/get_provision.mjs --source sfs-1972-207 --locator "1 kap. 1 §"
    ```
 
-The locator-review synthetic suite is also cache-free. It models both the ÅRL
-false-heading shape and the URL timing/version shape, then tests complete import plus
+The locator-review synthetic suite is also cache-free. It models both an unanchored
+section-like line (the URL `7 kap. 53 g §` shape; the ÅRL lower-case reference shape until
+index 0.8, which D012 now reads as statute text) and the URL timing/version shape, then tests complete import plus
 rejection of incomplete, unresolved, wrong-source, wrong-locator, changed-hash,
 changed-index/schema, inconsistent-boundary, tampered-hash and scope-leaking records. It
 also proves that structural review cannot select an `I:`/`U:` passage. Its local-viewer
@@ -144,13 +169,14 @@ It checks the curated commercial extension sources, including Köplag, the two s
 sections of Lag (1987:822) om internationella köp, Arbitration Act, Commercial Agency
 Act, Räntelag, Skadeståndslag, Marknadsföringslag, Konkurrenslag, MBL, Bokföringslag and
 Årsredovisningslag. It includes lettered-section locators, transition-bearing endings
-and explicit ambiguous transition locators. Årsredovisningslag is deliberately retained
-as `review_required` because its text contains a cross-reference list that the current
-candidate parser mistakes for section headings.
+and explicit ambiguous transition locators. Årsredovisningslag is supported since index 0.8
+(D012): the cross-reference list inside `7 kap. 7 §` stays statute text, and `4 kap. 16 §`
+stays ambiguous because of publisher `U:`/`I:` versions.
 
-The cached locator-review suite uses local ÅRL, Skadeståndslagen and Konkurrenslagen
-snapshots without copying them or its temporary store into Git. It confirms ÅRL
-`7 kap. 7 §` through an isolated acceptance decision, calls the normal provision
+The cached locator-review suite uses local URL, Skadeståndslagen and Konkurrenslagen
+snapshots without copying them or its temporary store into Git. It confirms URL
+`7 kap. 53 f §` (the intervening `53 g §` has no publisher anchor; ÅRL `7 kap. 7 §` until
+index 0.8) through an isolated acceptance decision that tests the mechanism only, calls the normal provision
 command, checks `human_reviewed_snapshot` plus retained automatic `review_required`,
 and proves that another locator remains blocked. On the current Skadeståndslagen
 snapshot, `3 kap. 5 §` is a unique unmarked provision, so the suite confirms ordinary
@@ -185,11 +211,11 @@ cross-check: 48 article headings have publisher HTML anchors, while the text con
 This is evidence for the separate index design, not a claim that the translation layer
 has independent legal authority.
 
-To understand why Årsredovisningslag is not yet promoted, produce the capability-review
-packet:
+To understand why Upphovsrättslagen is held at `review_required`, produce the
+capability-review packet (Årsredovisningslag was the example until index 0.8):
 
 ```bash
-node connector/review_source_capability.mjs --source sfs-1995-1554
+node connector/review_source_capability.mjs --source sfs-1960-729
 ```
 
 The packet reports the first alignment mismatch, the exact false-positive candidates and
@@ -204,11 +230,11 @@ new amendments:
 
 - `test_connector`: the named ABL and LAS locators, the LAS `7 §` wording phrase, and
   ABL chapter reach and heading boundaries.
-- `test_commercial_coverage`: curated exact locators, ÅRL's `review_required` profile,
+- `test_commercial_coverage`: curated exact locators, ÅRL's supported profile (since 0.8),
   Konkurrenslagen `4 kap. 16 a §` ambiguity and editorial notice, and the CISG annex
   length assertion. Exact whole-Act section counts have been replaced with structural
   invariants.
-- `test_locator_review_cached`: the live ÅRL review surface, current Skadeståndslagen
+- `test_locator_review_cached`: the live URL `7 kap. 53 f §` review surface, current Skadeståndslagen
   `3 kap. 5 §` uniqueness, and Konkurrenslagen's renumbering surface.
 - `test_source_manifest`: the live ABL `13 kap. 6 §` found sample.
 - `test_cisg_annex`: the publisher's partial HTML cross-check count of 48.

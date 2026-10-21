@@ -3,6 +3,7 @@
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  alignSectionStarts,
   buildIndex,
   findTextSectionCandidates,
   loadCachedDocument,
@@ -57,7 +58,7 @@ function explainMismatch(anchor, candidate) {
 
 const args = parseArgs(process.argv.slice(2));
 if (!args.sourceId) {
-  console.error("Usage: node connector/review_source_capability.mjs --source sfs-1995-1554");
+  console.error("Usage: node connector/review_source_capability.mjs --source sfs-1960-729");
   process.exit(2);
 }
 
@@ -68,10 +69,12 @@ try {
   const index = buildIndex({ sourceId: args.sourceId, document: cached.document, rawFile: cached.rawFile });
   const anchors = parseHtmlParagraphAnchors(cached.document.html);
   const textResult = findTextSectionCandidates(String(cached.document.text ?? ""));
-  const firstMismatch = Math.min(anchors.length, textResult.candidates.length);
+  // D012: compare anchors with section starts, so in-text references are not reported as a mismatch.
+  const { starts } = alignSectionStarts(anchors, textResult.candidates);
+  const firstMismatch = Math.min(anchors.length, starts.length);
   let mismatchPosition = null;
   for (let i = 0; i < firstMismatch; i += 1) {
-    if (anchors[i].section !== textResult.candidates[i].section) {
+    if (anchors[i].section !== starts[i].section) {
       mismatchPosition = i;
       break;
     }
@@ -80,11 +83,11 @@ try {
   let mismatchEvidence = null;
   if (mismatchPosition !== null) {
     const anchor = anchors[mismatchPosition];
-    const candidate = textResult.candidates[mismatchPosition];
-    const recoveryIndex = textResult.candidates.findIndex((item, position) =>
+    const candidate = starts[mismatchPosition];
+    const recoveryIndex = starts.findIndex((item, position) =>
       position > mismatchPosition && item.section === anchor.section);
     const falseCandidates = recoveryIndex > mismatchPosition
-      ? textResult.candidates.slice(mismatchPosition, recoveryIndex)
+      ? starts.slice(mismatchPosition, recoveryIndex)
       : [candidate];
     const firstLine = Math.max(0, falseCandidates[0].start_line - 3);
     const lastLine = Math.min(textResult.lines.length, (falseCandidates.at(-1).start_line ?? candidate.start_line) + 4);

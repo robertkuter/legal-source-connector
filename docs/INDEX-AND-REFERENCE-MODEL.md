@@ -24,7 +24,26 @@ For each supported SFS source, the index records:
 - the index version and offset unit;
 - the capability result and any structural issues;
 - each addressable section's locator, publisher anchor, line range, character offsets and
-  section hash.
+  section hash;
+- since index 0.7–0.9 (D011–D013): headings as structure, in-text reference lines and sections
+  the publisher prints inside another;
+- since index 0.10 (D014, 2026-10-20), three map layers built on the publisher's own marks:
+  per section `stycken` (`confirmed` with a count, or `unconfirmed` with a reason; the spans
+  are computed at lookup from the `…S2`, `…S3` anchors), `last_amended_by` (the latest
+  `Lag (YYYY:NNN).` marker printed in the section) and, for the whole Act,
+  `cross_references`: every `N §`, `N kap. N §`, list and range inside a section, external
+  (another Act) or internal, each internal target resolved to its publisher anchor or listed
+  under `unresolved` with a reason.
+
+On the cached sources (2026-10-20; 23 supported Acts, 2,814 sections) the stycke structure is
+confirmed for 2,801 sections; the other 13 are refused with a reason (7 where the publisher
+prints the next heading as plain text after the amendment marker, 3 with a heading inside the
+section, 2 boundary-held, 1 with stycke anchors out of order). Of 3,430 references, 352 are
+external and 94 internal ones are reported unresolved, by reason: 61 point at a section with
+several versions, 22 at a section the Act does not have (mostly old-law references in
+transitional provisions and lists whose Act is named further away), 4 at a missing stycke, 4 at
+a section printed inside another, 3 at a stycke whose structure is unconfirmed and 2 at a range
+(a reference can carry two reasons).
 
 The section text is not duplicated into the index. The offsets point into the complete,
 locally held `document.text` snapshot. A lookup therefore follows this sequence:

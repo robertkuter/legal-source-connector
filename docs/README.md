@@ -7,6 +7,9 @@ README unless you need to inspect a field, test, source check, or extension boun
 
 - [Timing in a source packet](TEMPORAL-MODEL.md) separates download time, Riksdagen's
   version markers, and legal effect.
+- [Boundary decisions](BOUNDARY-DECISIONS.md) explains, in one page, the decisions (D011–D015)
+  and findings (C9, C11) that code comments and docs cite: where a provision and its stycken
+  start and end.
 - [Source capability](SOURCE-CAPABILITY.md) explains how the connector decides whether
   it can map a downloaded Act safely.
 - [Local review guide](LOCATOR-REVIEW-GUIDE.md) gives the short page, save, fresh-check

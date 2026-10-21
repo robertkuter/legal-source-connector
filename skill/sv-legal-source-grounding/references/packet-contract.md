@@ -4,7 +4,7 @@ The source tool returns JSON. The packet is evidence about retrieval, not a lega
 conclusion.
 
 The schema version describes the packet's fields and rules. It is separate from the
-connector's release version: for example, connector release v0.1.8 uses packet schema 0.2.
+connector's release version: for example, connector releases v0.1.8 and v0.2.0 use packet schema 0.2.
 
 ## Status values
 
@@ -38,9 +38,10 @@ connector's release version: for example, connector release v0.1.8 uses packet s
   "section_sha256": "...",
   "capability": {
     "status": "supported",
-    "method": "html_paragraph_anchors_plus_text_section_candidates",
+    "method": "html_paragraph_anchors_guide_text_section_starts",
     "html_anchor_count": 1025,
     "text_candidate_count": 1025,
+    "in_text_reference_count": 0,
     "issues": [],
     "temporal": {
       "status": "layered_unresolved",
@@ -67,7 +68,7 @@ connector's release version: for example, connector release v0.1.8 uses packet s
   "source_snapshot": "...",
   "source_offsets": {"start": 0, "end_exclusive": 0},
   "offset_unit": "UTF-16 code units in document.text",
-  "index_version": "0.6"
+  "index_version": "0.11"
 }
 ```
 
@@ -83,6 +84,11 @@ applies.
 
 `capability.status` is a source-level completeness gate. `supported` means the publisher's
 structural paragraph anchors and the text section candidates agree for the cached source.
+Since index 0.8 a section starts only where the publisher's HTML has a paragraph anchor: a text
+line shaped like an in-text reference ("3 a § om väsentlighet,") without an anchor, inside an
+anchored section, stays statute text of that section. `in_text_reference_count` counts those
+lines (they are not in `text_candidate_count`), and `method_note` explains them when there are any; every other unanchored line still
+holds the source at `review_required`.
 `unsupported` means the connector must return `unknown` for provision confirmation.
 `review_required` normally does the same, but this connector can return
 one exact locator with `basis: human_reviewed_snapshot` when a separate decision validates
@@ -95,6 +101,15 @@ reviewer label and time, rationale, connector-review and decision-schema version
 hash and decision-record hash. These fields record the local evidence path; the record hash
 is an integrity checksum, not an identity signature. Source-snapshot review and date-aware
 selection are not implemented.
+
+An `unknown` packet with a `boundary` object names a section whose boundaries the publisher's
+own layout leaves unconfirmed. `heading_unmatched`: the HTML places a heading before the next
+section that the text lacks (`boundary.unmatched_headings`). `unmarked_section_inside`: the
+publisher prints another section inside this one without its own mark
+(`boundary.hidden_sections`). `printed_inside_another_section`: the requested section is
+printed inside `boundary.within_locator`. No confirmed `text` is returned; the published text
+is in `review_action.source_observation` (`use: reading_only`) with a `note` explaining the
+problem, and `review_action.operation` is `none`.
 
 In this connector, a blocked `unknown` or `ambiguous` packet may carry
 `review_action.source_observation`. This is a reading-only view of the pinned official
@@ -163,6 +178,28 @@ wrong-identity local copies:
 In either form, `source_snapshot` names the copy actually used for the packet. Skipping a
 local file does not itself establish a change in the official source or a currency
 result. These optional fields are additive; the packet schema remains `0.2`.
+
+Since index 0.10 (decision D014) the connector also accepts a stycke or point after the
+section: `13 kap. 6 § andra stycket`, `… andra stycket 2`, `… 2 st.`, `… 2 st. 2 p.`, and a
+point without a stycke written `… 6 § 2 p.` or `… 6 § punkt 2`. These fields are additive; the
+packet schema remains `0.2`, and every existing field keeps its meaning:
+
+| Field | Meaning |
+|---|---|
+| `subdivision` | Present when a stycke or point was requested. `status` is `found`, `not_found`, `ambiguous`, `unknown` or `not_located` (the section itself was not found). On `found` it carries `canonical_locator` ("13 kap. 6 § andra stycket 2"), `kind` (`stycke` or `point`), `stycke`, `point`, the publisher's stycke `anchor_name` (`K13P6S2`; the paragraph anchor for the first stycke), `text`, `text_sha256`, `source_offsets` (raw document text) and `offsets_in_text` (into the packet's `text`). Otherwise `reason`, and `stycke_count` or `candidates` where they apply. |
+| `last_amended_by` | The latest amendment marker the publisher prints in the section (`Lag (2022:835).`): `sfs`, `marker`, `marker_count`, and `text_follows: true` when text follows the marker in the section. `null` means no marker is printed in the section; it is not proof the section was never amended, and it is not a commencement date. |
+| `cross_references` | References inside the section (`count`, `unresolved_count`, `references`). Each reference has its `text`, `kind` (`internal` or `external`, another Act), `line`, `source_offsets`, `offsets_in_text` and `targets`: the resolved locator and publisher `anchor_name`, or `status: unresolved` with a `reason` (`no_such_section`, `several_sections_or_versions`, `printed_inside_another_section`, `no_such_stycke`, `stycke_structure_unconfirmed`, `range_not_resolved`). `chapter_from_list: true` marks a reference whose chapter was taken from the list it stands in. |
+
+With `subdivision.status: found`, `text`, `section_sha256`, `canonical_locator` and
+`source_offsets` still describe the whole section, and `text.slice(offsets_in_text.start,
+offsets_in_text.end_exclusive)` equals `subdivision.text`. Quote `subdivision.text` under
+`subdivision.canonical_locator` for the requested part; the section text is context. A stycke or
+point is located only from the publisher's own marks (the `…S2`, `…S3` anchors and the point
+lines) matched against the plain text. When they do not line up, the packet is `unknown`, the
+whole confirmed section is under `review_action.source_observation` with a note saying what is
+unclear, and nothing is returned as the confirmed part. `not_found` means the publisher's marks
+show no such stycke or point; `ambiguous` means a point without a stycke exists in more than one
+stycke.
 
 When presenting `text` as verbatim, preserve its numbering, punctuation and blank lines.
 If the presentation is shortened or reflowed, label it as an excerpt or summary; the

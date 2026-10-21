@@ -218,4 +218,6 @@ The most useful demonstrations are:
 - ABL: an unmarked provision beside a refused future-only version and an ambiguous
   outgoing/incoming pair;
 - CISG: a long appendix that needs a different index;
-- ÅRL: a source that is deliberately held for review because plain text creates a boundary risk.
+- ÅRL: a provision that lists other sections ("3 a § om väsentlighet,") inside its own text; the
+  HTML section marks keep the list inside `7 kap. 7 §` (held for review up to index 0.7).
+- URL: a source held for review because its text has a section (`7 kap. 53 g §`) the HTML does not mark.

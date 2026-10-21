@@ -2,11 +2,15 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   buildIndex,
+  canonicalLocator,
   findTextSectionCandidates,
+  htmlHeadingRuns,
+  htmlHeadingTexts,
   parseHtmlParagraphAnchors,
   parseLocator,
   parseTemporalMarker,
   sha256,
+  trimTrailingHeadings,
 } from "./sfs_index.mjs";
 import { ensureDirectory, safeFileSegment } from "./runtime.mjs";
 
@@ -64,23 +68,9 @@ export function finalizeReviewDecision(decision) {
   return completed;
 }
 
-function canonicalLocator(parsed) {
-  return parsed.chapter
-    ? `${parsed.chapter} kap. ${parsed.section} §`
-    : `${parsed.section} §`;
-}
 
 function sameIdentity(item, parsed) {
   return item?.chapter === parsed.chapter && item?.section === parsed.section;
-}
-
-function lineBoundaryBeforeNextSection(lines, startLine, nextStartLine) {
-  const candidate = nextStartLine - 2;
-  if (candidate <= startLine) return nextStartLine;
-  const line = lines[candidate]?.trim() ?? "";
-  const previousLine = lines[candidate - 1]?.trim() ?? "";
-  const nextLine = lines[candidate + 1]?.trim() ?? "";
-  return line && previousLine === "" && nextLine === "" ? candidate : nextStartLine;
 }
 
 function sourceExcerpt(lines, firstLine, lastLineExclusive) {
@@ -191,12 +181,18 @@ function indexedReadingViews(index, textResult, parsed) {
   });
 }
 
-function provisionalTextReadingViews(index, textResult, candidateMatches, rawText, anchorMatches) {
+function provisionalTextReadingViews(index, textResult, candidateMatches, rawText, anchorMatches, html = "") {
+  // Without a confirmed anchor pairing the heading run cannot be located by position, so a
+  // trailing paragraph is cut only when it equals one of the publisher's HTML headings.
+  const publisherHeadings = htmlHeadingTexts(html).map((text) => ({ text }));
   return candidateMatches.flatMap(({ candidate, position }) => {
     const nextCandidate = textResult.candidates[position + 1];
     if (nextCandidate && nextCandidate.start_line <= candidate.start_line) return [];
-    const endOffset = nextCandidate
-      ? textResult.lineOffsets[nextCandidate.start_line]
+    const endLine = nextCandidate
+      ? trimTrailingHeadings(textResult.lines, candidate.start_line, nextCandidate.start_line, publisherHeadings).endLine
+      : textResult.lines.length;
+    const endOffset = endLine < textResult.lines.length
+      ? textResult.lineOffsets[endLine]
       : rawText.length;
     const sourceText = rawText.slice(candidate.start_offset, endOffset);
     const nextLocator = nextCandidate
@@ -212,7 +208,7 @@ function provisionalTextReadingViews(index, textResult, candidateMatches, rawTex
       evidence_status: unanchored ? "unanchored_text_candidate" : "provisional_text_candidate",
       anchor_name: null,
       start_line: candidate.start_line + 1,
-      end_line_exclusive: nextCandidate ? nextCandidate.start_line + 1 : textResult.lines.length + 1,
+      end_line_exclusive: endLine + 1,
       next_start_line: nextCandidate ? nextCandidate.start_line + 1 : null,
       next_locator: nextLocator,
       next_anchor_name: null,
@@ -425,7 +421,8 @@ export function prepareLocatorReview({ sourceId, requestedLocator, document, raw
   }
 
   const endLine = nextCandidate
-    ? lineBoundaryBeforeNextSection(textResult.lines, target.candidate.start_line, nextCandidate.candidate.start_line)
+    ? trimTrailingHeadings(textResult.lines, target.candidate.start_line, nextCandidate.candidate.start_line,
+      htmlHeadingRuns(document.html, anchors)[targetAnchor.position + 1]).endLine
     : textResult.lines.length;
   const startOffset = target.candidate.start_offset;
   const endOffset = endLine < textResult.lines.length
@@ -600,7 +597,8 @@ function explanationArtifact({
       source_context: explanationContext(textResult, candidateMatches),
       reading_views: anchoredReadingViews.length
         ? anchoredReadingViews
-        : provisionalTextReadingViews(index, textResult, candidateMatches, String(document.text ?? ""), anchorMatches),
+        : provisionalTextReadingViews(index, textResult, candidateMatches, String(document.text ?? ""), anchorMatches,
+          document.html),
     },
     artifact_sha256: null,
   };

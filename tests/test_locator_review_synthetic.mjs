@@ -50,8 +50,12 @@ check("Versioned case-report schema is privacy-safe and retrieval-blocked",
   && caseReportSchema.additionalProperties === false
   && !JSON.stringify(caseReportSchema).includes("provision_text"));
 
+// A text line that reads as a section start ("2 § Om …") with no publisher anchor of its own: the
+// URL 7 kap. 53 g § shape, which stays held. (Until index 0.8 this case used the ÅRL shape, a
+// lower-case "2 § om …" reference line; D012 now reads that as statute text, so the source would
+// be supported. The "arl" identifiers below are kept as fixture names only.)
 const annualAccountsStyle = {
-  titel: "Synthetic ÅRL boundary case",
+  titel: "Synthetic held boundary case",
   beteckning: "synthetic:arl",
   subtitel: "synthetic snapshot",
   text: [
@@ -61,7 +65,7 @@ const annualAccountsStyle = {
     "",
     "2 § Hänvisningar följer.",
     "",
-    "2 § om en annan bestämmelse.",
+    "2 § Om en annan bestämmelse.",
     "och dess krav.",
     "",
     "3 § Tredje regeln.",
@@ -104,7 +108,7 @@ const artifact = prepareLocatorReview({
   rawFile: "synthetic-arl.json",
   preparedAt: "2026-09-08T10:00:00.000Z",
 });
-check("ÅRL-style false heading produces a locator artifact while automatic capability remains review_required",
+check("An unanchored section-like line (URL 53 g § shape) produces a locator artifact while automatic capability remains review_required",
   artifact.automatic_capability.status === "review_required"
   && artifact.review_scope === "locator"
   && artifact.review_disposition.status === "decision_available"
@@ -118,10 +122,10 @@ check("ÅRL-style false heading produces a locator artifact while automatic capa
   && artifact.review_context.intervening_text_candidates[0].start_line === 7
   && artifact.review_context.next_publisher_candidate.start_line === 10
   && artifact.review_context.reading_views.length === 1
-  && artifact.review_context.reading_views[0].source_lines.some((item) => item.line === 7 && item.text.includes("om en annan bestämmelse"))
+  && artifact.review_context.reading_views[0].source_lines.some((item) => item.line === 7 && item.text.includes("Om en annan bestämmelse"))
   && artifact.review_context.reading_views[0].source_lines.some((item) => item.line === 10 && item.text.startsWith("3 §"))
   && artifact.boundary.next_publisher_anchor.name === "K1P3"
-  && artifact.provision_text.includes("om en annan bestämmelse"));
+  && artifact.provision_text.includes("Om en annan bestämmelse"));
 
 const template = createDecisionTemplate(artifact);
 const reviewHtml = renderReviewHtml(artifact, template);

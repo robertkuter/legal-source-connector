@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { buildIndex, loadCachedDocument, parseLocator, sha256 } from "../connector/sfs_index.mjs";
 import { requireCachedSources } from "./cache_requirements.mjs";
@@ -74,8 +74,11 @@ const sources = [
   {
     sourceId: "sfs-1995-1554",
     expectedTitle: "Årsredovisningslag (1995:1554)",
-    expectedCapability: "review_required",
-    exactLocators: [],
+    // Supported since index 0.8 (D012): the five "N § om …" reference lines inside 7 kap. 7 § are
+    // statute text, not section starts. 4 kap. 16 § carries publisher U:/I: versions.
+    exactLocators: ["2 kap. 3 §", "7 kap. 7 §", "7 kap. 8 §"],
+    ambiguousLocators: ["4 kap. 16 §"],
+    missingLocator: "99 kap. 1 §",
   },
 ];
 
@@ -196,6 +199,7 @@ const receipt = {
   failed,
   results,
 };
+await mkdir(runDir, { recursive: true });
 const receiptPath = join(runDir, `commercial-coverage-${runAt.replaceAll(/[:.]/g, "-")}.json`);
 await writeFile(receiptPath, JSON.stringify(receipt, null, 2) + "\n", "utf8");
 console.log(JSON.stringify({ receipt: receiptPath, ...receipt }, null, 2));

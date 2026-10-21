@@ -1,8 +1,8 @@
 ---
 name: sv-legal-source-grounding
-description: Verify Swedish statutory references against a pinned official Riksdagen source, retrieve an exact SFS provision, report currency and evidence, and explain uncertainty. Use for contract citation checks, compliance authority checks, legislation-reference staleness, or requests to confirm Swedish chapter/section text. Do not use as a substitute for legal interpretation or applicability analysis.
+description: Show and check exact Swedish statute text from official Riksdagen sources, with currency, version markers and evidence. Use when a user attaches or pastes a legal-source-connector packet (Riksdagen JSON); asks to see or verify a provision cited as N kap. N § or N §, with or without SFS YYYY:NNN (e.g. ABL 4 kap. 47 §, LAS 7 §, URL 7 kap. 53 g §, SFS 1972:207); or asks for its current wording, "as it applies today", or whether a pinned source is stale. Do not trigger for passing mentions of a law. Do not use for legal interpretation or applicability analysis.
 metadata:
-  skill_version: "0.1.8"
+  skill_version: "0.2.0"
   packet_contract: "0.2"
 ---
 
@@ -12,6 +12,17 @@ Use the source connector before making a claim about the text or currency of a S
 statute. Treat the connector as an evidence layer: it identifies the authority, holds the
 complete source separately, addresses the requested provision, and returns a small packet
 with provenance.
+
+## Hard rules
+
+Apply these rules with a connector packet, a direct fetch, or no available source.
+
+- Never select or say which outgoing (`U:`) or incoming (`I:`) version is "in force now" from today's date, marker dates or memory; show both available versions and leave the choice to the lawyer.
+- If a connector packet is attached or pasted, use it before any other route; if one was expected but is not visible, say so before falling back.
+- Never present a paraphrase as statute text.
+- Copy hashes exactly in full, or shorten them only by truncating the copied value; never retype them.
+- Put the five wiring lines (below) first in every source-grounded answer, before the source, text or anything else.
+- Read a `t.o.m. SFS …` marker as "consolidated up to and including SFS …". It says which amendments the consolidated text includes; never say the wording is "in force" up to or from that SFS.
 
 ## Operating modes and wiring disclosure
 
@@ -25,7 +36,7 @@ Keep these modes separate:
   claims from a document, compare them with source packets and propose human-reviewable
   findings or edits. It requires its own review module and tests.
 
-Before reporting a source-grounded result, disclose the wiring that produced it:
+Start every source-grounded answer with the wiring that produced it, as its first block:
 
 ```text
 mode: strict source | review-assist
@@ -105,7 +116,14 @@ source record.
      verification issue and provisional boundary. A uniquely matched provision carrying
      an unresolved `I:` or `U:` marker is also `unknown`; its text may be readable, but
      no dated version has been selected. Do not treat a reachable but structurally
-     untested or temporally unresolved passage as supported.
+     untested or temporally unresolved passage as supported. If `boundary.status` is
+     present, the publisher's own layout is the problem: `heading_unmatched` (a listed
+     heading is missing from the text), `unmarked_section_inside` (another section, such
+     as ABL `15 kap. 41 §`, is printed inside this one without its own mark) or
+     `printed_inside_another_section` (this section is printed inside another). Show the
+     published text from `review_action.source_observation` as unverified and pass on its
+     `note` in plain words, so the lawyer can read the text and knows why it is not
+     confirmed.
    - `found` with `basis: human_reviewed_snapshot`: state that one exact locator was
      released by a validated human decision. Keep the automatic `review_required`
      capability visible; do not describe the whole Act as structurally supported.
@@ -129,7 +147,8 @@ source record.
    understanding: import validates the locator, source bytes and decision record. The
    local page records the reviewer's Yes answers to the relevant start, inside-text and
    stop-boundary questions, with an optional note. A cross-reference list with
-   heading-like lines can explain the text candidate mismatch. Report what the recorded
+   heading-like lines, or a section the HTML does not mark, can explain the text
+   candidate mismatch. Report what the recorded
    answers cover and any material limitation visible in the packet; do not grade the
    reviewer's wording, call that cross-reference observation wrong, or substitute the
    model's opinion for the recorded human decision.
@@ -147,6 +166,7 @@ source record.
 
 Explain the result in this order:
 
+0. **Wiring** — the five wiring lines above, as the first block of the answer.
 1. **Source found** — title, SFS number, requested address and status.
 2. **Text shown** — for `found`, quote the confirmed targeted provision or a short
    relevant excerpt. For `unknown` or `ambiguous`, display available
@@ -161,20 +181,25 @@ Explain the result in this order:
    label the display line-ending-normalized; if trailing blank lines or other characters
    are omitted, call it a trimmed excerpt. A hash of the stored excerpt does not verify
    those presentation changes.
+   If the quoted text contains lines that start with a section number, such as
+   "3 a § om väsentlighet," inside ÅRL `7 kap. 7 §`, and `capability.method_note` is
+   present, tell the lawyer in one sentence that these lines are references inside the
+   requested provision, not separate provisions: the publisher marks no section there.
 3. **Timing** — distinguish snapshot freshness from provision timing. Explain
    `temporal.capability_status`, `temporal.resolution` and any raw `I:`/`U:` marker.
    Do not turn a publisher marker into an applicability conclusion.
-4. **Currency** — state the consolidation marker, retrieval mode, fresh-check time when
-   present, and whether the source was unchanged, changed, first seen or unverified.
+4. **Currency** — state the consolidation marker as "consolidated up to and including
+   SFS …" (not "in force"), the retrieval mode, the fresh-check time when present, and
+   whether the source was unchanged, changed, first seen or unverified.
 5. **Evidence** — link to the official source and name the source snapshot time, packet
    generation time, content hash and receipt when those fields are present.
 6. **Boundary** — say that applicability, legal effect and drafting advice require a
    separate legal analysis.
 
-Use plain language for lawyers. For example: “The connector found the provision in the
-official consolidated SFS text retrieved at [time]. It is current against the pinned
-receipt up to [marker]. This confirms the source text; it does not decide whether the
-provision applies to this contract.”
+Use plain language for lawyers. For example: “The connector found the provision in
+Riksdagen's consolidated text, retrieved at [time] and consolidated up to and including
+[SFS marker]. This confirms the source text; it does not decide whether the provision
+applies to this contract.”
 
 ## Final response integrity check
 

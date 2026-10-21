@@ -3,9 +3,12 @@
 ## Why this page exists
 
 The connector may find the words of a provision in Riksdagen's source but still be unsure
-where that provision begins and ends. In Årsredovisningslagen, for example, five references
-inside `7 kap. 7 §` look like separate sections to the section finder. The connector flags
-the mismatch rather than silently cutting the provision at the wrong place.
+where that provision begins and ends. In Upphovsrättslagen, for example, the text has a
+`7 kap. 53 g §` that Riksdagen's HTML does not mark as a section. The connector cannot tell
+which is right, so it holds the Act rather than silently cutting a provision at the wrong
+place. (Up to v0.1.8 Årsredovisningslagen was the example: five references inside
+`7 kap. 7 §` looked like separate sections. The connector now follows the HTML's section
+marks, so that list stays inside `7 kap. 7 §` and ÅRL needs no review.)
 
 For some mismatches, the connector can propose where the requested provision starts and
 ends. The local review page shows why the automatic check stopped, the proposed text, and
@@ -22,15 +25,19 @@ The commands below open the live local page for an actual source.
 
 ## Open the page
 
-From the connector folder, use Årsredovisningslagen (1995:1554), `7 kap. 7 §`, as a
-worked example:
+From the connector folder, use Upphovsrättslagen (1960:729), `1 kap. 2 §`, as a worked
+example. The Act is held because of `7 kap. 53 g §`, but this provision's own start and end
+can be checked:
 
 ```bash
 node connector/get_provision.mjs --fresh \
-  --source sfs-1995-1554 --locator "7 kap. 7 §"
+  --source sfs-1960-729 --locator "1 kap. 2 §"
 node connector/serve_locator_review.mjs \
-  --source sfs-1995-1554 --locator "7 kap. 7 §"
+  --source sfs-1960-729 --locator "1 kap. 2 §"
 ```
+
+Try `7 kap. 53 f §` as well: its proposed text runs through the unmarked `53 g §`, and the
+right answer there is **Cannot confirm**.
 
 Open the complete `url` printed with `status: serving`, including `127.0.0.1`, the
 `/review/` token and `?save=1` when supplied. The first command checks the official
@@ -63,12 +70,12 @@ the same connector workspace:
 
 ```bash
 node connector/prepare_locator_review.mjs \
-  --source sfs-1995-1554 --locator "7 kap. 7 §"
+  --source sfs-1960-729 --locator "1 kap. 2 §"
 node connector/import_review_decision.mjs \
-  --artifact reviews/prepared/sfs-1995-1554--7-kap-7/review-artifact.json \
+  --artifact reviews/prepared/sfs-1960-729--1-kap-2/review-artifact.json \
   --decision /path/to/completed-review-decision.json
 node connector/get_provision.mjs \
-  --source sfs-1995-1554 --locator "7 kap. 7 §"
+  --source sfs-1960-729 --locator "1 kap. 2 §"
 ```
 
 Use the paths printed by the preparation command if they differ from this example. If

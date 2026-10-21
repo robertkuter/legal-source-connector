@@ -22,7 +22,7 @@ const cacheDir = new URL("../cache/riksdagen/", import.meta.url).pathname;
 const getProvisionPath = new URL("../connector/get_provision.mjs", import.meta.url).pathname;
 const importReviewPath = new URL("../connector/import_review_decision.mjs", import.meta.url).pathname;
 if (!await requireCachedSources(cacheDir, [
-  "sfs-1995-1554",
+  "sfs-1960-729",
   "sfs-1972-207",
   "sfs-2008-579",
 ])) process.exit(2);
@@ -38,17 +38,25 @@ function check(name, passed, details = {}) {
   results.push({ ...details, name, status: passed ? "pass" : "fail" });
 }
 
+// Case 0 exercises the intervening-text review flow on a held cached source. Until index 0.8 it
+// used ÅRL 7 kap. 7 § (five "N § om …" reference lines); D012 now reads those as statute text and
+// ÅRL is supported. It now uses URL 7 kap. 53 f § in the current URL snapshot: 7 kap. 53 g § has
+// text but no publisher anchor, a genuine publisher disagreement. The confirmed decision below is
+// an acceptance fixture for the review mechanism in a temporary store, not a finding that 53 g §
+// belongs to 53 f §; the unreleased check shows 53 g § itself stays held.
 const cases = [
   {
-    sourceId: "sfs-1995-1554",
-    locator: "7 kap. 7 §",
-    unreleasedLocator: "7 kap. 8 §",
-    expectedAnchor: "K7P7",
-    expectedNextAnchor: "K7P8",
-    expectedInterveningSections: ["3 a", "4", "5", "6", "7"],
+    sourceId: "sfs-1960-729",
+    caseCacheDir: cacheDir,
+    locator: "7 kap. 53 f §",
+    unreleasedLocator: "7 kap. 53 g §",
+    expectedAnchor: "K7P53f",
+    expectedNextAnchor: "K7P53h",
+    expectedInterveningSections: ["53 g"],
   },
   {
     sourceId: "sfs-1960-729",
+    caseCacheDir: urlCacheDir,
     locator: "6 b kap. 52 i §",
     unreleasedLocator: "2 a kap. 26 n §",
     expectedAnchor: "K6bP52i",
@@ -58,7 +66,7 @@ const cases = [
 ];
 
 for (const [position, testCase] of cases.entries()) {
-  const caseCacheDir = testCase.sourceId === "sfs-1960-729" ? urlCacheDir : cacheDir;
+  const { caseCacheDir } = testCase;
   const cached = await loadCachedDocument(caseCacheDir, testCase.sourceId);
   if (position === 0) {
     const prepared = await prepareLocatorReviewBundle({
@@ -83,7 +91,7 @@ for (const [position, testCase] of cases.entries()) {
   });
   const orientation = buildReviewOrientation(artifact);
   const html = renderReviewHtml(artifact, createDecisionTemplate(artifact));
-  check(`${testCase.sourceId} uses the matching short orientation`,
+  check(`${testCase.sourceId} ${testCase.locator}: uses the matching short orientation`,
     orientation.kind === (position === 0 ? "intervening_text" : "reproducible_boundary")
     && orientation.evidenceTarget === (position === 0 ? "trigger-evidence" : null)
     && (position === 0
@@ -91,7 +99,7 @@ for (const [position, testCase] of cases.entries()) {
         && html.includes('href="#trigger-evidence"')
       : !html.includes('id="source-mismatch"')
         && html.includes(`Inspect ${testCase.locator} only`)));
-  check(`${testCase.sourceId} prepares exact cached locator evidence`,
+  check(`${testCase.sourceId} ${testCase.locator}: prepares exact cached locator evidence`,
     artifact.automatic_capability.status === "review_required"
     && artifact.automatic_capability.html_anchor_count > 0
     && artifact.automatic_capability.text_candidate_count > artifact.automatic_capability.html_anchor_count
@@ -142,7 +150,7 @@ for (const [position, testCase] of cases.entries()) {
       "--review-store", storeDir,
     ], { encoding: "utf8" }));
   }
-  check(`${testCase.sourceId} completed cached decision imports`, imported.status === "imported", {
+  check(`${testCase.sourceId} ${testCase.locator}: completed cached decision imports`, imported.status === "imported", {
     import_status: imported.status,
     decision_record_sha256: imported.decision_record_sha256,
   });
@@ -156,7 +164,7 @@ for (const [position, testCase] of cases.entries()) {
     "--run-dir", runDir,
     "--case-dir", caseDir,
   ], { encoding: "utf8" }));
-  check(`${testCase.sourceId} normal lookup returns only the reviewed locator`,
+  check(`${testCase.sourceId} ${testCase.locator}: normal lookup returns only the reviewed locator`,
     packet.status === "found"
     && packet.basis === "human_reviewed_snapshot"
     && packet.capability.status === "review_required"
@@ -198,7 +206,7 @@ for (const [position, testCase] of cases.entries()) {
     "--run-dir", runDir,
     "--case-dir", caseDir,
   ], { encoding: "utf8" }));
-  check(`${testCase.sourceId} review does not release another locator`,
+  check(`${testCase.sourceId} ${testCase.locator}: review does not release another locator`,
     unreleased.status === "unknown"
     && unreleased.capability.status === "review_required"
     && unreleased.review.valid_decision_found === false

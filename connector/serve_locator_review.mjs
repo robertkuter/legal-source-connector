@@ -151,7 +151,7 @@ export async function completeLocatorReview({ artifact, decision, cacheDir, stor
 export async function main(items = process.argv.slice(2)) {
   const args = parseArgs(items);
   if (!args.htmlPath && !(args.sourceId && args.locator)) {
-    console.error("Usage: node connector/serve_locator_review.mjs --source sfs-1995-1554 --locator '7 kap. 7 §' | --file reviews/prepared/<review>/review.html");
+    console.error("Usage: node connector/serve_locator_review.mjs --source sfs-1960-729 --locator '1 kap. 2 §' | --file reviews/prepared/<review>/review.html");
     process.exitCode = 2;
     return;
   }

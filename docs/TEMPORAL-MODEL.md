@@ -169,9 +169,10 @@ under `6 a kap.` where the HTML anchors say `6 b kap.`, plus a separate `53 g §
 discrepancy. General lettered chapters are now
 parsed, but the Act must pass a complete fresh audit before promotion.
 
-Årsredovisningslag (`SFS 1995:1554`) stays visible as the canonical
-`review_required` example. Its cross-reference list exposes a structural limitation that
-is different from temporal layering and should not be explained away as a timing case.
+Årsredovisningslag (`SFS 1995:1554`) was the canonical `review_required` example until
+index 0.8; its cross-reference list was a structural limitation, not a timing case, and
+D012 resolved it. Upphovsrättslagen's unmarked `7 kap. 53 g §` is now the structural
+example; it, too, should not be explained away as a timing case.
 
 ## Release position
 

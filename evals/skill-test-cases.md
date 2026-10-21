@@ -13,6 +13,11 @@ For each case, record:
 - whether it separated retrieved text from legal interpretation;
 - whether it exposed the source, retrieval time and receipt.
 
+For Cowork or claude.ai, first run C05 and C10 with their packets and prompts as written,
+without naming the skill. Record whether it activates automatically and how the answer
+handles the packet. Only then name the skill explicitly and repeat if needed; distinguish
+a trigger failure from a failure to follow the loaded skill.
+
 Do not judge a test as passed merely because the prose sounds legally plausible.
 
 ## Cases

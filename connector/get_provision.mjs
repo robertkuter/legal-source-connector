@@ -3,11 +3,14 @@
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  parseHtmlParagraphAnchors,
   parseLocator,
   provisionTemporalState,
   sha256,
   writeIndex,
 } from "./sfs_index.mjs";
+import { packetText } from "./text_lines.mjs";
+import { lastAmendedBy, locateSubdivision, offsetInPacketText, styckeStructure, subdivisionFields } from "./subdivisions.mjs";
 import { findValidLocatorReview, prepareLocatorReviewSurface } from "./locator_review.mjs";
 import { createReviewCaseReport, recordReviewCase } from "./review_case_report.mjs";
 import { fetchAndPinOfficialSource } from "./fresh_source.mjs";
@@ -91,6 +94,106 @@ function sourceObservation(surface) {
   return null;
 }
 
+// D013: a boundary-held packet still shows the published text, for reading, with the reason. It
+// sits under review_action.source_observation, where consumers already look for held text; no
+// review page applies, so the operation is "none".
+function publishedTextAction(text, span, label, reasonCode, note) {
+  const excerpt = packetText(text, span.start_offset, span.end_offset_exclusive);
+  return {
+    operation: "none",
+    scope: "locator",
+    disposition: "explanation_only",
+    decision_allowed: false,
+    reason_codes: [reasonCode],
+    source_observation: {
+      status: "unverified_text_candidate",
+      source_format: "official_plain_text_snapshot",
+      use: "reading_only",
+      candidates: [{
+        label,
+        evidence_status: "unverified_text_candidate",
+        excerpt,
+        excerpt_sha256: sha256(excerpt),
+        start_line: span.start_line,
+        source_offsets: { start: span.start_offset, end_exclusive: span.end_offset_exclusive },
+      }],
+      note,
+    },
+  };
+}
+
+const BOUNDARY_NOTES = {
+  heading_unmatched: (match) => `Riksdagen's HTML lists a heading before the next section (${match.boundary_check.unmatched_headings.map((text) => `"${text}"`).join(", ")}) that is not in the published text, so where ${match.locator} ends is not confirmed. The text below is the published span up to the next section, for reading; it may run into that heading.`,
+  unmarked_section_inside: (match) => `Riksdagen's published version prints ${match.boundary_check.hidden_sections.join(", ")} inside ${match.locator}, without a section mark of its own, so this span also contains that text (and possibly headings the publisher did not mark). Read it as published; the section boundaries are not confirmed.`,
+};
+
+// D014: what a lawyer needs to read when a stycke or point cannot be confirmed.
+const SUBDIVISION_NOTES = {
+  heading_or_empty_block_inside_section: "Riksdagen's HTML puts a heading or an empty block inside this section, so its stycke numbering cannot be matched to the text with confidence. The whole section below is confirmed; read the part you need from it.",
+  unmarked_heading_after_amendment_marker: "Riksdagen prints the next heading as plain text at the end of this section, after the amendment marker, so the last stycke cannot be confirmed. The section below is as indexed and may end with that heading.",
+  text_differs_from_html_stycke: "Riksdagen's HTML and plain text differ inside this section, so the stycke boundaries are not confirmed. The whole section below is the confirmed plain text.",
+  text_after_last_stycke: "The plain text continues after the last stycke the HTML marks, so the stycke boundaries are not confirmed. The whole section below is the confirmed plain text.",
+  stycke_anchor_numbers_out_of_order: "Riksdagen's stycke marks for this section are not numbered in order, so the stycke boundaries are not confirmed. The whole section below is the confirmed plain text.",
+  point_end_unconfirmed: "The point is followed by a line that is not another point (a sub-list or a closing sentence), so where the point ends is not confirmed. Its whole stycke is shown below.",
+  point_number_repeated: "The point number appears more than once in this stycke, so the point is not identified. Its whole stycke is shown below.",
+};
+
+// D014: narrow a confirmed section packet to the requested stycke or point, or refuse with the reason.
+function applySubdivision(packet, { parsed, document, span, anchorName }) {
+  const anchors = parseHtmlParagraphAnchors(document.html);
+  const position = anchors.findIndex((anchor) => anchor.name === anchorName);
+  const structure = position < 0
+    ? { status: "unconfirmed", reason: "publisher_anchor_not_found" }
+    : styckeStructure({ text: document.text, html: document.html, anchor: anchors[position], nextAnchor: anchors[position + 1], section: { ...span, section: parsed.section } });
+  const located = locateSubdivision({ structure, ...parsed });
+  const requested = { requested_locator: parsed.requested, status: located.status };
+  if (located.status === "found") {
+    return { ...packet, subdivision: { ...requested, ...subdivisionFields(document.text, span, located) } };
+  }
+  const { text, section_sha256: _hash, source_offsets: _offsets, cross_references: _references, note: _note, ...refused } = packet;
+  const subdivision = {
+    ...requested,
+    reason: located.reason,
+    ...(located.canonical ? { canonical_locator: located.canonical } : {}),
+    ...(located.stycke_count ? { stycke_count: located.stycke_count } : {}),
+    ...(located.candidates ? { candidates: located.candidates } : {}),
+  };
+  if (located.status === "not_found") {
+    return { ...refused, status: "not_found", subdivision,
+      warning: `${packet.canonical_locator} was found, but the publisher's markers show no ${located.canonical ?? `point ${parsed.point}`} (${located.stycke_count} ${located.stycke_count === 1 ? "stycke" : "stycken"} in the section).` };
+  }
+  if (located.status === "ambiguous") {
+    return { ...refused, status: "ambiguous", subdivision,
+      warning: `Point ${parsed.point} appears in more than one stycke of ${packet.canonical_locator}; name the stycke (${located.candidates.join(" or ")}).` };
+  }
+  const shown = located.stycke ?? span;
+  return {
+    ...refused,
+    status: "unknown",
+    subdivision,
+    review_action: publishedTextAction(document.text, shown, located.stycke ? `${packet.canonical_locator} ${located.stycke.number}. stycket` : packet.canonical_locator,
+      located.reason, SUBDIVISION_NOTES[located.reason] ?? "The requested part could not be confirmed from the publisher's markers. The confirmed text around it is shown below."),
+    warning: `${packet.canonical_locator} was found, but ${parsed.requested} could not be confirmed from the publisher's markers; nothing is returned as the confirmed part. The text is shown for reading under review_action.source_observation, with the reason.`,
+  };
+}
+
+// D014: the section's cross-references from the index, with offsets into the packet text.
+function sectionCrossReferences(index, text, match) {
+  const references = (index.cross_references?.references ?? []).filter((reference) => reference.source_offsets.start >= match.start_offset
+    && reference.source_offsets.start < match.end_offset_exclusive);
+  return {
+    count: references.length,
+    unresolved_count: references.filter((reference) => reference.targets.some((target) => target.status === "unresolved")).length,
+    references: references.map((reference) => ({
+      ...reference,
+      offsets_in_text: {
+        start: offsetInPacketText(text, match.start_offset, match.end_offset_exclusive, reference.source_offsets.start),
+        end_exclusive: offsetInPacketText(text, match.start_offset, match.end_offset_exclusive, reference.source_offsets.end_exclusive),
+      },
+    })),
+  };
+}
+
 async function reviewAction({ sourceId, locator, document, rawFile, caseDir, preparedAt }) {
   try {
     const surface = prepareLocatorReviewSurface({
@@ -157,8 +260,9 @@ if (!args.sourceId || !args.locator) {
 
 let packetGeneratedAt = new Date().toISOString();
 let packet;
+let parsed = null;
 try {
-  const parsed = parseLocator(args.locator);
+  parsed = parseLocator(args.locator);
   const sourceCheck = args.fresh
     ? await fetchAndPinOfficialSource({ sourceId: args.sourceId, cacheDir: args.cacheDir })
     : null;
@@ -229,6 +333,7 @@ try {
           start: artifact.boundary.source_offsets.start,
           end_exclusive: artifact.boundary.source_offsets.end_exclusive,
         },
+        last_amended_by: lastAmendedBy(artifact.provision_text),
         index_path: indexed.indexPath,
         review: {
           status: "valid",
@@ -244,6 +349,14 @@ try {
         },
         note: "Retrieved from an exact cached source snapshot under a locator-scoped human review; automatic structural capability remains review_required. This is not legal advice or an applicability determination.",
       };
+      if (parsed.stycke || parsed.point) {
+        packet = applySubdivision(packet, {
+          parsed,
+          document: indexed.document,
+          span: { start_offset: artifact.boundary.source_offsets.start, end_offset_exclusive: artifact.boundary.source_offsets.end_exclusive },
+          anchorName: artifact.publisher_anchor.name,
+        });
+      }
     } else {
       const action = await reviewAction({
         sourceId: args.sourceId,
@@ -281,7 +394,23 @@ try {
       (section) => section.chapter === parsed.chapter && section.section === parsed.section,
     );
     const temporal = provisionTemporalState(indexed.index.capability, matches);
-    if (matches.length === 0) {
+    const hidden = matches.length === 0
+      ? (indexed.index.hidden_sections ?? []).find((item) => item.chapter === parsed.chapter && item.section === parsed.section)
+      : null;
+    if (hidden) {
+      const note = `Riksdagen's published version prints ${hidden.locator} inside ${hidden.within_locator}, without a section mark of its own. The text below runs from its first line to the end of ${hidden.within_locator} as published and may end with a heading the publisher did not mark.`;
+      packet = {
+        status: "unknown",
+        ...sourceEvidence,
+        requested_locator: args.locator,
+        canonical_locator: hidden.locator,
+        index_path: indexed.indexPath,
+        temporal,
+        boundary: { status: "printed_inside_another_section", within_locator: hidden.within_locator },
+        review_action: publishedTextAction(indexed.document.text, hidden, hidden.locator, "printed_inside_another_section", note),
+        warning: `${hidden.locator} is in the published text but has no section mark of its own; it is printed inside ${hidden.within_locator}. Its text is shown for reading, not confirmed.`,
+      };
+    } else if (matches.length === 0) {
       packet = {
         status: "not_found",
         ...sourceEvidence,
@@ -324,7 +453,23 @@ try {
       };
     } else {
       const match = matches[0];
-      if (match.temporal_marker) {
+      if (match.boundary_check) {
+        packet = {
+          status: "unknown",
+          ...sourceEvidence,
+          requested_locator: args.locator,
+          canonical_locator: match.locator,
+          index_path: indexed.indexPath,
+          temporal,
+          anchor_name: match.anchor_name,
+          boundary: match.boundary_check,
+          review_action: publishedTextAction(indexed.document.text, match, match.locator, match.boundary_check.status,
+            BOUNDARY_NOTES[match.boundary_check.status](match)),
+          warning: `${match.boundary_check.status === "heading_unmatched"
+            ? "A heading the publisher lists before the next section is missing from the text"
+            : "The publisher prints another section inside this one without its own mark"}, so where this section ends is not confirmed and no text is returned as confirmed. The published text is shown for reading under review_action.source_observation, with the reason.`,
+        };
+      } else if (match.temporal_marker) {
         packet = {
           status: "unknown",
           ...sourceEvidence,
@@ -349,10 +494,7 @@ try {
         };
       } else {
         const text = indexed.document.text;
-        const sectionText = text
-          .slice(match.start_offset, match.end_offset_exclusive)
-          .replace(/\r\n|\r/g, "\n")
-          .trim();
+        const sectionText = packetText(text, match.start_offset, match.end_offset_exclusive);
         packet = {
           status: "found",
           ...sourceEvidence,
@@ -366,8 +508,13 @@ try {
             start: match.start_offset,
             end_exclusive: match.end_offset_exclusive,
           },
+          last_amended_by: match.last_amended_by ?? null,
+          cross_references: sectionCrossReferences(indexed.index, text, match),
           note: "Retrieved consolidated source text; not legal advice or an applicability determination.",
         };
+        if (parsed.stycke || parsed.point) {
+          packet = applySubdivision(packet, { parsed, document: indexed.document, span: match, anchorName: match.anchor_name });
+        }
       }
     }
   }
@@ -385,6 +532,11 @@ try {
       ? `Fresh official lookup could not be completed: ${error.message}. No cached provision is presented as current.`
       : error.message,
   };
+}
+
+// D014: a stycke or point request that stopped at the section keeps a record of what was asked.
+if ((parsed?.stycke || parsed?.point) && !packet.subdivision) {
+  packet.subdivision = { requested_locator: args.locator, status: "not_located", reason: `section_${packet.status}` };
 }
 
 await ensureDirectory(args.runDir);

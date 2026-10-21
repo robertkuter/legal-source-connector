@@ -116,8 +116,8 @@ or a new source shape justifies the regression work.
 | LAS, SFS 1982:80 | Chapterless | `supported` | 70 / 70 |
 | Avtalslagen, SFS 1915:218 | Chaptered, shorter historical Act | `supported` | 41 / 41 |
 | Diskrimineringslagen, SFS 2008:567 | Chaptered, compliance-relevant Act | `supported` | 88 / 88 |
-| Årsredovisningslagen, SFS 1995:1554 | Cross-reference list resembles section headings | `review_required` | 217 / 222 |
-| Upphovsrättslagen, SFS 1960:729 | Timing, locator-sequence and chapter-identity mismatches | `review_required` | 192 / 197 |
+| Årsredovisningslagen, SFS 1995:1554 | Cross-reference list inside `7 kap. 7 §` resembles section headings; since index 0.8 section starts follow the HTML marks (D012) | `supported`; temporal `layered_unresolved` | 217 / 217 (+5 in-text references) |
+| Upphovsrättslagen, SFS 1960:729 | August snapshot: timing, locator-sequence and chapter-identity mismatches; September snapshot: `7 kap. 53 g §` in the text with no HTML mark | `review_required` | 192 / 197 (Aug); 183 / 184 (Sep) |
 
 These results show that the same structural pattern works across the current Swedish
 pilot set. They do not certify every SFS source; a new formatting variant must still pass

@@ -733,7 +733,7 @@ export async function prepareLocatorReviewBundle(args) {
 export async function main(items = process.argv.slice(2)) {
   const args = parseArgs(items);
   if (!args.sourceId || !args.locator) {
-    console.error("Usage: node connector/prepare_locator_review.mjs --source sfs-1995-1554 --locator '7 kap. 7 §'");
+    console.error("Usage: node connector/prepare_locator_review.mjs --source sfs-1960-729 --locator '1 kap. 2 §'");
     process.exitCode = 2;
     return;
   }

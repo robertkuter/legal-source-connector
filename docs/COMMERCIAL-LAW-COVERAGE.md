@@ -24,8 +24,27 @@ refuse a false confirmation.
 In this document, **validated** means that the repository maintains a known snapshot
 profile, representative locator cases and regression tests. It does not mean that unlisted
 Acts are prohibited, nor that every future snapshot of a listed Act is automatically safe.
-ÅRL remains visible as the contrary example: the source is reachable, but its present
-structural mismatch keeps generic provision retrieval at `review_required`.
+Upphovsrättslagen is the contrary example: the source is reachable, but its text has a
+`7 kap. 53 g §` that the HTML does not mark, which keeps generic provision retrieval at
+`review_required`. ÅRL played this role until index 0.8 (decision D012, 2026-10-20).
+
+### Fresh IP probes before the next public update
+
+On 2026-09-29, isolated `--fresh` checks exercised other identified SFS Acts against
+Riksdagen's then-current consolidation. These are release smoke tests, not new maintained
+profiles or a promise that later snapshots will have the same structure:
+
+| Act | Fresh source result | Locator checks |
+|---|---|---|
+| Varumärkeslag (2010:1877) | `supported`, 162/162 | `1 kap. 1 §`, `4 kap. 2 §` and final `10 kap. 16 §` found; an absent locator returned `not_found` |
+| Lag (2018:558) om företagshemligheter | `supported`, 31/31 | Chapterless `1 §`, `16 §` and final `28 §` found; an absent locator returned `not_found` |
+| Patentlag (2024:945) | `supported`, 252/252 | `1 kap. 1 §` found; further locator regression cases were not added |
+| Upphovsrättslag (1960:729) | `review_required`, 183/184 | `1 kap. 1 §` remained `unknown` but offered a locator-scoped review; no decision was made or source-wide support granted |
+
+The August 2026 exploratory probe covered eight IP Acts and found seven structurally
+supported on those pinned snapshots. The fresh check above is the stronger evidence for
+the September transition and current release wording. It shows both that other Acts can
+be tried without entering a fixed allowlist and that a retrieved Act may still be held.
 
 ## Coverage status
 
@@ -45,9 +64,9 @@ structural mismatch keeps generic provision retrieval at `review_required`.
 | Marketing | Marknadsföringslag (2008:486) | `sfs-2008-486` | **validated for current locator model** | 79/79 structural checks; lettered sections, long provision and transition-bearing final section |
 | Competition | Konkurrenslag (2008:579) | `sfs-2008-579` | **validated with ambiguity boundary** | 151/151 structural checks; chaptered/lettered sections, long final provision and duplicate transition locator |
 | Bookkeeping | Bokföringslag (1999:1078) | `sfs-1999-1078` | **validated for current locator model** | 66/66 structural checks; chaptered lettered sections and long final chapter |
-| Annual accounts | Årsredovisningslag (1995:1554) | `sfs-1995-1554` | **review_required** | 217 HTML anchors versus 222 text candidates; cross-reference list is mistaken for five sections |
+| Annual accounts | Årsredovisningslag (1995:1554) | `sfs-1995-1554` | **validated with ambiguity boundary** (since index 0.8) | 217/217 structural checks; the five "N § om …" references inside `7 kap. 7 §` stay statute text (D012); outgoing/incoming versions reported, not selected |
 
-The thirteen validated Act profiles are the current maintained regression base for the
+The fourteen validated Act profiles are the current maintained regression base for the
 present locator model. Other Acts may be audited and used locally without first entering
 this list. The international-sales entry is a two-layer source: the Swedish
 Act's `1 §`/`2 §` layer and a separate annex/article layer. The article layer resolves
@@ -76,7 +95,9 @@ without producing a misleading index.
 
 The audit found one intentional boundary for follow-up in Årsredovisningslag: five
 section-shaped lines inside a cross-reference list are rejected as a source-capability
-mismatch. The review packet records the exact lines and offsets. The CISG annex boundary
+mismatch. The review packet records the exact lines and offsets. *Update 2026-10-20
+(index 0.8, decision D012):* section starts now follow the publisher's HTML marks, so those
+lines stay inside `7 kap. 7 §` and Årsredovisningslag passes the gate. The CISG annex boundary
 is now handled by a separate article index and its own test suite.
 
 The CISG article suite passed 18/18 checks:

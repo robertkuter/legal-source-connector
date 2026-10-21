@@ -15,6 +15,14 @@ function matchesFor(index, locator) {
 
 function locatorCheck(index, requestedLocator) {
   try {
+    const requested = parseLocator(requestedLocator);
+    if (requested.stycke || requested.point) {
+      return {
+        requested_locator: requestedLocator,
+        status: "unknown",
+        reason: "Stycke and point addresses are located per lookup by get_provision (D014); the manifest checks sections only.",
+      };
+    }
     const matches = matchesFor(index, requestedLocator);
     if (index.capability.status !== "supported") {
       return {
@@ -24,6 +32,17 @@ function locatorCheck(index, requestedLocator) {
       };
     }
     if (matches.length === 0) {
+      const parsed = parseLocator(requestedLocator);
+      const hidden = (index.hidden_sections ?? []).find((item) => item.chapter === parsed.chapter && item.section === parsed.section);
+      if (hidden) {
+        return {
+          requested_locator: requestedLocator,
+          status: "unknown",
+          canonical_locator: hidden.locator,
+          boundary: { status: "printed_inside_another_section", within_locator: hidden.within_locator },
+          reason: `The publisher prints this section inside ${hidden.within_locator} without its own section mark.`,
+        };
+      }
       return { requested_locator: requestedLocator, status: "not_found" };
     }
     const temporal = provisionTemporalState(index.capability, matches);
@@ -41,6 +60,15 @@ function locatorCheck(index, requestedLocator) {
       };
     }
     const match = matches[0];
+    if (match.boundary_check) {
+      return {
+        requested_locator: requestedLocator,
+        status: "unknown",
+        canonical_locator: match.locator,
+        boundary: match.boundary_check,
+        reason: "A publisher heading before the next section was not found in the text, so this section's end is not confirmed.",
+      };
+    }
     if (match.temporal_marker) {
       return {
         requested_locator: requestedLocator,

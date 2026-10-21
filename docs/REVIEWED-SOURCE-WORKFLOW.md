@@ -28,6 +28,13 @@ The first design cases are:
 
 Using both sources should prevent the implementation from treating the known ÅRL list
 pattern as the whole problem.
+
+*Update 2026-10-20 (index 0.8, decision D012):* the ÅRL case is resolved automatically. A
+section now starts only where the publisher's HTML has a paragraph anchor, and an
+unanchored line shaped like an in-text reference ("3 a § om väsentlighet,") inside an
+anchored section stays statute text. ÅRL is `supported` and needs no review. The ÅRL
+walkthrough below is kept as the design history; the commands use Upphovsrättslagen
+`1 kap. 2 §`, held because of the unanchored `7 kap. 53 g §`.
 The `2026-09-01` timing markers in the August snapshot are historical fixture evidence
 as of 2026-09-28; fresh-source behavior must be checked separately.
 
@@ -372,8 +379,8 @@ review, decision, store and case-report objects:
 
 ```bash
 node connector/serve_locator_review.mjs \
-  --source sfs-1995-1554 \
-  --locator "7 kap. 7 §"
+  --source sfs-1960-729 \
+  --locator "1 kap. 2 §"
 ```
 
 The command prints a tokenized `127.0.0.1` URL. Open it in a local browser, inspect the
@@ -394,19 +401,19 @@ existing file and JSON route from a terminal in this directory:
 
 ```bash
 node connector/prepare_locator_review.mjs \
-  --source sfs-1995-1554 \
-  --locator "7 kap. 7 §"
+  --source sfs-1960-729 \
+  --locator "1 kap. 2 §"
 
-# Open reviews/prepared/sfs-1995-1554--7-kap-7/review.html locally.
+# Open reviews/prepared/sfs-1960-729--1-kap-2/review.html locally.
 # Download the completed decision JSON from that page, then:
 
 node connector/import_review_decision.mjs \
-  --artifact reviews/prepared/sfs-1995-1554--7-kap-7/review-artifact.json \
+  --artifact reviews/prepared/sfs-1960-729--1-kap-2/review-artifact.json \
   --decision /path/to/completed-review-decision.json
 
 node connector/get_provision.mjs \
-  --source sfs-1995-1554 \
-  --locator "7 kap. 7 §"
+  --source sfs-1960-729 \
+  --locator "1 kap. 2 §"
 
 node connector/list_review_cases.mjs
 ```

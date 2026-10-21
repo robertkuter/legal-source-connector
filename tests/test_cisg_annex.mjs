@@ -123,6 +123,7 @@ const receipt = {
   failed: results.filter((result) => result.status === "fail").length,
   results,
 };
+await mkdir(runDir, { recursive: true });
 const receiptPath = join(runDir, `cisg-annex-tests-${generatedAt.replaceAll(/[:.]/g, "-")}.json`);
 await writeFile(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
 console.log(JSON.stringify({ receipt: receiptPath, ...receipt }, null, 2));

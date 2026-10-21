@@ -25,7 +25,13 @@ assert.equal(packetSet.mode, 'packet-only');
 assert.equal(packetSet.retrieval_mode, 'cached_snapshot');
 assert.equal(packetSet.live_currentness_checked, false);
 assert.equal(packetSet.authority.authority_id, 'sfs-2005-551');
-assert.equal(packetSet.authority.index_version, '0.6');
+// 0.7 (C9 / D011): sections stop before the publisher's headings; P09 and P12 lost a trailing heading.
+// 0.8 (D012) and 0.9 (D013): ABL primer text, hashes and offsets unchanged.
+assert.equal(packetSet.authority.index_version, '0.11');
+assert.ok(!packetSet.packets.find((packet) => packet.packet_id === 'P09').packet_text.includes('Revisors, lekmannarevisors'),
+  'P09 must not carry the heading of 29 kap. 2 §');
+assert.ok(!packetSet.packets.find((packet) => packet.packet_id === 'P12').packet_text.includes('Hur en nyemission beslutas'),
+  'P12 must not carry the heading that follows 13 kap. 2 §');
 assert.equal(packetSet.authority.capability_status, 'supported');
 assert.equal(packetSet.authority.temporal_capability.status, 'layered_unresolved');
 assert.equal(packetSet.authority.attribution.text, 'Källa: Sveriges riksdag');

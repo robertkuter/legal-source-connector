@@ -12,8 +12,10 @@ Riksdagen source and make clear what the assistant could verify.
 Several things can break that link. Riksdagen may publish outgoing and incoming wording
 together. Software may mistake references *inside* a provision for the start of new
 provisions. A copy saved on your computer may no longer match what Riksdagen publishes.
-Our Årsredovisningslagen test found the second problem: the section finder counted five
-references inside `7 kap. 7 §` as separate sections, so the connector flagged a mismatch.
+Our Årsredovisningslagen test found the second problem: the section finder read five
+references inside `7 kap. 7 §` ("3 a § om väsentlighet," and four more) as new sections.
+The connector now takes section starts from Riksdagen's own section marks, so those lines
+stay inside `7 kap. 7 §`, where they belong.
 
 **How this helps:** The connector retrieves an identified Act from Riksdagen, checks its
 structure, and returns the requested provision with source evidence when it can confirm it.
@@ -25,14 +27,15 @@ The connector handles legislation published through Riksdagen. Another authority
 its own connector and tests. The connector checks source text; it does not decide what
 the law means or whether it applies.
 
-**Try the new review flow:**
-[Download the v0.1.8 connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.8.zip).
-It includes fresh source checks (`--fresh`) and a local page for cases where the connector
-can propose a provision's boundaries but cannot confirm them automatically. A person
-checks the proposed text and can save a decision for that locator in that saved source. The
-[review guide](docs/LOCATOR-REVIEW-GUIDE.md) explains the steps; the
-[change summary](CHANGELOG.md) lists the update. The v0.1.8 release downloads below
-contain this version.
+**New in v0.2.0:**
+[Download the v0.2.0 connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.2.0.zip).
+Provisions now start and end where Riksdagen's own markup says they do, so a provision no
+longer carries the next section's heading, and Årsredovisningslagen is confirmed like the
+other Acts. You can ask for a single stycke or punkt ("13 kap. 6 § andra stycket 2"), and each
+provision lists its references to other sections and the amending Act Riksdagen last printed
+for it. Where the connector still cannot confirm a provision, a local page explains why; the
+[review guide](docs/LOCATOR-REVIEW-GUIDE.md) covers it. The [change summary](CHANGELOG.md)
+lists every change. The v0.2.0 release downloads below contain this version.
 
 ## A concrete example
 
@@ -82,13 +85,13 @@ connector from the assistant skill. Use the direct route that matches your task:
 
 | Your aim | Start here | What you receive |
 |---|---|---|
-| Run the current connector and local review | [Download the v0.1.8 connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.8.zip) | The connector, review commands, examples, tests and updated skill files. You run the connector with Node.js; the ready-to-install skill ZIPs are separate. |
-| Add an assistant skill | [Claude or another compatible assistant (v0.1.8)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.8/sv-legal-source-grounding-v0.1.8-portable.zip) · [Codex (v0.1.8)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.1.8/sv-legal-source-grounding-v0.1.8-codex.zip) | These skill ZIPs guide an assistant through supplied packets. They do not include the connector; install the connector separately to use the local review flow. |
+| Run the current connector and local review | [Download the v0.2.0 connector source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.2.0.zip) | The connector, review commands, examples, tests and updated skill files. You run the connector with Node.js; the ready-to-install skill ZIPs are separate. |
+| Add an assistant skill | [Claude or another compatible assistant (v0.2.0)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.2.0/sv-legal-source-grounding-v0.2.0-portable.zip) · [Codex (v0.2.0)](https://github.com/robertkuter/legal-source-connector/releases/download/v0.2.0/sv-legal-source-grounding-v0.2.0-codex.zip) | These skill ZIPs guide an assistant through supplied packets. They do not include the connector; install the connector separately to use the local review flow. |
 
-The v0.1.8 source download includes the updated skill files in
+The v0.2.0 source download includes the updated skill files in
 `skill/sv-legal-source-grounding/`. The ready-to-install skill ZIPs above contain those
 files without the connector. To reproduce the earlier version, download the
-[complete v0.1.7 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.7.zip).
+[complete v0.1.8 source](https://github.com/robertkuter/legal-source-connector/archive/refs/tags/v0.1.8.zip).
 To understand the results before downloading, read the
 [four provision results](#four-provision-results-a-lawyer-may-see) or the
 [technical documentation guide](docs/README.md).
@@ -123,6 +126,36 @@ decision, the connector validates it against the downloaded source and retries t
 locator. That result can become `found` with `basis: human_reviewed_snapshot`; the Act's
 automatic `review_required` status and other locators stay as they were. Unresolved
 timing and unsupported structures remain explanation-only.
+
+**Lines inside a provision that start with "N §".** Some provisions list other sections,
+for example Årsredovisningslagen `7 kap. 7 §`:
+
+```text
+7 § För koncernredovisningen tillämpas följande bestämmelser i
+2 kap.:
+
+3 a § om väsentlighet,
+
+4 § om andra grundläggande redovisningsprinciper,
+
+…
+```
+
+Those lines are part of `7 kap. 7 §`. They are not separate provisions, and the connector
+has not run two provisions together. A provision starts only where Riksdagen's HTML marks
+a section, so a line like "3 a § om väsentlighet," that has no mark of its own stays
+statute text. The packet says so: `capability.method_note` explains it and
+`in_text_reference_count` gives the number of such lines in the Act. A line with no mark
+that reads like a real provision is different. Upphovsrättslagen prints
+"53 g §Utöver det som anges …" with no section mark, so the connector cannot tell whether
+the HTML or the text is right and holds the Act (see below).
+
+**A section printed inside another.** Riksdagen's published Aktiebolagslagen prints
+`15 kap. 41 §` inside `15 kap. 40 §`, without a section mark of its own (and `30 §` inside
+`29 §`). The connector cannot confirm where these sections start and end, so it returns all
+four as `unknown`. You still get the published text, marked unverified, with a note that
+explains what is wrong with how it is printed. The same goes for a heading that Riksdagen
+lists but the text lacks.
 
 An `unknown` or `ambiguous` packet may also show official wording as an **unverified source
 observation**. A lawyer can read it, but the connector has not confirmed that provision.
@@ -242,10 +275,16 @@ The current examples each test a different source shape:
   connector refuses to choose a marked version automatically.
 - **CISG** appears as an annex with its own article numbering. The connector therefore uses
   a separate article index for that annex.
-- **Årsredovisningslagen (ÅRL)** contains a cross-reference list that looks like five extra
-  section headings in the text version. The HTML and text maps disagree, so the connector
-  reports `review_required`. A valid review can confirm one locator; the other locators
-  keep their own blocked result.
+- **Årsredovisningslagen (ÅRL)** has a list of references inside `7 kap. 7 §` whose lines
+  start like section headings ("3 a § om väsentlighet,"). Up to v0.1.8 the connector
+  read them as five extra sections and held the whole Act at `review_required`.
+  It now follows Riksdagen's section marks, keeps the list inside `7 kap. 7 §` and
+  confirms ÅRL like the other Acts. Its outgoing and incoming versions still return
+  `ambiguous`.
+- **Upphovsrättslagen (URL)** has text for `7 kap. 53 g §` but no section mark for it in
+  Riksdagen's HTML. That is a disagreement in the publisher's own data, so the connector
+  holds the Act at `review_required`. It still shows the wording as unverified, and a
+  valid review can confirm one locator; the other locators keep their own blocked result.
 
 The repository records tests and known limits for these examples. They are not an
 allowlist. Give the connector another exact SFS identity with `--fresh` and it will check
